@@ -27,7 +27,6 @@ import re
 import statistics
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from ..adapters.base import AgentAdapter

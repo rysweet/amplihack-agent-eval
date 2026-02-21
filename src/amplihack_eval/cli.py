@@ -202,9 +202,7 @@ def main() -> None:
     )
     run_parser.add_argument("--grader-model", default="", help="Model for grading")
     run_parser.add_argument("--model", default="", help="Agent model")
-    run_parser.add_argument(
-        "--output-dir", default="/tmp/amplihack-eval", help="Output directory"
-    )
+    run_parser.add_argument("--output-dir", default="/tmp/amplihack-eval", help="Output directory")
     run_parser.add_argument(
         "--adapter",
         choices=["http", "subprocess", "learning-agent"],
@@ -244,9 +242,7 @@ def main() -> None:
     )
     si_parser.add_argument("--grader-model", default="", help="Grader model")
     si_parser.add_argument("--model", default="", help="Agent model")
-    si_parser.add_argument(
-        "--output-dir", default="/tmp/amplihack-eval-improve", help="Output dir"
-    )
+    si_parser.add_argument("--output-dir", default="/tmp/amplihack-eval-improve", help="Output dir")
     si_parser.add_argument(
         "--adapter",
         choices=["http", "subprocess", "learning-agent"],

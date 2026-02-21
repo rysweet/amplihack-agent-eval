@@ -225,9 +225,7 @@ def propose_patch(
         project_root = Path(".")
 
     # Read the target file
-    target_file, relevant_code = _read_target_file(
-        bottleneck, project_root, component_file_map
-    )
+    target_file, relevant_code = _read_target_file(bottleneck, project_root, component_file_map)
 
     # Build the prompt
     prompt = _build_proposal_prompt(

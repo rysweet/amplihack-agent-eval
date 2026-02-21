@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from amplihack_eval.data.long_horizon import (
     GradingRubric,
     GroundTruth,
@@ -13,29 +11,14 @@ from amplihack_eval.data.long_horizon import (
     generate_questions,
 )
 from amplihack_eval.data.progressive_levels import (
-    ALL_LEVELS,
     ADVANCED_LEVELS,
-    LEVEL_1,
-    LEVEL_2,
-    LEVEL_3,
-    LEVEL_4,
-    LEVEL_5,
-    LEVEL_6,
-    LEVEL_7,
-    LEVEL_8,
-    LEVEL_9,
-    LEVEL_10,
-    LEVEL_11,
-    LEVEL_12,
+    ALL_LEVELS,
     NOVEL_SKILL_LEVELS,
     TEACHER_STUDENT_LEVELS,
     TRANSFER_LEVELS,
-    TestArticle,
     TestLevel,
-    TestQuestion,
     get_level_by_id,
 )
-
 
 # --- Turn / Question / GroundTruth dataclass tests ---
 
@@ -104,9 +87,7 @@ class TestDialogueGeneration:
         gt1 = generate_dialogue(num_turns=10, seed=42)
         gt2 = generate_dialogue(num_turns=10, seed=999)
         # At least some turns should differ
-        differences = sum(
-            1 for t1, t2 in zip(gt1.turns, gt2.turns) if t1.content != t2.content
-        )
+        differences = sum(1 for t1, t2 in zip(gt1.turns, gt2.turns) if t1.content != t2.content)
         assert differences > 0
 
     def test_turns_have_content(self):
@@ -176,7 +157,7 @@ class TestProgressiveLevels:
 
     def test_advanced_levels(self):
         assert len(ADVANCED_LEVELS) == 3
-        ids = [l.level_id for l in ADVANCED_LEVELS]
+        ids = [level.level_id for level in ADVANCED_LEVELS]
         assert "L8" in ids
         assert "L9" in ids
         assert "L10" in ids
