@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import json
-import subprocess
 import sys
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from amplihack_eval.adapters.base import AgentAdapter, AgentResponse, ToolCall
-
 
 # --- ToolCall tests ---
 

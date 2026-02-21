@@ -15,8 +15,8 @@ from .long_horizon import (
     generate_questions,
 )
 from .progressive_levels import (
-    ALL_LEVELS,
     ADVANCED_LEVELS,
+    ALL_LEVELS,
     NOVEL_SKILL_LEVELS,
     TEACHER_STUDENT_LEVELS,
     TRANSFER_LEVELS,

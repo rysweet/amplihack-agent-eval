@@ -24,7 +24,6 @@ import json
 import logging
 import subprocess
 import time
-from typing import Any
 
 from .base import AgentAdapter, AgentResponse, ToolCall
 
@@ -84,9 +83,7 @@ class SubprocessAdapter(AgentAdapter):
                 env=env,
             )
             if result.returncode != 0:
-                logger.warning(
-                    "Subprocess returned %d: %s", result.returncode, result.stderr[:500]
-                )
+                logger.warning("Subprocess returned %d: %s", result.returncode, result.stderr[:500])
             return result.stdout.strip()
         except subprocess.TimeoutExpired:
             logger.error("Subprocess timed out after %.1fs", self._timeout)
