@@ -1,0 +1,48 @@
+id: L02
+name: Multi-Source Synthesis
+description: Requires combining information from multiple articles to answer
+category: memory
+difficulty: 2
+min_turns: 50
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites:
+  - L01
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - specificity
+    - source_attribution
+  weights:
+    factual_accuracy: 0.5
+    specificity: 0.3
+    source_attribution: 0.2
+  grader_votes: 3
+
+questions:
+  - id: L02_Q01
+    text: "How does Italy's 2026 gold medal performance compare to their previous best?"
+    expected_answer: "Italy has 8 golds in 2026, surpassing their previous best of 5 golds from 2006 Turin"
+    category: cross_source_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L02_Q02
+    text: "Which country's individual athletes won the most medals mentioned in the athlete achievements article?"
+    expected_answer: "Italy with 2 athletes mentioned (Federica Brignone and Lisa Vittozzi)"
+    category: cross_source_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - source_attribution
+
+  - id: L02_Q03
+    text: "What makes the 2026 Olympics historically significant for Italy?"
+    expected_answer: "First Winter Olympics in Italy since 1956 (70-year gap) and Italy already exceeded their previous best gold medal count"
+    category: cross_source_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity

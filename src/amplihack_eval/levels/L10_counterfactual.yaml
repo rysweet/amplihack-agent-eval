@@ -1,0 +1,49 @@
+id: L10
+name: Counterfactual Reasoning
+description: Reasoning about hypothetical alternatives and their consequences
+category: reasoning
+difficulty: 5
+min_turns: 50
+grading_mode: llm
+data_source: progressive_levels
+prerequisites:
+  - L09
+
+scoring:
+  pass_threshold: 0.6
+  dimensions:
+    - factual_accuracy
+    - specificity
+    - confidence_calibration
+  weights:
+    factual_accuracy: 0.4
+    specificity: 0.3
+    confidence_calibration: 0.3
+  grader_votes: 3
+
+questions:
+  - id: L10_Q01
+    text: "If Klaebo had not competed at Milan 2026, would Norway still have led the gold medal count?"
+    expected_answer: "Without Klaebo's 3 individual golds (keeping relay), Norway drops from 13 to 9-10 golds. Italy had 9 golds. So it would have been very close - Norway might have tied or slightly led Italy. Klaebo was the decisive margin in Norway's gold medal dominance."
+    category: counterfactual_removal
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - confidence_calibration
+
+  - id: L10_Q02
+    text: "What if Italy had won the hosting bid for 2030 instead of 2026?"
+    expected_answer: "Without home advantage in 2026: Italy's 9 golds might have been lower (home advantage estimated at 3-5% performance boost). They might have won 6-7 golds instead. However, their infrastructure investments and coaching changes from 2023 would still have helped. The 2030 Games would then have given them the home advantage later."
+    category: counterfactual_timing
+    scoring_dimensions:
+      - factual_accuracy
+      - confidence_calibration
+
+  - id: L10_Q03
+    text: "In a world where cross-country skiing was removed from the Olympics, how would the medal standings change?"
+    expected_answer: "Norway would lose 8 of 13 golds (cross-country is their strongest sport), dropping to 5 golds. Italy (9 golds, mostly alpine) would lead. Germany and US (6 each) would tie for third. The overall standings would flip dramatically - Norway's dominance depends heavily on cross-country skiing."
+    category: counterfactual_structural
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - confidence_calibration

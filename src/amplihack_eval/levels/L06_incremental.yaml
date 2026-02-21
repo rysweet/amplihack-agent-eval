@@ -1,0 +1,45 @@
+id: L06
+name: Incremental Learning
+description: Update knowledge when new information supersedes old information
+category: memory
+difficulty: 3
+min_turns: 50
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites:
+  - L01
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - temporal_awareness
+  weights:
+    factual_accuracy: 0.6
+    temporal_awareness: 0.4
+  grader_votes: 3
+
+questions:
+  - id: L06_Q01
+    text: "How many Olympic gold medals does Johannes Klaebo have?"
+    expected_answer: "10 Olympic gold medals (as of February 17, 2026)"
+    category: incremental_update
+    scoring_dimensions:
+      - factual_accuracy
+      - temporal_awareness
+
+  - id: L06_Q02
+    text: "How did Klaebo's record change between February 15 and February 17?"
+    expected_answer: "Increased from 9 to 10 golds after winning the individual sprint on February 17"
+    category: incremental_tracking
+    scoring_dimensions:
+      - factual_accuracy
+      - temporal_awareness
+
+  - id: L06_Q03
+    text: "Describe Klaebo's complete Olympic achievement trajectory"
+    expected_answer: "Tied record at 8 golds with Bjorn Daehlie, broke record with 9th gold in relay (Feb 15), extended record to 10 golds in sprint (Feb 17). Has competed across 3 Olympics (2018, 2022, 2026)"
+    category: incremental_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - temporal_awareness

@@ -1,0 +1,48 @@
+id: L05
+name: Contradiction Handling
+description: Detecting and reasoning about conflicting information from different sources
+category: reasoning
+difficulty: 3
+min_turns: 50
+grading_mode: llm
+data_source: progressive_levels
+prerequisites:
+  - L02
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - source_attribution
+    - confidence_calibration
+  weights:
+    factual_accuracy: 0.4
+    source_attribution: 0.3
+    confidence_calibration: 0.3
+  grader_votes: 3
+
+questions:
+  - id: L05_Q01
+    text: "How many people watched the 2026 opening ceremony?"
+    expected_answer: "There are conflicting reports: IOC estimates 1.2 billion viewers, while independent analysts report 800 million viewers"
+    category: contradiction_detection
+    scoring_dimensions:
+      - factual_accuracy
+      - source_attribution
+
+  - id: L05_Q02
+    text: "Why might the two sources disagree about viewership numbers?"
+    expected_answer: "Different measurement methodologies (IOC preliminary data vs independent analysts), different counting methods (traditional TV only vs including streaming), or different time windows measured"
+    category: contradiction_reasoning
+    scoring_dimensions:
+      - factual_accuracy
+      - confidence_calibration
+
+  - id: L05_Q03
+    text: "Which viewership figure would you consider more reliable and why?"
+    expected_answer: "Independent analysts (800M) may be more reliable because they explicitly mention methodology and account for fragmentation across platforms, while IOC figure is 'preliminary' and may have organizational bias toward reporting higher numbers"
+    category: source_credibility
+    scoring_dimensions:
+      - factual_accuracy
+      - source_attribution
+      - confidence_calibration

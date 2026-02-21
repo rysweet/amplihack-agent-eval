@@ -1,0 +1,45 @@
+id: L08
+name: Metacognition
+description: Agent evaluates its own confidence and identifies knowledge gaps
+category: reasoning
+difficulty: 4
+min_turns: 50
+grading_mode: llm
+data_source: progressive_levels
+prerequisites:
+  - L01
+
+scoring:
+  pass_threshold: 0.6
+  dimensions:
+    - confidence_calibration
+    - factual_accuracy
+  weights:
+    confidence_calibration: 0.6
+    factual_accuracy: 0.4
+  grader_votes: 3
+
+questions:
+  - id: L08_Q01
+    text: "How confident should you be in answering 'How many medals does Canada have?'"
+    expected_answer: "Low confidence - the provided information only covers Norway, Italy, US, Germany, and Sweden. Canada is not mentioned in the data, so I cannot answer this accurately."
+    category: confidence_calibration
+    scoring_dimensions:
+      - confidence_calibration
+      - factual_accuracy
+
+  - id: L08_Q02
+    text: "What additional information would you need to determine if Norway will finish with the most golds?"
+    expected_answer: "I would need: remaining events and their schedules, which countries are competing in remaining events, and current form/rankings of athletes in those events. The data only shows standings as of Feb 15, not projections."
+    category: gap_identification
+    scoring_dimensions:
+      - confidence_calibration
+      - factual_accuracy
+
+  - id: L08_Q03
+    text: "Which of these questions can you answer with HIGH confidence and which with LOW: (a) How many golds does Norway have? (b) Why does Norway have the most medals? (c) Will Italy finish second?"
+    expected_answer: "(a) HIGH confidence - directly stated: 12 golds. (b) LOW confidence - the data shows they lead but doesn't explain why. (c) LOW confidence - the data is a snapshot from Feb 15, cannot predict final standings."
+    category: confidence_discrimination
+    scoring_dimensions:
+      - confidence_calibration
+      - factual_accuracy
