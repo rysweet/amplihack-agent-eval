@@ -17,16 +17,15 @@ Public API:
 
 from __future__ import annotations
 
-import json
 import logging
 import math
 import time
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 from ..adapters.base import AgentAdapter
-from .runner import EvalReport, EvalResult, EvalRunner
+from .runner import EvalReport, EvalRunner
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +89,7 @@ class MultiSeedReport:
                     "stddev": round(cs.stddev, 4),
                     "min_score": round(cs.min_score, 4),
                     "max_score": round(cs.max_score, 4),
-                    "scores_by_seed": {
-                        str(k): round(v, 4) for k, v in cs.scores_by_seed.items()
-                    },
+                    "scores_by_seed": {str(k): round(v, 4) for k, v in cs.scores_by_seed.items()},
                 }
                 for cs in self.category_stats
             ],
@@ -103,9 +100,7 @@ class MultiSeedReport:
                     "category": q.category,
                     "mean_score": round(q.mean_score, 4),
                     "stddev": round(q.stddev, 4),
-                    "scores_by_seed": {
-                        str(k): round(v, 4) for k, v in q.scores_by_seed.items()
-                    },
+                    "scores_by_seed": {str(k): round(v, 4) for k, v in q.scores_by_seed.items()},
                 }
                 for q in self.noisy_questions
             ],
@@ -165,9 +160,7 @@ def run_multi_seed_eval(
             )
             report = evaluator.run(agent, grader_model=grader_model)
             per_seed_reports[seed] = report
-            logger.info(
-                "Seed %d complete: overall=%.2f%%", seed, report.overall_score * 100
-            )
+            logger.info("Seed %d complete: overall=%.2f%%", seed, report.overall_score * 100)
         finally:
             agent.close()
 
@@ -290,9 +283,7 @@ def print_multi_seed_report(report: MultiSeedReport) -> None:
     if report.noisy_questions:
         print(f"\nNOISY QUESTIONS ({len(report.noisy_questions)} with >10pp inter-seed variance):")
         for qv in sorted(report.noisy_questions, key=lambda q: -q.stddev):
-            seeds_str = ", ".join(
-                f"s{s}={v:.0%}" for s, v in sorted(qv.scores_by_seed.items())
-            )
+            seeds_str = ", ".join(f"s{s}={v:.0%}" for s, v in sorted(qv.scores_by_seed.items()))
             print(f"  [{qv.stddev:.2%}] {qv.question_text[:55]}")
             print(f"    {seeds_str}")
     else:

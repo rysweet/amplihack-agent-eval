@@ -31,15 +31,15 @@ from __future__ import annotations
 
 import json
 import logging
-import subprocess
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from ..adapters.base import AgentAdapter
 from ..core.runner import EvalReport, EvalRunner
-from .patch_proposer import PatchHistory, PatchProposal, propose_patch
+from .patch_proposer import PatchHistory, propose_patch
 from .reviewer_voting import (
     challenge_proposal,
     review_result_to_dict,
@@ -130,9 +130,7 @@ def _analyze_categories(report: EvalReport, threshold: float) -> list[CategoryAn
                     }
                 )
 
-        bottleneck, suggested_fix = _diagnose_bottleneck(
-            cb.category, failed, cb.dimension_averages
-        )
+        bottleneck, suggested_fix = _diagnose_bottleneck(cb.category, failed, cb.dimension_averages)
 
         analyses.append(
             CategoryAnalysis(
@@ -343,9 +341,7 @@ def run_self_improve(
             print("\n[Phase 2/8] ANALYZE - Classifying failures...")
             analyses = _analyze_categories(report, config.failure_threshold)
 
-            failing_categories = [
-                a for a in analyses if a.avg_score < config.failure_threshold
-            ]
+            failing_categories = [a for a in analyses if a.avg_score < config.failure_threshold]
             print(f"  Categories below {config.failure_threshold:.0%}: {len(failing_categories)}")
 
             analyses_dicts = [
@@ -544,8 +540,7 @@ def run_self_improve(
         "config": result.config,
         "score_progression": result.score_progression,
         "category_progression": {
-            k: [round(v, 4) for v in vals]
-            for k, vals in result.category_progression.items()
+            k: [round(v, 4) for v in vals] for k, vals in result.category_progression.items()
         },
         "total_duration_seconds": round(total_duration, 2),
         "iterations_run": len(iterations),

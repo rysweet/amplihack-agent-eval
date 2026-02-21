@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from ..data.progressive_levels import (
-    ALL_LEVELS,
     ADVANCED_LEVELS,
+    ALL_LEVELS,
     NOVEL_SKILL_LEVELS,
     TEACHER_STUDENT_LEVELS,
     TRANSFER_LEVELS,

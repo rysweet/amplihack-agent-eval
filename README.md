@@ -1,5 +1,9 @@
 # amplihack-agent-eval
 
+![CI](https://github.com/rysweet/amplihack-agent-eval/actions/workflows/ci.yml/badge.svg)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+
 Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use, planning, and reasoning across progressive difficulty levels (L1-L12).
 
 ## What it does
@@ -106,6 +110,8 @@ Optional properties:
 | `SubprocessAdapter` | Any agent invokable via CLI subprocess |
 | `LearningAgentAdapter` | amplihack's LearningAgent (requires `amplihack` package) |
 
+See [docs/ADAPTERS.md](docs/ADAPTERS.md) for the complete adapter writing guide.
+
 ## Available Eval Levels
 
 ### Core Levels (L1-L6)
@@ -135,6 +141,86 @@ Optional properties:
 |-------|------|-------|
 | L11 | Novel Skill Acquisition | Learning genuinely new skills from documentation |
 | L12 | Far Transfer | Applying learned reasoning patterns to new domains |
+
+See [docs/LEVELS.md](docs/LEVELS.md) for detailed descriptions of each level.
+
+## API Reference
+
+### Core Classes
+
+#### `EvalRunner`
+
+Main evaluation runner for long-horizon memory stress tests.
+
+```python
+runner = EvalRunner(
+    num_turns=100,       # Number of dialogue turns to generate
+    num_questions=20,    # Number of questions to ask
+    grader_votes=3,      # Multi-vote grading (take median)
+    seed=42,             # Random seed for reproducibility
+)
+report = runner.run(agent)  # Returns EvalReport
+```
+
+#### `EvalReport`
+
+Aggregate evaluation results.
+
+```python
+report.overall_score        # float: 0.0 to 1.0
+report.results              # list[EvalResult]: per-question results
+report.category_breakdown   # list[CategoryBreakdown]: per-category averages
+report.metadata             # dict: run configuration
+```
+
+#### `EvalResult`
+
+Per-question evaluation result.
+
+```python
+result.question_id          # str: unique question identifier
+result.question_text        # str: the question asked
+result.expected_answer      # str: ground truth answer
+result.actual_answer        # str: agent's answer
+result.overall_score        # float: 0.0 to 1.0
+result.dimensions           # list[DimensionScore]: per-dimension scores
+result.category             # str: question category
+```
+
+#### `GradeResult`
+
+Result from the hybrid grader.
+
+```python
+grade = grade_answer(question, expected, actual, votes=3)
+grade.score                 # float: 0.0 to 1.0
+grade.reasoning             # str: explanation of the grade
+grade.vote_scores           # list[float] | None: individual vote scores
+```
+
+### Data Generation
+
+```python
+from amplihack_eval.data import generate_dialogue, generate_questions
+
+# Generate a reproducible dialogue
+ground_truth = generate_dialogue(num_turns=100, seed=42)
+
+# Generate questions from the dialogue
+questions = generate_questions(ground_truth, num_questions=20)
+```
+
+### Self-Improvement
+
+```python
+from amplihack_eval.self_improve.runner import SelfImproveConfig, SelfImproveRunner
+
+config = SelfImproveConfig(max_iterations=5, num_turns=100)
+runner = SelfImproveRunner(config)
+result = runner.run(agent_factory=lambda: MyAgent())
+```
+
+See [docs/SELF_IMPROVEMENT.md](docs/SELF_IMPROVEMENT.md) for the complete self-improvement guide.
 
 ## How to Write a Custom Adapter
 
@@ -196,6 +282,7 @@ class MyCustomAgent(AgentAdapter):
 src/amplihack_eval/
     __init__.py          # Public API exports
     cli.py               # CLI entry point (amplihack-eval)
+    py.typed             # PEP 561 type checking marker
     adapters/
         base.py          # AgentAdapter interface + ToolCall + AgentResponse
         http_adapter.py  # HTTP REST adapter
@@ -214,10 +301,54 @@ src/amplihack_eval/
         reviewer_voting.py   # 3-reviewer A/B voting
     levels/              # Convenience re-export of level definitions
     multi_agent_eval/    # Multi-agent scenarios (future)
+docs/
+    ARCHITECTURE.md      # Package architecture overview
+    ADAPTERS.md          # How to write custom AgentAdapters
+    LEVELS.md            # Complete guide to all eval levels
+    SELF_IMPROVEMENT.md  # How the self-improvement loop works
+    MULTI_AGENT_EVAL.md  # Multi-agent eval architecture
 tests/
     test_adapters.py     # Adapter interface tests
     test_data_generation.py  # Data generator tests
 ```
+
+## Contributing
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/rysweet/amplihack-agent-eval.git
+cd amplihack-agent-eval
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest tests/ -q
+
+# Run linting
+ruff check src/ tests/
+ruff format --check src/ tests/
+```
+
+### Guidelines
+
+- All code must pass `ruff check` and `ruff format` checks
+- New features require tests in `tests/`
+- Follow existing code patterns (dataclasses, type hints, docstrings)
+- The `AgentAdapter` interface is the public contract -- changes require careful consideration
+- Use `from __future__ import annotations` in all modules (Python 3.10 compatibility)
+
+### Pull Request Process
+
+1. Create a feature branch from `main`
+2. Make your changes with tests
+3. Ensure CI passes (lint + format + tests across Python 3.10-3.12)
+4. Open a PR with a clear description of changes
 
 ## License
 
