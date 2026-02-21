@@ -1,0 +1,53 @@
+id: L11
+name: Novel Skill Acquisition
+description: Agent must learn GitHub Agentic Workflows from documentation, apply it to solve problems, and teach it
+category: planning
+difficulty: 5
+min_turns: 100
+grading_mode: llm
+data_source: progressive_levels
+prerequisites:
+  - L04
+
+scoring:
+  pass_threshold: 0.6
+  dimensions:
+    - factual_accuracy
+    - specificity
+  weights:
+    factual_accuracy: 0.6
+    specificity: 0.4
+  grader_votes: 3
+
+questions:
+  - id: L11_Q01
+    text: "What is the fundamental difference between a GitHub Agentic Workflow and a traditional GitHub Actions workflow?"
+    expected_answer: "Agentic workflows use natural language markdown instructions interpreted by an AI engine, while traditional Actions use YAML-based conditional logic. Agentic workflows have built-in security controls (read-only defaults, safe outputs, sandboxing) and can reason about context."
+    category: concept_discovery
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L11_Q02
+    text: "Write a complete gh-aw workflow file that triggers when a new issue is opened, uses Claude as the AI engine, has bash access (only git and echo), and can create comments and add labels."
+    expected_answer: "---\non:\n  issues:\n    types: [opened]\nengine: claude\npermissions: read-all\ntools:\n  bash: ['git:*', 'echo']\n  github:\n    toolsets: [issues, labels]\nsafe-outputs:\n  add-comment:\n  add-labels:\n---\n# Issue Label Suggester\nAnalyze the issue and suggest appropriate labels."
+    category: procedural_application
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L11_Q03
+    text: "A developer wants their gh-aw workflow to directly write files during the agent execution step. Explain why this is not possible and what to use instead."
+    expected_answer: "The agent job runs with read-only permissions by default. Direct writes are prevented because the agent could be compromised via prompt injection. Instead, use safe outputs (like create-pull-request) which buffer output to an artifact, run a detection job to scan for malicious content, then execute the write in a separate permission-scoped job."
+    category: constraint_reasoning
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L11_Q04
+    text: "Teach a junior developer how to create their first gh-aw workflow in 5 steps. Include the most common beginner mistake."
+    expected_answer: "1. Create .github/workflows/my-workflow.md with YAML frontmatter and markdown body. 2. Run `gh aw compile` to generate .lock.yml. 3. Commit both .md and .lock.yml files. 4. Push to trigger, or `gh aw run my-workflow`. 5. Check the Actions tab for results. Common mistake: Editing frontmatter without recompiling."
+    category: teaching_transfer
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity

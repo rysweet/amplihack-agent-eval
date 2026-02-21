@@ -1,0 +1,49 @@
+id: L09
+name: Causal Reasoning
+description: Identifying causal chains and mechanisms from correlated observations
+category: reasoning
+difficulty: 4
+min_turns: 50
+grading_mode: llm
+data_source: progressive_levels
+prerequisites:
+  - L01
+  - L03
+
+scoring:
+  pass_threshold: 0.6
+  dimensions:
+    - factual_accuracy
+    - specificity
+    - confidence_calibration
+  weights:
+    factual_accuracy: 0.4
+    specificity: 0.3
+    confidence_calibration: 0.3
+  grader_votes: 3
+
+questions:
+  - id: L09_Q01
+    text: "What caused Italy to improve from 3 golds in 2018 to 8 golds in 2026?"
+    expected_answer: "A chain of causes: Poor 2018 result (3 golds) triggered program restructuring, which led to 40% increased infrastructure investment and hiring 12 international coaches in 2023. Home advantage (3-5% performance boost) and course-specific training also contributed."
+    category: causal_chain
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L09_Q02
+    text: "If Italy had not won the 2026 hosting bid, would they still have won 8 golds?"
+    expected_answer: "Likely not. Without the hosting bid: (1) no home advantage (3-5% boost gone), (2) possibly less infrastructure investment (the 40% increase was linked to hosting), (3) no course-specific training for Cortina. However, the 2018 program restructuring and new coaches might still have improved their count above 3 golds."
+    category: counterfactual_causal
+    scoring_dimensions:
+      - factual_accuracy
+      - confidence_calibration
+
+  - id: L09_Q03
+    text: "Which single factor was most important for Italy's improvement?"
+    expected_answer: "The program restructuring after 2018 was likely the root cause, as it triggered the infrastructure investment and coaching hires. Without the 2018 failure, the other changes wouldn't have happened. Home advantage amplified the effect but wasn't the root cause."
+    category: root_cause_analysis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - confidence_calibration

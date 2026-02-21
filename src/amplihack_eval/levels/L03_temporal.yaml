@@ -1,0 +1,49 @@
+id: L03
+name: Temporal Reasoning
+description: Requires tracking changes over time and computing differences
+category: reasoning
+difficulty: 3
+min_turns: 50
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites:
+  - L01
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - specificity
+    - temporal_awareness
+  weights:
+    factual_accuracy: 0.5
+    specificity: 0.2
+    temporal_awareness: 0.3
+  grader_votes: 3
+
+questions:
+  - id: L03_Q01
+    text: "How many medals did Norway win between Day 7 and Day 9?"
+    expected_answer: "8 medals (from 18 to 26)"
+    category: temporal_difference
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - temporal_awareness
+
+  - id: L03_Q02
+    text: "Which country improved their gold medal count the most from Day 7 to Day 10?"
+    expected_answer: "Norway improved most with +5 golds (8 to 13), followed by Italy +4 (5 to 9) and US +2 (4 to 6)"
+    category: temporal_comparison
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - temporal_awareness
+
+  - id: L03_Q03
+    text: "Describe the trend in Italy's gold medal performance over the three days"
+    expected_answer: "Italy gained +3 golds from Day 7 to Day 9 (strong growth), then +1 gold from Day 9 to Day 10 (slowing/deceleration). Total gain: 4 golds (from 5 to 9)."
+    category: temporal_trend
+    scoring_dimensions:
+      - factual_accuracy
+      - temporal_awareness

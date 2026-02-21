@@ -1,0 +1,52 @@
+id: L04
+name: Procedural Learning
+description: Learning and applying step-by-step procedures from documentation
+category: reasoning
+difficulty: 3
+min_turns: 50
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites:
+  - L01
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - specificity
+  weights:
+    factual_accuracy: 0.6
+    specificity: 0.4
+  grader_votes: 3
+
+questions:
+  - id: L04_Q01
+    text: "What command creates a new Flutter project?"
+    expected_answer: "flutter create my_app (or flutter create <project_name>)"
+    category: procedural_recall
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L04_Q02
+    text: "What should you do if flutter doctor shows version conflicts?"
+    expected_answer: "Run 'flutter upgrade' first"
+    category: procedural_troubleshooting
+    scoring_dimensions:
+      - factual_accuracy
+
+  - id: L04_Q03
+    text: "Describe the complete workflow from creating a project to running tests"
+    expected_answer: "1. flutter create my_app, 2. cd my_app, 3. edit lib/main.dart, 4. add dependencies to pubspec.yaml, 5. flutter pub get, 6. flutter test"
+    category: procedural_sequence
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L04_Q04
+    text: "If I want to create a project called 'weather_app' and add the http package, what exact commands would I run?"
+    expected_answer: "1. flutter create weather_app, 2. cd weather_app, 3. Add 'http: ^1.0.0' to pubspec.yaml dependencies, 4. flutter pub get"
+    category: procedural_application
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity

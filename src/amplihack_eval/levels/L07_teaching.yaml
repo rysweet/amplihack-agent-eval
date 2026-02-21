@@ -1,0 +1,54 @@
+id: L07
+name: Teacher-Student Knowledge Transfer
+description: Teacher agent learns content, teaches student agent, student answers questions
+category: memory
+difficulty: 4
+min_turns: 100
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites:
+  - L01
+  - L02
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - specificity
+  weights:
+    factual_accuracy: 0.6
+    specificity: 0.4
+  grader_votes: 3
+
+questions:
+  - id: L07_Q01
+    text: "How many total medals does Norway have in the 2026 Olympics?"
+    expected_answer: "26 total medals (12 gold)"
+    category: knowledge_transfer_recall
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L07_Q02
+    text: "Which Italian athletes won gold medals at the 2026 Olympics?"
+    expected_answer: "Federica Brignone (giant slalom) and Lisa Vittozzi (biathlon pursuit)"
+    category: knowledge_transfer_recall
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L07_Q03
+    text: "How does Italy's 2026 performance compare to their previous best?"
+    expected_answer: "Italy has 8 golds in 2026, surpassing their previous best of 5 golds from 2006 Turin"
+    category: knowledge_transfer_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L07_Q04
+    text: "What makes the 2026 Olympics historically significant for Italy?"
+    expected_answer: "First Winter Olympics in Italy since 1956 (70-year gap) and Italy exceeded their previous best gold medal count"
+    category: knowledge_transfer_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity

@@ -767,6 +767,284 @@ def print_report(report: EvalReport) -> None:
         print()
 
 
+# ---------------------------------------------------------------------------
+# YAML-driven level runner
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class LevelResult:
+    """Result of running a single YAML-defined level."""
+
+    level_id: str
+    level_name: str
+    passed: bool
+    overall_score: float
+    pass_threshold: float
+    results: list[EvalResult]
+    category_breakdown: list[CategoryBreakdown]
+
+
+@dataclass
+class SuiteResult:
+    """Result of running multiple YAML-defined levels."""
+
+    level_results: list[LevelResult]
+    overall_score: float
+    passed_count: int
+    total_count: int
+    skipped: list[str]  # level IDs skipped due to failed prerequisites
+
+
+def run_level(
+    level_id: str,
+    agent: AgentAdapter,
+    grader_model: str = "",
+) -> LevelResult:
+    """Run a single YAML-defined evaluation level.
+
+    Loads the level from YAML, feeds articles to the agent, asks questions,
+    and grades the answers using the level's scoring configuration.
+
+    Args:
+        level_id: Level identifier (e.g. "L01")
+        agent: Agent implementing AgentAdapter interface
+        grader_model: Model for LLM grading (empty = env default)
+
+    Returns:
+        LevelResult with per-question scores and pass/fail
+    """
+    from ..levels.loader import load_level
+
+    level = load_level(level_id)
+    logger.info("Running level %s: %s", level.id, level.name)
+
+    # Feed level data to agent via its learn() method.
+    # We use the matching Python-defined TestLevel articles if available.
+    from ..data.progressive_levels import get_level_by_id as get_python_level
+
+    py_level = get_python_level(level_id.replace("L0", "L").replace("L", "L", 1))
+    # Normalize: L01 -> L1, L12 -> L12
+    normalized_id = "L" + str(int(level_id.replace("L", "")))
+    py_level = get_python_level(normalized_id)
+
+    if py_level:
+        for article in py_level.articles:
+            agent.learn(article.content)
+    else:
+        logger.warning("No Python-defined level data for %s, skipping article feeding", level_id)
+
+    # Ask each question and grade
+    results: list[EvalResult] = []
+    for q in level.questions:
+        logger.info("  Question %s: %s", q.id, q.text[:60])
+
+        try:
+            response = agent.answer(q.text)
+            answer = response.answer
+        except Exception as e:
+            logger.warning("Agent failed to answer %s: %s", q.id, e)
+            answer = f"Error: {e}"
+
+        # Determine dimensions from question or level scoring config
+        dimensions = q.scoring_dimensions or level.scoring.dimensions
+
+        # Build a minimal Question-like object for the grading functions
+        grade_start = time.time()
+        dim_scores = _grade_level_question(
+            question_text=q.text,
+            expected_answer=q.expected_answer or "",
+            actual_answer=answer,
+            dimensions=dimensions,
+            grading_mode=level.grading_mode,
+            grader_model=grader_model,
+            num_votes=level.scoring.grader_votes,
+        )
+        grade_time = time.time() - grade_start
+
+        overall = sum(d.score for d in dim_scores) / len(dim_scores) if dim_scores else 0.0
+
+        results.append(
+            EvalResult(
+                question_id=q.id,
+                question_text=q.text,
+                category=q.category,
+                expected_answer=q.expected_answer or "",
+                actual_answer=answer if isinstance(answer, str) else str(answer),
+                dimensions=dim_scores,
+                overall_score=overall,
+                grading_time_s=grade_time,
+            )
+        )
+
+    # Build category breakdown
+    categories: dict[str, list[EvalResult]] = {}
+    for r in results:
+        categories.setdefault(r.category, []).append(r)
+
+    breakdown = []
+    for cat, cat_results in sorted(categories.items()):
+        scores = [r.overall_score for r in cat_results]
+        dim_avgs: dict[str, list[float]] = {}
+        for r in cat_results:
+            for d in r.dimensions:
+                dim_avgs.setdefault(d.dimension, []).append(d.score)
+
+        breakdown.append(
+            CategoryBreakdown(
+                category=cat,
+                num_questions=len(cat_results),
+                avg_score=sum(scores) / len(scores),
+                min_score=min(scores),
+                max_score=max(scores),
+                dimension_averages={k: sum(v) / len(v) for k, v in dim_avgs.items()},
+            )
+        )
+
+    overall_score = sum(r.overall_score for r in results) / len(results) if results else 0.0
+    passed = overall_score >= level.scoring.pass_threshold
+
+    logger.info(
+        "Level %s: score=%.2f%% threshold=%.2f%% %s",
+        level.id,
+        overall_score * 100,
+        level.scoring.pass_threshold * 100,
+        "PASSED" if passed else "FAILED",
+    )
+
+    return LevelResult(
+        level_id=level.id,
+        level_name=level.name,
+        passed=passed,
+        overall_score=overall_score,
+        pass_threshold=level.scoring.pass_threshold,
+        results=results,
+        category_breakdown=breakdown,
+    )
+
+
+def run_suite(
+    level_ids: list[str],
+    agent: AgentAdapter,
+    grader_model: str = "",
+    check_prerequisites: bool = True,
+) -> SuiteResult:
+    """Run multiple YAML-defined evaluation levels in sequence.
+
+    Args:
+        level_ids: Level identifiers to run (e.g. ["L01", "L02", "L03"])
+        agent: Agent implementing AgentAdapter interface
+        grader_model: Model for LLM grading
+        check_prerequisites: If True, skip levels whose prerequisites failed
+
+    Returns:
+        SuiteResult with per-level results and aggregate score
+    """
+    from ..levels.loader import load_level
+
+    level_results: list[LevelResult] = []
+    skipped: list[str] = []
+    passed_ids: set[str] = set()
+
+    for level_id in level_ids:
+        # Check prerequisites
+        if check_prerequisites:
+            try:
+                level_def = load_level(level_id)
+            except FileNotFoundError:
+                logger.warning("Level %s not found, skipping", level_id)
+                skipped.append(level_id)
+                continue
+
+            missing_prereqs = [p for p in level_def.prerequisites if p not in passed_ids]
+            if missing_prereqs:
+                logger.info(
+                    "Skipping %s: prerequisites not met: %s",
+                    level_id,
+                    missing_prereqs,
+                )
+                skipped.append(level_id)
+                continue
+
+        # Reset agent between levels
+        try:
+            agent.reset()
+        except Exception as e:
+            logger.warning("Agent reset failed before %s: %s", level_id, e)
+
+        result = run_level(level_id, agent, grader_model=grader_model)
+        level_results.append(result)
+
+        if result.passed:
+            passed_ids.add(level_id)
+
+    overall = (
+        sum(r.overall_score for r in level_results) / len(level_results)
+        if level_results
+        else 0.0
+    )
+
+    return SuiteResult(
+        level_results=level_results,
+        overall_score=overall,
+        passed_count=sum(1 for r in level_results if r.passed),
+        total_count=len(level_results),
+        skipped=skipped,
+    )
+
+
+def _grade_level_question(
+    question_text: str,
+    expected_answer: str,
+    actual_answer: str,
+    dimensions: list[str],
+    grading_mode: str,
+    grader_model: str,
+    num_votes: int,
+) -> list[DimensionScore]:
+    """Grade a single question from a YAML-defined level.
+
+    Builds a lightweight Question-compatible object and delegates to
+    the existing grading infrastructure.
+    """
+    from ..data.long_horizon import GradingRubric, Question
+
+    # Build a minimal Question for the existing grading functions
+    q = Question(
+        question_id="yaml_q",
+        text=question_text,
+        expected_answer=expected_answer,
+        category="yaml_level",
+        relevant_turns=[],
+        scoring_dimensions=dimensions,
+        rubric=GradingRubric(
+            required_keywords=expected_answer.split()[:5] if expected_answer else [],
+        ),
+    )
+
+    if grading_mode == "deterministic":
+        # Only use deterministic grading
+        det_scores = _deterministic_grade(q.rubric, actual_answer, dimensions)
+        result: list[DimensionScore] = []
+        for dim in dimensions:
+            if dim in det_scores:
+                result.append(det_scores[dim])
+            else:
+                result.append(
+                    DimensionScore(
+                        dimension=dim,
+                        score=0.0,
+                        reasoning="Not gradable deterministically",
+                    )
+                )
+        return result
+    elif grading_mode == "llm":
+        return _grade_multi_vote(q, actual_answer, dimensions, grader_model, num_votes)
+    else:
+        # hybrid (default)
+        return _grade_multi_vote(q, actual_answer, dimensions, grader_model, num_votes)
+
+
 # Backward compatibility alias
 LongHorizonMemoryEval = EvalRunner
 
@@ -778,7 +1056,11 @@ __all__ = [
     "EvalReport",
     "CategoryBreakdown",
     "DimensionScore",
+    "LevelResult",
+    "SuiteResult",
     "print_report",
+    "run_level",
+    "run_suite",
     "_deterministic_grade",
     "_grade_hybrid",
     "_grade_multi_vote",
