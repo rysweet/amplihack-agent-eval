@@ -10,12 +10,34 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 dependencies = []
+authors = [
+    {name = "amplihack contributors"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/rysweet/amplihack-agent-eval"
+Repository = "https://github.com/rysweet/amplihack-agent-eval"
+Issues = "https://github.com/rysweet/amplihack-agent-eval/issues"
+Documentation = "https://github.com/rysweet/amplihack-agent-eval/tree/main/docs"
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.30.0"]
 openai = ["openai>=1.0.0"]
 all = ["anthropic>=0.30.0", "openai>=1.0.0"]
-dev = ["pytest>=7.0", "ruff>=0.4.0"]
+dev = ["pytest>=7.0", "ruff>=0.4.0", "pre-commit>=3.0"]
 
 [project.scripts]
 amplihack-eval = "amplihack_eval.cli:main"
@@ -23,9 +45,30 @@ amplihack-eval = "amplihack_eval.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+amplihack_eval = ["py.typed"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py310"
 
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Data files contain long string literals that cannot be reasonably wrapped
+"src/amplihack_eval/data/long_horizon.py" = ["E501"]
+"src/amplihack_eval/data/progressive_levels.py" = ["E501"]
+# Grader and runner contain long prompt strings
+"src/amplihack_eval/core/grader.py" = ["E501"]
+"src/amplihack_eval/core/runner.py" = ["E501"]
+# Self-improve modules contain long prompt strings
+"src/amplihack_eval/self_improve/patch_proposer.py" = ["E501"]
+"src/amplihack_eval/self_improve/reviewer_voting.py" = ["E501"]
+"src/amplihack_eval/self_improve/runner.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
