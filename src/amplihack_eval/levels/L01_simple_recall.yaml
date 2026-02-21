@@ -1,0 +1,43 @@
+id: L01
+name: Simple Recall
+description: Test basic fact retrieval from a single source
+category: memory
+difficulty: 1
+min_turns: 50
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites: []
+
+scoring:
+  pass_threshold: 0.7
+  dimensions:
+    - factual_accuracy
+    - specificity
+  weights:
+    factual_accuracy: 0.7
+    specificity: 0.3
+  grader_votes: 3
+
+questions:
+  - id: L01_Q01
+    text: "How many total medals does Norway have as of February 15?"
+    expected_answer: "26 total medals (12 gold, 8 silver, 6 bronze)"
+    category: needle_in_haystack
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L01_Q02
+    text: "Which country is in second place?"
+    expected_answer: "Italy with 22 total medals"
+    category: needle_in_haystack
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L01_Q03
+    text: "When do the 2026 Winter Olympics end?"
+    expected_answer: "February 21, 2026"
+    category: needle_in_haystack
+    scoring_dimensions:
+      - factual_accuracy

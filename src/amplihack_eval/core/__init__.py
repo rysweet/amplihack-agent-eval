@@ -9,6 +9,10 @@ from .runner import (
     EvalReport,
     EvalResult,
     EvalRunner,
+    LevelResult,
+    SuiteResult,
+    run_level,
+    run_suite,
 )
 
 __all__ = [
@@ -17,6 +21,10 @@ __all__ = [
     "EvalReport",
     "CategoryBreakdown",
     "DimensionScore",
+    "LevelResult",
+    "SuiteResult",
     "GradeResult",
     "grade_answer",
+    "run_level",
+    "run_suite",
 ]

@@ -1,0 +1,50 @@
+id: L12
+name: Far Transfer
+description: Tests temporal reasoning and multi-source synthesis on a different domain (software releases instead of Olympics) to measure whether the agent applies learned reasoning patterns
+category: reasoning
+difficulty: 5
+min_turns: 50
+grading_mode: hybrid
+data_source: progressive_levels
+prerequisites:
+  - L03
+  - L02
+
+scoring:
+  pass_threshold: 0.6
+  dimensions:
+    - factual_accuracy
+    - specificity
+    - temporal_awareness
+  weights:
+    factual_accuracy: 0.4
+    specificity: 0.3
+    temporal_awareness: 0.3
+  grader_votes: 3
+
+questions:
+  - id: L12_Q01
+    text: "Which framework had the most new features in Q2 2026?"
+    expected_answer: "Svelte with 61 new features in Q2 2026"
+    category: far_transfer_recall
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+
+  - id: L12_Q02
+    text: "Which framework improved its feature count the most from Q1 to Q2?"
+    expected_answer: "Vue improved the most: +13 features (31 to 44), followed by Angular +11 (28 to 39), Svelte +9 (52 to 61), React +6 (47 to 53)"
+    category: far_transfer_temporal
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - temporal_awareness
+
+  - id: L12_Q03
+    text: "Which framework has the best bug-fix-to-feature ratio trend? Is it improving or worsening from Q1 to Q2?"
+    expected_answer: "Angular has the highest bug-fix ratio (35/28=1.25 in Q1, 28/39=0.72 in Q2) but it's improving (ratio decreasing = fewer bugs per feature). Svelte has the best ratio overall (12/52=0.23 Q1, 9/61=0.15 Q2) and improving."
+    category: far_transfer_synthesis
+    scoring_dimensions:
+      - factual_accuracy
+      - specificity
+      - temporal_awareness
