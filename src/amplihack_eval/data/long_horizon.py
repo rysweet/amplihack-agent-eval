@@ -2688,9 +2688,16 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         for k8s in INFRASTRUCTURE["kubernetes_clusters"]:
             if turn_idx >= b_end:
                 break
+            # Look up the subnet CIDR so the content explicitly links cluster to CIDR
+            subnet_cidr = ""
+            for sn in INFRASTRUCTURE["subnets"]:
+                if sn["name"] == k8s["subnet"]:
+                    subnet_cidr = sn["cidr"]
+                    break
+            subnet_info = f"{k8s['subnet']} ({subnet_cidr})" if subnet_cidr else k8s["subnet"]
             content = (
                 f"Infrastructure: Kubernetes cluster '{k8s['name']}' v{k8s['version']} "
-                f"with {k8s['nodes']} nodes in subnet {k8s['subnet']}. "
+                f"with {k8s['nodes']} nodes runs in subnet {subnet_info}. "
                 f"Namespaces: {k8s['namespace_count']}, Pods: {k8s['pod_count']}."
             )
             facts = [
@@ -2930,10 +2937,173 @@ def _question_references_delivered(
 ) -> bool:
     """Check if a question's answer facts were delivered in the dialogue.
 
-    Always returns True -- all facts should be delivered by the generator.
-    Kept as a hook for future validation if needed.
+    Validates that key entities from the expected answer actually appear in
+    the delivered content. This prevents asking about data that was never
+    delivered at low turn counts (e.g., sprint velocity is item 19 in the
+    numerical block but only 10 items may be delivered at 100 turns).
     """
+    # Categories that ask ABOUT knowledge (meta), use cross-block data,
+    # or reference temporal state should not be filtered by content matching.
+    # temporal_evolution questions ask about "current" or "original" values
+    # which won't appear verbatim in the content.
+    EXEMPT_CATEGORIES = {
+        "meta_memory",
+        "cross_reference",
+        "source_attribution",
+        "temporal_evolution",
+        "incident_tracking",
+    }
+    if question.category in EXEMPT_CATEGORIES:
+        return True
+
+    # Build the full content corpus from delivered turns
+    all_content_lower = " ".join(t.content.lower() for t in ground_truth.turns if t.content)
+
+    # For questions referencing specific numerical entities, check the entity
+    # name appears in delivered content (not just the number)
+    # E.g., "47 points (team average over last 6 sprints)" -> check "sprint velocity"
+    entity_phrases = _extract_entity_phrases(question.text)
+    if entity_phrases:
+        # Separate specific phrases (multi-word or long) from generic ones
+        specific = [p for p in entity_phrases if len(p.split()) >= 2 or len(p) > 8]
+        generic = [p for p in entity_phrases if p not in specific]
+
+        if specific:
+            # If we have specific phrases, require at least one to match
+            found_specific = any(p.lower() in all_content_lower for p in specific)
+            if not found_specific:
+                return False
+        elif generic:
+            # Only generic phrases -- check if any match
+            found_any = any(p.lower() in all_content_lower for p in generic)
+            if not found_any:
+                return False
+
     return True
+
+
+def _extract_entity_phrases(question_text: str) -> list[str]:
+    """Extract entity/concept phrases from a question for delivery checking.
+
+    Returns phrases that should appear in delivered content for the question
+    to be answerable. Returns empty list if no specific phrases can be extracted.
+    """
+    import re
+
+    q_lower = question_text.lower()
+    phrases = []
+
+    # Direct entity references: "What is the X?" or "What is X's Y?"
+    m = re.search(r"what is (?:the )?(.+?)(?:\?|$)", q_lower)
+    if m:
+        entity = m.group(1).strip().rstrip("?")
+        for cutoff in ("?", "answer", "do not"):
+            idx = entity.find(cutoff)
+            if idx > 0:
+                entity = entity[:idx].strip()
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # "How many X" pattern
+    m = re.search(r"how many (.+?)(?:\?|$)", q_lower)
+    if m:
+        entity = m.group(1).strip().rstrip("?")
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # "What are the X?" pattern
+    m = re.search(r"what are (?:the )?(.+?)(?:\?|$)", q_lower)
+    if m:
+        entity = m.group(1).strip().rstrip("?")
+        for cutoff in ("?", "answer", "do not", "broken down"):
+            idx = entity.find(cutoff)
+            if idx > 0:
+                entity = entity[:idx].strip()
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # "What was the X?" pattern
+    m = re.search(r"what was (?:the )?(.+?)(?:\?|$)", q_lower)
+    if m:
+        entity = m.group(1).strip().rstrip("?")
+        for cutoff in ("?", "answer", "do not"):
+            idx = entity.find(cutoff)
+            if idx > 0:
+                entity = entity[:idx].strip()
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # "What language introduced X" pattern -- extract the feature name
+    m = re.search(r"what language introduced (.+?)(?:\?|$)", q_lower)
+    if m:
+        entity = m.group(1).strip().rstrip("?")
+        if len(entity) > 3:
+            phrases.append(entity)
+        # Also extract just the first 2-3 words as a shorter phrase
+        words = entity.split()
+        if len(words) > 2:
+            phrases.append(" ".join(words[:2]))
+
+    # "How much did X improve" pattern
+    m = re.search(r"how (?:much|far) did (.+?) (?:improve|change|grow)", q_lower)
+    if m:
+        entity = m.group(1).strip()
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # "How much does X save/cost" pattern
+    m = re.search(r"how much does (?:the )?(.+?) (?:save|cost|spend)", q_lower)
+    if m:
+        entity = m.group(1).strip()
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # "What percentage" and "What fraction" patterns
+    m = re.search(r"what (?:percentage|fraction) .+ (?:was |is )(?:the )?(.+?)(?:\?|$)", q_lower)
+    if m:
+        entity = m.group(1).strip().rstrip("?")
+        if len(entity) > 3:
+            phrases.append(entity)
+
+    # For possessive patterns like "Priya Patel's allergy", also extract the name
+    m = re.search(r"([a-z]+ [a-z]+(?:-[a-z]+)?)'s", q_lower)
+    if m:
+        name = m.group(1).strip()
+        if len(name) > 3:
+            phrases.append(name)
+
+    # For long phrases, also add shorter sub-phrases (first 2-3 key words)
+    refined = []
+    for p in phrases:
+        refined.append(p)
+        words = p.split()
+        if len(words) > 3:
+            # Also add 2-word and 3-word prefixes
+            refined.append(" ".join(words[:2]))
+            refined.append(" ".join(words[:3]))
+    phrases = refined
+
+    return phrases
+
+
+def _build_incident_expected_answer(status: str, incident_id: str) -> str:
+    """Build expected answer for incident status based on actual delivered status.
+
+    When the dialogue doesn't deliver all status updates (e.g., at low turn counts),
+    the expected answer must match what was actually delivered, not the final state.
+    """
+    _status_descriptions = {
+        "active": f"{incident_id} is currently active (initial response phase).",
+        "contained": f"{incident_id} has been contained (threat isolated but investigation ongoing).",
+        "investigating": f"{incident_id} is under investigation (root cause analysis in progress).",
+        "remediated": f"{incident_id} has been remediated (all affected systems restored).",
+        "closed": (
+            "Closed. The ransomware attempt was contained, files restored from backup, "
+            "attacker C2 blocked, and post-incident review completed with MFA enforced "
+            "for all admin accounts."
+        ),
+    }
+    return _status_descriptions.get(status, f"{incident_id} status: {status}")
 
 
 def _make_rubric(
@@ -3217,7 +3387,14 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             rubric=_make_rubric(
                 "September 20",
                 keywords=["September", "20"],
-                incorrect=["June 15", "August 3"],
+                incorrect=[
+                    "current deadline is June 15",
+                    "current deadline is August 3",
+                    "current deadline of June 15",
+                    "current deadline of August 3",
+                    "CURRENT deadline is June 15",
+                    "CURRENT deadline is August 3",
+                ],
             ),
         ),
         Question(
@@ -3812,7 +3989,17 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             relevant_turns=[],
             scoring_dimensions=["factual_accuracy", "confidence_calibration"],
             rubric=_make_rubric(
-                "none", keywords=["none"], paraphrases=["no known", "no allergies"]
+                "none",
+                keywords=["no"],
+                paraphrases=[
+                    "none",
+                    "no known",
+                    "no allergies",
+                    "no known allergies",
+                    "does not have",
+                    "doesn't have any",
+                    "not allergic",
+                ],
             ),
         ),
         Question(
@@ -3831,7 +4018,24 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             category="distractor_resistance",
             relevant_turns=[],
             scoring_dimensions=["factual_accuracy"],
-            rubric=_make_rubric("no pets", keywords=["no"], paraphrases=["none", "doesn't have"]),
+            rubric=_make_rubric(
+                "no pets",
+                keywords=[],
+                paraphrases=[
+                    "none",
+                    "no pets",
+                    "no known pets",
+                    "doesn't have",
+                    "does not have",
+                    "doesn't have any",
+                    "does not have any",
+                    "doesn't have any pets",
+                    "does not have any pets",
+                    "doesn't own",
+                    "does not own",
+                    "have any pets",
+                ],
+            ),
         ),
         Question(
             question_id="distractor_04",
@@ -4045,14 +4249,24 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
     has_incidents = "__block:incidents__" in delivered
     if has_incidents:
         incident_count = max(1, int(6 * scale))
+        # Build incident_01 expected answer dynamically from ground truth
+        # so it matches the actual status delivered (not always "closed")
+        inc001_status = ground_truth.current_values.get("INC-2024-001.status", "active")
+        inc001_expected = _build_incident_expected_answer(inc001_status, "INC-2024-001")
+        inc001_rubric = _make_rubric(
+            inc001_expected,
+            keywords=[inc001_status],
+            paraphrases=[inc001_status.title()],
+        )
         incident_questions = [
             Question(
                 question_id="incident_01",
                 text="What is the current status of INC-2024-001?",
-                expected_answer="Closed. The ransomware attempt was contained, files restored from backup, attacker C2 blocked, and post-incident review completed with MFA enforced for all admin accounts.",
+                expected_answer=inc001_expected,
                 category="incident_tracking",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "temporal_awareness"],
+                rubric=inc001_rubric,
             ),
             Question(
                 question_id="incident_02",
@@ -4114,6 +4328,11 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 category="infrastructure_knowledge",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "specificity"],
+                rubric=_make_rubric(
+                    "k8s-prod in prod-app subnet 10.0.2.0/24",
+                    keywords=["k8s-prod", "prod-app", "10.0.2.0"],
+                    paraphrases=["application tier", "app subnet"],
+                ),
             ),
             Question(
                 question_id="infra_02",
