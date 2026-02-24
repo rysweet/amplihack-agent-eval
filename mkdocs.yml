@@ -1,0 +1,54 @@
+site_name: amplihack-agent-eval
+site_description: Evaluation framework for goal-seeking AI agents -- memory recall, tool use, planning, and reasoning across progressive difficulty levels
+site_url: https://rysweet.github.io/amplihack-agent-eval/
+repo_url: https://github.com/rysweet/amplihack-agent-eval
+repo_name: rysweet/amplihack-agent-eval
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Evaluation Levels: levels.md
+  - Writing Adapters: adapters.md
+  - Self-Improvement Loop: self-improvement.md
+  - Multi-Agent Eval: multi-agent-eval.md
