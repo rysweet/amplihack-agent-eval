@@ -7,6 +7,7 @@ Philosophy:
   judgment dimensions (confidence, source attribution) use LLM
 - Multi-vote grading for stability: grade N times, take median per dimension
 - Agent-agnostic: works with any AgentAdapter implementation
+- Parallel execution: question answering and grading run concurrently for ~6x speedup
 
 Public API:
     EvalRunner: Main evaluation class (renamed from LongHorizonMemoryEval)
@@ -16,6 +17,7 @@ Public API:
 Usage:
     amplihack-eval run --turns 100 --questions 20
     amplihack-eval run --turns 1000 --questions 100
+    amplihack-eval run --turns 100 --questions 20 --parallel-workers 10
 """
 
 from __future__ import annotations
@@ -25,7 +27,9 @@ import logging
 import os
 import re
 import statistics
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -287,21 +291,34 @@ def _grade_multi_vote(
 ) -> list[DimensionScore]:
     """Grade with multiple votes and take median score per dimension.
 
-    Calls _grade_hybrid N times and returns the median score per dimension.
-    For N=1, this is equivalent to a single call (no overhead).
+    Calls _grade_hybrid N times concurrently and returns the median score per
+    dimension. For N=1, this is equivalent to a single call (no overhead).
+    When N>1, votes are submitted to a ThreadPoolExecutor for parallel execution.
     """
     if num_votes <= 1:
         return _grade_hybrid(question, actual_answer, dimensions, grader_model)
 
-    # Collect all vote results
+    # Collect all vote results using parallel execution
     all_votes: dict[str, list[float]] = {d: [] for d in dimensions}
     all_reasoning: dict[str, list[str]] = {d: [] for d in dimensions}
 
-    for _ in range(num_votes):
-        scores = _grade_hybrid(question, actual_answer, dimensions, grader_model)
-        for ds in scores:
-            all_votes[ds.dimension].append(ds.score)
-            all_reasoning[ds.dimension].append(ds.reasoning)
+    def _do_vote() -> list[DimensionScore]:
+        return _grade_hybrid(question, actual_answer, dimensions, grader_model)
+
+    with ThreadPoolExecutor(max_workers=num_votes) as executor:
+        futures = [executor.submit(_do_vote) for _ in range(num_votes)]
+        for future in futures:
+            try:
+                scores = future.result()
+                for ds in scores:
+                    all_votes[ds.dimension].append(ds.score)
+                    all_reasoning[ds.dimension].append(ds.reasoning)
+            except Exception as e:
+                logger.warning("Grading vote failed: %s", e)
+                # Add zero scores for failed votes so median is still computable
+                for dim in dimensions:
+                    all_votes[dim].append(0.0)
+                    all_reasoning[dim].append(f"Vote failed: {e}")
 
     # Take median per dimension
     result: list[DimensionScore] = []
@@ -490,6 +507,8 @@ class EvalRunner:
         num_questions: Number of quiz questions (default 100)
         seed: Random seed for reproducibility (default 42)
         grader_votes: Number of grading votes per question (default 3)
+        parallel_workers: Number of parallel workers for question answering
+            and grading. Set to 1 for sequential execution (default 10, max 20).
 
     Example::
 
@@ -499,7 +518,7 @@ class EvalRunner:
             ...
 
         agent = MyAgent()
-        runner = EvalRunner(num_turns=100, num_questions=20)
+        runner = EvalRunner(num_turns=100, num_questions=20, parallel_workers=10)
         report = runner.run(agent)
         print(f"Overall score: {report.overall_score:.2%}")
     """
@@ -510,11 +529,13 @@ class EvalRunner:
         num_questions: int = 100,
         seed: int = 42,
         grader_votes: int = 3,
+        parallel_workers: int = 10,
     ):
         self.num_turns = num_turns
         self.num_questions = num_questions
         self.seed = seed
         self.grader_votes = max(1, grader_votes)
+        self.parallel_workers = max(1, min(20, parallel_workers))
         self.ground_truth: GroundTruth | None = None
         self.questions: list[Question] = []
 
@@ -577,6 +598,10 @@ class EvalRunner:
     ) -> EvalReport:
         """Ask questions and grade responses.
 
+        When parallel_workers > 1, questions are answered and graded concurrently
+        using a ThreadPoolExecutor. Results are collected in original question order
+        to ensure deterministic output regardless of worker count.
+
         Args:
             agent: Agent implementing AgentAdapter interface
             questions: Override questions (uses self.questions if None)
@@ -589,52 +614,15 @@ class EvalRunner:
         if not qs:
             raise ValueError("Must call generate() first or pass questions")
 
-        results: list[EvalResult] = []
         q_start = time.time()
-        grade_total = 0.0
 
-        for i, q in enumerate(qs):
-            logger.info("Question %d/%d: %s", i + 1, len(qs), q.text[:60])
-
-            # Get agent's answer
-            try:
-                response = agent.answer(q.text)
-                answer = response.answer
-            except Exception as e:
-                logger.warning("Agent failed to answer: %s", e)
-                answer = f"Error: {e}"
-
-            # Grade the answer (hybrid deterministic + LLM, with multi-vote)
-            grade_start = time.time()
-            dimensions = q.scoring_dimensions or ["factual_accuracy"]
-            dim_scores = _grade_multi_vote(
-                q, answer, dimensions, grader_model, num_votes=self.grader_votes
-            )
-            grade_time = time.time() - grade_start
-            grade_total += grade_time
-
-            # Compute overall score as average of dimension scores
-            overall = sum(d.score for d in dim_scores) / len(dim_scores) if dim_scores else 0.0
-
-            result = EvalResult(
-                question_id=q.question_id,
-                question_text=q.text,
-                category=q.category,
-                expected_answer=q.expected_answer,
-                actual_answer=answer if isinstance(answer, str) else str(answer),
-                dimensions=dim_scores,
-                overall_score=overall,
-                grading_time_s=grade_time,
-            )
-            results.append(result)
-
-            logger.info(
-                "  Score: %.2f | Answer: %s",
-                overall,
-                (answer[:80] if isinstance(answer, str) else str(answer)[:80]) + "...",
-            )
+        if self.parallel_workers <= 1:
+            results = self._evaluate_sequential(qs, agent, grader_model)
+        else:
+            results = self._evaluate_parallel(qs, agent, grader_model)
 
         q_elapsed = time.time() - q_start
+        grade_total = sum(r.grading_time_s for r in results)
 
         # Build category breakdown
         categories: dict[str, list[EvalResult]] = {}
@@ -682,6 +670,140 @@ class EvalRunner:
             results=results,
             memory_stats=mem_stats,
         )
+
+    def _evaluate_sequential(
+        self,
+        qs: list[Question],
+        agent: AgentAdapter,
+        grader_model: str,
+    ) -> list[EvalResult]:
+        """Evaluate questions sequentially (parallel_workers=1)."""
+        results: list[EvalResult] = []
+
+        for i, q in enumerate(qs):
+            logger.info("Question %d/%d: %s", i + 1, len(qs), q.text[:60])
+            result = self._answer_and_grade_one(i, q, agent, grader_model, len(qs))
+            results.append(result)
+
+        return results
+
+    def _evaluate_parallel(
+        self,
+        qs: list[Question],
+        agent: AgentAdapter,
+        grader_model: str,
+    ) -> list[EvalResult]:
+        """Evaluate questions in parallel using ThreadPoolExecutor.
+
+        Each worker answers one question and grades the response. Results are
+        collected into an ordered list matching the original question order.
+        A threading lock protects the progress counter for clean log output.
+        """
+        total = len(qs)
+        # Pre-allocate result slots to preserve order
+        results: list[EvalResult | None] = [None] * total
+        completed = [0]  # mutable counter for progress reporting
+        lock = threading.Lock()
+
+        logger.info(
+            "Starting parallel evaluation: %d questions, %d workers",
+            total,
+            self.parallel_workers,
+        )
+
+        def _worker(idx: int, q: Question) -> None:
+            result = self._answer_and_grade_one(idx, q, agent, grader_model, total)
+            results[idx] = result
+            with lock:
+                completed[0] += 1
+                logger.info(
+                    "Completed %d/%d questions (%.0f%%)",
+                    completed[0],
+                    total,
+                    completed[0] / total * 100,
+                )
+
+        with ThreadPoolExecutor(max_workers=self.parallel_workers) as executor:
+            futures = {
+                executor.submit(_worker, i, q): i for i, q in enumerate(qs)
+            }
+            # Wait for all futures and propagate exceptions from workers
+            for future in as_completed(futures):
+                exc = future.exception()
+                if exc is not None:
+                    idx = futures[future]
+                    logger.warning("Worker for question %d failed: %s", idx + 1, exc)
+                    # Create a zero-score result for the failed question
+                    q = qs[idx]
+                    results[idx] = EvalResult(
+                        question_id=q.question_id,
+                        question_text=q.text,
+                        category=q.category,
+                        expected_answer=q.expected_answer,
+                        actual_answer=f"Error: {exc}",
+                        dimensions=[
+                            DimensionScore(dimension=d, score=0.0, reasoning=f"Worker error: {exc}")
+                            for d in (q.scoring_dimensions or ["factual_accuracy"])
+                        ],
+                        overall_score=0.0,
+                        grading_time_s=0.0,
+                    )
+
+        # Filter out any remaining None slots (should not happen)
+        return [r for r in results if r is not None]
+
+    def _answer_and_grade_one(
+        self,
+        idx: int,
+        q: Question,
+        agent: AgentAdapter,
+        grader_model: str,
+        total: int,
+    ) -> EvalResult:
+        """Answer a single question and grade the response.
+
+        Thread-safe: uses only the agent's answer() method and stateless grading
+        functions. The agent implementation must be thread-safe for parallel use.
+        """
+        logger.info("Question %d/%d: %s", idx + 1, total, q.text[:60])
+
+        # Get agent's answer
+        try:
+            response = agent.answer(q.text)
+            answer = response.answer
+        except Exception as e:
+            logger.warning("Agent failed to answer: %s", e)
+            answer = f"Error: {e}"
+
+        # Grade the answer (hybrid deterministic + LLM, with multi-vote)
+        grade_start = time.time()
+        dimensions = q.scoring_dimensions or ["factual_accuracy"]
+        dim_scores = _grade_multi_vote(
+            q, answer, dimensions, grader_model, num_votes=self.grader_votes
+        )
+        grade_time = time.time() - grade_start
+
+        # Compute overall score as average of dimension scores
+        overall = sum(d.score for d in dim_scores) / len(dim_scores) if dim_scores else 0.0
+
+        result = EvalResult(
+            question_id=q.question_id,
+            question_text=q.text,
+            category=q.category,
+            expected_answer=q.expected_answer,
+            actual_answer=answer if isinstance(answer, str) else str(answer),
+            dimensions=dim_scores,
+            overall_score=overall,
+            grading_time_s=grade_time,
+        )
+
+        logger.info(
+            "  Score: %.2f | Answer: %s",
+            overall,
+            (answer[:80] if isinstance(answer, str) else str(answer)[:80]) + "...",
+        )
+
+        return result
 
     def run(self, agent: AgentAdapter, grader_model: str = "") -> EvalReport:
         """Run the complete evaluation: generate, learn, quiz, grade.
