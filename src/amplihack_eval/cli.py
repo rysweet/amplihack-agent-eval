@@ -46,6 +46,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
             num_questions=args.questions,
             seed=args.seed,
             grader_votes=args.grader_votes,
+            parallel_workers=getattr(args, "parallel_workers", 10),
         )
 
         report = runner.run(adapter, grader_model=args.grader_model)
@@ -211,6 +212,12 @@ def main() -> None:
     )
     run_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     run_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
+    run_parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=10,
+        help="Number of parallel workers for question answering/grading (1=sequential, max 20)",
+    )
 
     # --- compare ---
     cmp_parser = subparsers.add_parser("compare", help="Multi-seed comparison")
@@ -229,6 +236,12 @@ def main() -> None:
     )
     cmp_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     cmp_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
+    cmp_parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=10,
+        help="Number of parallel workers for question answering/grading (1=sequential, max 20)",
+    )
 
     # --- self-improve ---
     si_parser = subparsers.add_parser("self-improve", help="Run self-improvement loop")
@@ -251,6 +264,12 @@ def main() -> None:
     )
     si_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     si_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
+    si_parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=10,
+        help="Number of parallel workers for question answering/grading (1=sequential, max 20)",
+    )
 
     # --- report ---
     rpt_parser = subparsers.add_parser("report", help="Print a saved report")
