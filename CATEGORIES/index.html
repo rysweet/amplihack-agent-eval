@@ -1,0 +1,1157 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Evaluation framework for goal-seeking AI agents -- memory recall, tool use, planning, and reasoning across progressive difficulty levels">
+      
+      
+      
+        <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/CATEGORIES/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Evaluation Categories - amplihack-agent-eval</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#evaluation-categories" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="amplihack-agent-eval" class="md-header__button md-logo" aria-label="amplihack-agent-eval" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            amplihack-agent-eval
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Evaluation Categories
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rysweet/amplihack-agent-eval" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rysweet/amplihack-agent-eval
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="amplihack-agent-eval" class="md-nav__button md-logo" aria-label="amplihack-agent-eval" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    amplihack-agent-eval
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rysweet/amplihack-agent-eval" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rysweet/amplihack-agent-eval
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation Levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-improvement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-Improvement Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Agent Eval
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#progressive-levels-l1-l12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive Levels (L1--L12)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Progressive Levels (L1--L12)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#l1-single-source-direct-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L1: Single Source Direct Recall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l2-multi-source-synthesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2: Multi-Source Synthesis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l3-temporal-reasoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L3: Temporal Reasoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l4-procedural-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L4: Procedural Learning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l5-contradiction-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L5: Contradiction Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l6-incremental-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L6: Incremental Learning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l7-teacher-student-knowledge-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L7: Teacher-Student Knowledge Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l8-metacognition-confidence-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L8: Metacognition / Confidence Calibration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l9-causal-reasoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L9: Causal Reasoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l10-counterfactual-reasoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L10: Counterfactual Reasoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l11-novel-skill-acquisition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L11: Novel Skill Acquisition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l12-far-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L12: Far Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extended-levels-l13-l16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extended Levels (L13--L16)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Extended Levels (L13--L16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#l13-tool-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L13: Tool Selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l14-selective-forgetting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L14: Selective Forgetting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l15-adversarial-recall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L15: Adversarial Recall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#l16-decision-from-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L16: Decision From Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-horizon-question-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long-Horizon Question Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Long-Horizon Question Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#needle_in_haystack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        needle_in_haystack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temporal_evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        temporal_evolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical_precision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        numerical_precision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source_attribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        source_attribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross_reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cross_reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distractor_resistance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        distractor_resistance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#meta_memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        meta_memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security_log_analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        security_log_analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incident_tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        incident_tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure_knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        infrastructure_knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problem_solving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        problem_solving
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi_hop_reasoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        multi_hop_reasoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-to-skill-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category-to-Skill Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="evaluation-categories">Evaluation Categories<a class="headerlink" href="#evaluation-categories" title="Permanent link">&para;</a></h1>
+<p>This document provides a detailed explanation of every evaluation category in <code>amplihack-agent-eval</code>, from the progressive levels (L1--L16) to the long-horizon question categories.</p>
+<h2 id="progressive-levels-l1-l12">Progressive Levels (L1--L12)<a class="headerlink" href="#progressive-levels-l1-l12" title="Permanent link">&para;</a></h2>
+<p>These are hand-crafted evaluation levels with curated articles and questions. Each level isolates a specific cognitive capability.</p>
+<h3 id="l1-single-source-direct-recall">L1: Single Source Direct Recall<a class="headerlink" href="#l1-single-source-direct-recall" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 1/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: none</p>
+<p><strong>What it tests</strong>: The most basic memory operation -- retrieving a fact that was directly stated in a single source. No inference, no synthesis, no temporal reasoning required.</p>
+<p><strong>Example articles</strong>: Medal standings from a sporting event with specific numbers.</p>
+<p><strong>Example questions</strong>:
+- "How many total medals does Norway have as of February 15?" (Expected: "26 total medals")
+- "Which country is in second place?" (Expected: "Italy with 22 total medals")</p>
+<p><strong>Reasoning types</strong>: <code>direct_recall</code></p>
+<p><strong>Why it matters</strong>: This is the baseline. If an agent fails L1, its memory system has fundamental issues with storage or retrieval. Every higher level depends on this capability.</p>
+<h3 id="l2-multi-source-synthesis">L2: Multi-Source Synthesis<a class="headerlink" href="#l2-multi-source-synthesis" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 2/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: L1</p>
+<p><strong>What it tests</strong>: Combining information from 2--3 independent sources to answer a question that no single source can answer alone.</p>
+<p><strong>Example articles</strong>: Medal standings + individual athlete achievements + historical context (3 separate articles).</p>
+<p><strong>Example questions</strong>:
+- "How does Italy's 2026 gold medal performance compare to their previous best?" (requires standings article + historical article)
+- "Which country's individual athletes won the most medals mentioned in the athlete achievements article?" (requires counting across sources)</p>
+<p><strong>Reasoning types</strong>: <code>cross_source_synthesis</code></p>
+<p><strong>Why it matters</strong>: Real-world information rarely comes from a single source. Agents must integrate across sources to provide complete answers.</p>
+<h3 id="l3-temporal-reasoning">L3: Temporal Reasoning<a class="headerlink" href="#l3-temporal-reasoning" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 3/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: L1</p>
+<p><strong>What it tests</strong>: Tracking values that change over time and computing differences between temporal snapshots.</p>
+<p><strong>Example articles</strong>: Medal standings on Day 7, Day 9, and Day 10 (three timestamped updates).</p>
+<p><strong>Example questions</strong>:
+- "How many medals did Norway win between Day 7 and Day 9?" (Expected: "8 medals (from 18 to 26)")
+- "Describe the trend in Italy's gold medal performance over the three days" (Expected: "+3 golds Day 7-9, then +1 gold Day 9-10, slowing")</p>
+<p><strong>Reasoning types</strong>: <code>temporal_difference</code>, <code>temporal_comparison</code>, <code>temporal_trend</code></p>
+<p><strong>Requires</strong>: <code>temporal_ordering = True</code></p>
+<p><strong>Why it matters</strong>: Agents operating in dynamic environments must understand not just current state but how things have changed.</p>
+<h3 id="l4-procedural-learning">L4: Procedural Learning<a class="headerlink" href="#l4-procedural-learning" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 2/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: L1</p>
+<p><strong>What it tests</strong>: Learning a multi-step procedure from documentation and reproducing or applying it.</p>
+<p><strong>Example articles</strong>: A detailed Flutter development setup guide with 9 numbered steps and troubleshooting tips.</p>
+<p><strong>Example questions</strong>:
+- "What command creates a new Flutter project?" (Expected: "flutter create my_app")
+- "Describe the complete workflow from creating a project to running tests" (requires recalling the ordered steps)
+- "If I want to create a project called 'weather_app' and add the http package, what exact commands would I run?" (requires applying the procedure to a new scenario)</p>
+<p><strong>Reasoning types</strong>: <code>procedural_recall</code>, <code>procedural_troubleshooting</code>, <code>procedural_sequence</code>, <code>procedural_application</code></p>
+<p><strong>Why it matters</strong>: Many real tasks involve following procedures. Agents must be able to learn, recall, and adapt procedures to new contexts.</p>
+<h3 id="l5-contradiction-handling">L5: Contradiction Handling<a class="headerlink" href="#l5-contradiction-handling" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 3/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: L1, L2</p>
+<p><strong>What it tests</strong>: Detecting when two or more sources provide conflicting information and reasoning about the conflict.</p>
+<p><strong>Example articles</strong>: Two articles about Olympics viewership -- one from the IOC claiming 1.2 billion viewers, another from independent analysts claiming 800 million.</p>
+<p><strong>Example questions</strong>:
+- "How many people watched the 2026 opening ceremony?" (Expected: "Conflicting reports: IOC estimates 1.2 billion, independent analysts report 800 million")
+- "Which viewership figure would you consider more reliable and why?" (requires source credibility reasoning)</p>
+<p><strong>Reasoning types</strong>: <code>contradiction_detection</code>, <code>contradiction_reasoning</code>, <code>source_credibility</code></p>
+<p><strong>Why it matters</strong>: In real-world information environments, sources frequently disagree. An agent that picks one value without acknowledging the conflict is unreliable. An agent that acknowledges both values and reasons about the discrepancy demonstrates understanding.</p>
+<h3 id="l6-incremental-learning">L6: Incremental Learning<a class="headerlink" href="#l6-incremental-learning" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 3/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: L1</p>
+<p><strong>What it tests</strong>: Updating knowledge when new information supersedes old information.</p>
+<p><strong>Example articles</strong>: An article from Feb 15 stating an athlete has 9 gold medals, followed by a Feb 17 article updating the count to 10.</p>
+<p><strong>Example questions</strong>:
+- "How many Olympic gold medals does Johannes Klaebo have?" (Expected: "10" -- must use the update, not the original)
+- "How did Klaebo's record change between February 15 and February 17?" (Expected: "Increased from 9 to 10")</p>
+<p><strong>Reasoning types</strong>: <code>incremental_update</code>, <code>incremental_tracking</code>, <code>incremental_synthesis</code></p>
+<p><strong>Requires</strong>: <code>update_handling = True</code></p>
+<p><strong>Why it matters</strong>: An agent that returns stale data when a newer value exists is dangerous, especially in time-sensitive domains. This level tests the critical ability to supersede outdated information.</p>
+<h3 id="l7-teacher-student-knowledge-transfer">L7: Teacher-Student Knowledge Transfer<a class="headerlink" href="#l7-teacher-student-knowledge-transfer" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 3/5 | <strong>Category</strong>: memory | <strong>Prerequisites</strong>: L1, L2</p>
+<p><strong>What it tests</strong>: The agent learns material and then must "teach" it accurately. This tests depth of understanding -- superficial memorization is not sufficient for accurate teaching.</p>
+<p><strong>Example</strong>: The agent learns multi-source Olympic data, then answers questions as if explaining to someone who has not read the articles.</p>
+<p><strong>Reasoning types</strong>: <code>knowledge_transfer_recall</code>, <code>knowledge_transfer_synthesis</code></p>
+<p><strong>Why it matters</strong>: Based on the educational principle that the best test of knowledge is being able to teach it (Chi, 1994). An agent that can teach accurately has genuinely internalized the material.</p>
+<h3 id="l8-metacognition-confidence-calibration">L8: Metacognition / Confidence Calibration<a class="headerlink" href="#l8-metacognition-confidence-calibration" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 4/5 | <strong>Category</strong>: reasoning | <strong>Prerequisites</strong>: L1</p>
+<p><strong>What it tests</strong>: Whether the agent knows what it knows and what it does not know. Can it calibrate its confidence appropriately?</p>
+<p><strong>Example questions</strong>:
+- "How confident should you be in answering 'How many medals does Canada have?'" (Expected: "Low confidence -- Canada is not in the data")
+- "Which of these questions can you answer with HIGH confidence and which with LOW?" (requires distinguishing answerable from unanswerable)</p>
+<p><strong>Reasoning types</strong>: <code>confidence_calibration</code>, <code>gap_identification</code>, <code>confidence_discrimination</code></p>
+<p><strong>Why it matters</strong>: Based on the MUSE framework (arXiv 2024) and Dunlosky &amp; Metcalfe (2009). Overconfident agents are dangerous -- they present guesses as facts. Well-calibrated agents are trustworthy because they say "I don't know" when appropriate.</p>
+<h3 id="l9-causal-reasoning">L9: Causal Reasoning<a class="headerlink" href="#l9-causal-reasoning" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 4/5 | <strong>Category</strong>: reasoning | <strong>Prerequisites</strong>: L1, L3</p>
+<p><strong>What it tests</strong>: Identifying causal chains and root causes from correlated observations.</p>
+<p><strong>Example</strong>: An article describing Italy's Olympic improvement, listing 5 contributing factors with causal relationships between them.</p>
+<p><strong>Example questions</strong>:
+- "What caused Italy to improve from 3 golds in 2018 to 8 golds in 2026?" (requires tracing the causal chain)
+- "Which single factor was most important for Italy's improvement?" (requires identifying the root cause)</p>
+<p><strong>Reasoning types</strong>: <code>causal_chain</code>, <code>counterfactual_causal</code>, <code>root_cause_analysis</code></p>
+<p><strong>Why it matters</strong>: Based on Pearl's causal hierarchy (2009). Correlation is not causation -- agents must be able to trace cause-and-effect relationships to provide useful analysis.</p>
+<h3 id="l10-counterfactual-reasoning">L10: Counterfactual Reasoning<a class="headerlink" href="#l10-counterfactual-reasoning" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 5/5 | <strong>Category</strong>: reasoning | <strong>Prerequisites</strong>: L1, L9</p>
+<p><strong>What it tests</strong>: "What if X didn't happen?" reasoning about hypothetical alternatives.</p>
+<p><strong>Example questions</strong>:
+- "If Klaebo had not competed, would Norway still have led the gold medal count?" (requires computing the counterfactual medal standings)
+- "In a world where cross-country skiing was removed from the Olympics, how would standings change?" (requires structural counterfactual)</p>
+<p><strong>Reasoning types</strong>: <code>counterfactual_removal</code>, <code>counterfactual_timing</code>, <code>counterfactual_structural</code></p>
+<p><strong>Why it matters</strong>: Based on Byrne (2005) and the nearest-possible-world constraint. Counterfactual reasoning is essential for planning, risk assessment, and decision making.</p>
+<h3 id="l11-novel-skill-acquisition">L11: Novel Skill Acquisition<a class="headerlink" href="#l11-novel-skill-acquisition" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 5/5 | <strong>Category</strong>: reasoning | <strong>Prerequisites</strong>: L1, L4</p>
+<p><strong>What it tests</strong>: Learning a genuinely new skill from documentation and applying it to solve problems. The skill must be post-training-cutoff to ensure the agent is actually learning, not recalling.</p>
+<p><strong>Example</strong>: GitHub Agentic Workflows (gh-aw) documentation, including frontmatter syntax, compilation rules, and security architecture.</p>
+<p><strong>Example questions</strong>:
+- "Write a gh-aw workflow file that runs on PR creation and checks for security issues" (requires applying learned syntax)
+- "What happens if you edit the markdown body of a workflow -- do you need to recompile?" (requires understanding compilation rules)</p>
+<p><strong>Reasoning types</strong>: <code>skill_application</code>, <code>novel_syntax</code>, <code>skill_troubleshooting</code></p>
+<p><strong>Why it matters</strong>: The true test of an agent's learning capability is not recall of training data but the ability to learn genuinely new skills from documentation encountered at runtime.</p>
+<h3 id="l12-far-transfer">L12: Far Transfer<a class="headerlink" href="#l12-far-transfer" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 5/5 | <strong>Category</strong>: reasoning | <strong>Prerequisites</strong>: L1, L9, L11</p>
+<p><strong>What it tests</strong>: Applying reasoning patterns learned in one domain to solve problems in a completely different domain.</p>
+<p><strong>Example</strong>: Learn Olympic medal analysis patterns, then apply the same analytical framework to a business scenario.</p>
+<p><strong>Reasoning types</strong>: <code>cross_domain_transfer</code>, <code>analogical_reasoning</code></p>
+<p><strong>Why it matters</strong>: Transfer learning is the hallmark of genuine understanding. An agent that can abstract patterns and apply them to new domains demonstrates deep reasoning rather than pattern matching.</p>
+<h2 id="extended-levels-l13-l16">Extended Levels (L13--L16)<a class="headerlink" href="#extended-levels-l13-l16" title="Permanent link">&para;</a></h2>
+<p>These levels extend the evaluation beyond memory and reasoning into tool use, information management, robustness, and decision making.</p>
+<h3 id="l13-tool-selection">L13: Tool Selection<a class="headerlink" href="#l13-tool-selection" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 3/5 | <strong>Category</strong>: tool_use</p>
+<p><strong>What it tests</strong>: Given a set of available tools, can the agent select the right ones and chain them in the correct order?</p>
+<p><strong>Metrics</strong>:
+- <code>tool_selection_accuracy</code> -- Did the agent pick the right tools? (Jaccard similarity)
+- <code>tool_efficiency</code> -- Were there unnecessary tool calls? (optimal / actual ratio)
+- <code>tool_chain_correctness</code> -- Was the ordering correct? (longest common subsequence)</p>
+<p><strong>Scenarios</strong>: Multi-domain scenarios (DevOps, data analysis, security) with expected tool sequences.</p>
+<p><strong>Example</strong>: "Deploy a new version of the API service" -- expected tools: <code>check_tests</code>, <code>build_container</code>, <code>push_registry</code>, <code>update_deployment</code>, <code>verify_health</code></p>
+<p><strong>Why it matters</strong>: Real agents must select and orchestrate tools. Tool selection errors compound -- picking the wrong tool at step 1 invalidates the entire chain.</p>
+<h3 id="l14-selective-forgetting">L14: Selective Forgetting<a class="headerlink" href="#l14-selective-forgetting" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 3/5 | <strong>Category</strong>: memory</p>
+<p><strong>What it tests</strong>: When facts are updated, does the agent return the current value and not present the old value as current?</p>
+<p><strong>Metrics</strong>:
+- <code>current_value_accuracy</code> -- Does the agent return the current value?
+- <code>stale_data_penalty</code> -- Does it present old values as current?
+- <code>update_awareness</code> -- Does it acknowledge that the value was updated?</p>
+<p><strong>Example</strong>: Server configuration changes from 16GB RAM to 32GB RAM. The agent should return 32GB and ideally note the upgrade.</p>
+<p><strong>Why it matters</strong>: An agent that remembers everything indiscriminately is dangerous. The ability to deprioritize superseded information is as important as recall. This is distinct from L6 (incremental learning) -- L14 specifically penalizes presenting stale data as current.</p>
+<h3 id="l15-adversarial-recall">L15: Adversarial Recall<a class="headerlink" href="#l15-adversarial-recall" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 4/5 | <strong>Category</strong>: reasoning</p>
+<p><strong>What it tests</strong>: Resistance to hallucination when asked plausible-but-wrong questions about information not in the knowledge base.</p>
+<p><strong>Metrics</strong>:
+- <code>hallucination_resistance</code> -- Does the agent say "I don't know" when appropriate?
+- <code>fact_boundary_awareness</code> -- Can it distinguish known from unknown?
+- <code>confidence_calibration</code> -- Is it appropriately uncertain?</p>
+<p><strong>Scenarios</strong>: Questions that reference entities similar to but different from what the agent has learned (e.g., asking about "Project Falcon" when the agent only knows about "Project Atlas").</p>
+<p><strong>Why it matters</strong>: Agents that always provide an answer, even when they do not have the information, are unreliable and potentially harmful. Honest uncertainty is a sign of intelligence, not weakness.</p>
+<h3 id="l16-decision-from-memory">L16: Decision From Memory<a class="headerlink" href="#l16-decision-from-memory" title="Permanent link">&para;</a></h3>
+<p><strong>Difficulty</strong>: 5/5 | <strong>Category</strong>: reasoning</p>
+<p><strong>What it tests</strong>: The highest cognitive level -- can the agent recall facts, analyze them, and make correct decisions?</p>
+<p><strong>Metrics</strong>:
+- <code>decision_quality</code> -- Is the decision correct given the available facts?
+- <code>reasoning_quality</code> -- Does the explanation reference the correct facts?
+- <code>fact_usage</code> -- Were the right facts used to support the decision?</p>
+<p><strong>Scenarios</strong>: Decision problems across domains (hiring, infrastructure planning, security response) where the correct decision depends on facts the agent has previously learned.</p>
+<p><strong>Example</strong>: "Based on the project timelines and team availability you've learned about, which project should receive additional resources?" (requires recalling multiple project states and reasoning about the best allocation)</p>
+<p><strong>Why it matters</strong>: Memory without application is useless. The ultimate test is whether stored knowledge leads to good decisions.</p>
+<h2 id="long-horizon-question-categories">Long-Horizon Question Categories<a class="headerlink" href="#long-horizon-question-categories" title="Permanent link">&para;</a></h2>
+<p>These categories are generated dynamically from the 12-block dialogue in the long-horizon evaluation. They overlap conceptually with the progressive levels but are tested at much larger scale.</p>
+<h3 id="needle_in_haystack"><code>needle_in_haystack</code><a class="headerlink" href="#needle_in_haystack" title="Permanent link">&para;</a></h3>
+<p>Direct fact retrieval from a specific person, project, or technical domain -- finding one fact among potentially thousands of turns. Tests basic retrieval fidelity.</p>
+<h3 id="temporal_evolution"><code>temporal_evolution</code><a class="headerlink" href="#temporal_evolution" title="Permanent link">&para;</a></h3>
+<p>Tracking changes to projects (deadlines, budgets, leads) and the evolving story. Questions require knowing not just the current value but the history of changes.</p>
+<h3 id="numerical_precision"><code>numerical_precision</code><a class="headerlink" href="#numerical_precision" title="Permanent link">&para;</a></h3>
+<p>Exact recall of specific numbers, percentages, monetary values, and metrics. No approximation accepted.</p>
+<h3 id="source_attribution"><code>source_attribution</code><a class="headerlink" href="#source_attribution" title="Permanent link">&para;</a></h3>
+<p>Identifying which source made a specific claim, especially when multiple sources discuss the same topic with different values.</p>
+<h3 id="cross_reference"><code>cross_reference</code><a class="headerlink" href="#cross_reference" title="Permanent link">&para;</a></h3>
+<p>Connecting facts across blocks -- e.g., linking a person from Block 1 to a project from Block 2 to a technical fact from Block 3.</p>
+<h3 id="distractor_resistance"><code>distractor_resistance</code><a class="headerlink" href="#distractor_resistance" title="Permanent link">&para;</a></h3>
+<p>Answering questions accurately when irrelevant fun facts from Block 8 might confuse retrieval.</p>
+<h3 id="meta_memory"><code>meta_memory</code><a class="headerlink" href="#meta_memory" title="Permanent link">&para;</a></h3>
+<p>Questions about what the agent knows -- counts, categories, completeness of knowledge.</p>
+<h3 id="security_log_analysis"><code>security_log_analysis</code><a class="headerlink" href="#security_log_analysis" title="Permanent link">&para;</a></h3>
+<p>Pattern recognition in structured security events -- identifying attack sequences, mapping IP addresses to events, recognizing known attack patterns.</p>
+<h3 id="incident_tracking"><code>incident_tracking</code><a class="headerlink" href="#incident_tracking" title="Permanent link">&para;</a></h3>
+<p>Following incident timelines from creation through investigation to resolution.</p>
+<h3 id="infrastructure_knowledge"><code>infrastructure_knowledge</code><a class="headerlink" href="#infrastructure_knowledge" title="Permanent link">&para;</a></h3>
+<p>Recall of specific infrastructure configuration details.</p>
+<h3 id="problem_solving"><code>problem_solving</code><a class="headerlink" href="#problem_solving" title="Permanent link">&para;</a></h3>
+<p>Applying stored problem-solution knowledge to questions.</p>
+<h3 id="multi_hop_reasoning"><code>multi_hop_reasoning</code><a class="headerlink" href="#multi_hop_reasoning" title="Permanent link">&para;</a></h3>
+<p>Questions requiring 2+ retrieval steps to compose the answer from multiple facts.</p>
+<h2 id="category-to-skill-mapping">Category-to-Skill Mapping<a class="headerlink" href="#category-to-skill-mapping" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Primary Skill</th>
+<th>Secondary Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>needle_in_haystack</code></td>
+<td>Retrieval precision</td>
+<td>Entity recognition</td>
+</tr>
+<tr>
+<td><code>temporal_evolution</code></td>
+<td>Temporal ordering</td>
+<td>Change tracking</td>
+</tr>
+<tr>
+<td><code>numerical_precision</code></td>
+<td>Exact recall</td>
+<td>Number handling</td>
+</tr>
+<tr>
+<td><code>source_attribution</code></td>
+<td>Provenance tracking</td>
+<td>Source disambiguation</td>
+</tr>
+<tr>
+<td><code>cross_reference</code></td>
+<td>Graph traversal</td>
+<td>Entity linking</td>
+</tr>
+<tr>
+<td><code>distractor_resistance</code></td>
+<td>Relevance filtering</td>
+<td>Confidence weighting</td>
+</tr>
+<tr>
+<td><code>meta_memory</code></td>
+<td>Self-awareness</td>
+<td>Aggregation</td>
+</tr>
+<tr>
+<td><code>security_log_analysis</code></td>
+<td>Pattern recognition</td>
+<td>Structured data parsing</td>
+</tr>
+<tr>
+<td><code>incident_tracking</code></td>
+<td>State machine tracking</td>
+<td>Timeline reconstruction</td>
+</tr>
+<tr>
+<td><code>infrastructure_knowledge</code></td>
+<td>Configuration recall</td>
+<td>Specification matching</td>
+</tr>
+<tr>
+<td><code>problem_solving</code></td>
+<td>Solution retrieval</td>
+<td>Analogical reasoning</td>
+</tr>
+<tr>
+<td><code>multi_hop_reasoning</code></td>
+<td>Compositional recall</td>
+<td>Fact chaining</td>
+</tr>
+<tr>
+<td>L13 Tool Selection</td>
+<td>Planning</td>
+<td>Tool knowledge</td>
+</tr>
+<tr>
+<td>L14 Selective Forgetting</td>
+<td>Update management</td>
+<td>Stale data detection</td>
+</tr>
+<tr>
+<td>L15 Adversarial Recall</td>
+<td>Honesty</td>
+<td>Boundary awareness</td>
+</tr>
+<tr>
+<td>L16 Decision From Memory</td>
+<td>Application</td>
+<td>Analytical reasoning</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
