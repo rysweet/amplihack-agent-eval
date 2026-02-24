@@ -110,7 +110,7 @@ Optional properties:
 | `SubprocessAdapter` | Any agent invokable via CLI subprocess |
 | `LearningAgentAdapter` | amplihack's LearningAgent (requires `amplihack` package) |
 
-See [docs/ADAPTERS.md](docs/ADAPTERS.md) for the complete adapter writing guide.
+See [docs/adapters.md](docs/adapters.md) for the complete adapter writing guide.
 
 ## Available Eval Levels
 
@@ -142,7 +142,7 @@ See [docs/ADAPTERS.md](docs/ADAPTERS.md) for the complete adapter writing guide.
 | L11 | Novel Skill Acquisition | Learning genuinely new skills from documentation |
 | L12 | Far Transfer | Applying learned reasoning patterns to new domains |
 
-See [docs/LEVELS.md](docs/LEVELS.md) for detailed descriptions of each level.
+See [docs/levels.md](docs/levels.md) for detailed descriptions of each level.
 
 ## API Reference
 
@@ -220,7 +220,7 @@ runner = SelfImproveRunner(config)
 result = runner.run(agent_factory=lambda: MyAgent())
 ```
 
-See [docs/SELF_IMPROVEMENT.md](docs/SELF_IMPROVEMENT.md) for the complete self-improvement guide.
+See [docs/self-improvement.md](docs/self-improvement.md) for the complete self-improvement guide.
 
 ## How to Write a Custom Adapter
 
@@ -302,11 +302,12 @@ src/amplihack_eval/
     levels/              # Convenience re-export of level definitions
     multi_agent_eval/    # Multi-agent scenarios (future)
 docs/
-    ARCHITECTURE.md      # Package architecture overview
-    ADAPTERS.md          # How to write custom AgentAdapters
-    LEVELS.md            # Complete guide to all eval levels
-    SELF_IMPROVEMENT.md  # How the self-improvement loop works
-    MULTI_AGENT_EVAL.md  # Multi-agent eval architecture
+    index.md             # Documentation landing page (GitHub Pages)
+    architecture.md      # Package architecture overview
+    adapters.md          # How to write custom AgentAdapters
+    levels.md            # Complete guide to all eval levels
+    self-improvement.md  # How the self-improvement loop works
+    multi-agent-eval.md  # Multi-agent eval architecture
 tests/
     test_adapters.py     # Adapter interface tests
     test_data_generation.py  # Data generator tests
