@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://rysweet.github.io/amplihack-agent-eval/</loc>
+         <lastmod>2026-02-24</lastmod>
+    </url>
+    <url>
+         <loc>https://rysweet.github.io/amplihack-agent-eval/adapters/</loc>
+         <lastmod>2026-02-24</lastmod>
+    </url>
+    <url>
+         <loc>https://rysweet.github.io/amplihack-agent-eval/architecture/</loc>
+         <lastmod>2026-02-24</lastmod>
+    </url>
+    <url>
+         <loc>https://rysweet.github.io/amplihack-agent-eval/levels/</loc>
+         <lastmod>2026-02-24</lastmod>
+    </url>
+    <url>
+         <loc>https://rysweet.github.io/amplihack-agent-eval/multi-agent-eval/</loc>
+         <lastmod>2026-02-24</lastmod>
+    </url>
+    <url>
+         <loc>https://rysweet.github.io/amplihack-agent-eval/self-improvement/</loc>
+         <lastmod>2026-02-24</lastmod>
+    </url>
+</urlset>
