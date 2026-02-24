@@ -29,3 +29,9 @@ htmlcov/
 
 # Output
 /tmp/
+
+# MkDocs build output
+site/
+
+# uv lock file
+uv.lock

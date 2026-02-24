@@ -1,31 +1,129 @@
-# amplihack-agent-eval Documentation
+# amplihack-agent-eval
 
-Comprehensive documentation for the `amplihack-agent-eval` evaluation framework for goal-seeking AI agents.
+Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use, planning, and reasoning across progressive difficulty levels (L1-L12).
 
-## Comprehensive Guides
+## Key Features
 
-| Document | Description |
-|----------|-------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Package structure, core components, design principles, data flow diagrams |
-| [LONG_HORIZON_EVAL.md](LONG_HORIZON_EVAL.md) | Long-horizon memory evaluation: 12 blocks, 15 question categories, grading system |
-| [CATEGORIES.md](CATEGORIES.md) | All evaluation categories: L1--L16 progressive levels and long-horizon categories |
-| [EXTENDING.md](EXTENDING.md) | How to extend the framework: custom adapters, new levels, data generators, grading |
-| [API_REFERENCE.md](API_REFERENCE.md) | Complete API reference for all public classes and functions |
-| [SELF_IMPROVEMENT.md](SELF_IMPROVEMENT.md) | Self-improvement loop: 8 phases, patch proposer, reviewer voting, regression detection |
+- **Long-horizon memory stress tests** -- Generates 1000+ turn dialogues with embedded facts, then quizzes the agent on details from various points in the conversation
+- **Hybrid grading** -- Deterministic (rubric keywords) + LLM (semantic judgment) with multi-vote stability
+- **Progressive difficulty levels** -- L1 (simple recall) through L12 (far transfer reasoning)
+- **Agent-agnostic** -- Works with any agent through the `AgentAdapter` interface
+- **Self-improvement loop** -- Automated EVAL -> ANALYZE -> PROPOSE -> CHALLENGE -> VOTE -> APPLY -> RE-EVAL cycle
+- **Multi-seed holdout** -- Run across multiple random seeds to measure inter-seed variance
 
-## Quick Reference
+## Installation
 
-| Document | Description |
-|----------|-------------|
-| [ADAPTERS.md](ADAPTERS.md) | Quick overview of the adapter layer (HTTP, Subprocess, LearningAgent) |
-| [LEVELS.md](LEVELS.md) | Quick reference for progressive evaluation levels L1--L16 |
-| [MULTI_AGENT_EVAL.md](MULTI_AGENT_EVAL.md) | Multi-agent evaluation pipeline overview |
+```bash
+# Basic installation (data generation and adapters, no LLM grading)
+pip install amplihack-agent-eval
 
-## Getting Started
+# With Anthropic grading support
+pip install amplihack-agent-eval[anthropic]
 
-1. **Understand the architecture**: Read [ARCHITECTURE.md](ARCHITECTURE.md) for the big picture
-2. **Choose an adapter**: See [ADAPTERS.md](ADAPTERS.md) or [EXTENDING.md](EXTENDING.md) to connect your agent
-3. **Run an evaluation**: Follow the CLI or programmatic examples in [LONG_HORIZON_EVAL.md](LONG_HORIZON_EVAL.md)
-4. **Interpret results**: See the "How to Interpret Results" section in [LONG_HORIZON_EVAL.md](LONG_HORIZON_EVAL.md)
-5. **Improve your agent**: Use the [Self-Improvement Loop](SELF_IMPROVEMENT.md) for automated improvement
-6. **Extend the framework**: See [EXTENDING.md](EXTENDING.md) for adding new levels, categories, and grading dimensions
+# Development
+pip install amplihack-agent-eval[dev]
+
+# Everything
+pip install amplihack-agent-eval[all,dev]
+```
+
+## Quick Start
+
+### 1. Implement the AgentAdapter interface
+
+```python
+from amplihack_eval import AgentAdapter, AgentResponse
+
+class MyMemoryAgent(AgentAdapter):
+    def __init__(self):
+        self.memory = []
+
+    def learn(self, content: str) -> None:
+        self.memory.append(content)
+
+    def answer(self, question: str) -> AgentResponse:
+        relevant = [m for m in self.memory
+                    if any(w in m.lower() for w in question.lower().split())]
+        return AgentResponse(
+            answer=" ".join(relevant[:3]) if relevant else "I don't know"
+        )
+
+    def reset(self) -> None:
+        self.memory.clear()
+
+    def close(self) -> None:
+        pass
+```
+
+### 2. Run an evaluation
+
+```python
+from amplihack_eval import EvalRunner
+
+agent = MyMemoryAgent()
+runner = EvalRunner(num_turns=100, num_questions=20, grader_votes=3)
+report = runner.run(agent)
+
+print(f"Overall score: {report.overall_score:.2%}")
+for cb in report.category_breakdown:
+    print(f"  {cb.category}: {cb.avg_score:.2%}")
+```
+
+### 3. CLI usage
+
+```bash
+# Run eval against an HTTP agent
+amplihack-eval run --turns 100 --questions 20 --adapter http --agent-url http://localhost:8000
+
+# Run eval with amplihack's LearningAgent
+amplihack-eval run --turns 100 --questions 20 --adapter learning-agent
+
+# Multi-seed comparison
+amplihack-eval compare --seeds 42,123,456,789 --turns 100
+
+# Self-improvement loop
+amplihack-eval self-improve --iterations 5 --turns 100
+```
+
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Architecture](architecture.md) | Package layout, core concepts, and design principles |
+| [Evaluation Levels](levels.md) | Complete guide to all 12 progressive difficulty levels (L1-L12) |
+| [Writing Adapters](adapters.md) | How to write custom `AgentAdapter` implementations |
+| [Self-Improvement Loop](self-improvement.md) | Automated improvement cycle with safety gates |
+| [Multi-Agent Eval](multi-agent-eval.md) | Planned multi-agent evaluation scenarios |
+
+## Environment Variables
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `ANTHROPIC_API_KEY` | Required for LLM grading | -- |
+| `GRADER_MODEL` | Model for grading | `claude-sonnet-4-5-20250929` |
+| `EVAL_MODEL` | Model for LearningAgent adapter | `claude-sonnet-4-5-20250929` |
+
+## Contributing
+
+```bash
+# Clone the repository
+git clone https://github.com/rysweet/amplihack-agent-eval.git
+cd amplihack-agent-eval
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest tests/ -q
+
+# Run linting
+ruff check src/ tests/
+ruff format --check src/ tests/
+```
+
+## License
+
+MIT
