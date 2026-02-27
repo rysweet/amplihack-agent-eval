@@ -1,0 +1,19 @@
+{
+  "name": "5000t-seed42-v1.0",
+  "version": "1.0",
+  "turns": 5000,
+  "seed": 42,
+  "facts_delivered": 762,
+  "baseline_score": 0.9047,
+  "code_version": "ff20586",
+  "date": "2026-02-24",
+  "agent_type": "LearningAgent (CognitiveMemory)",
+  "num_questions_tested": 100,
+  "num_categories": 15,
+  "memory_stats": {
+    "episodic": 5000,
+    "semantic": 10854,
+    "total": 15854
+  },
+  "description": "Pre-built memory database from 5000-turn learning phase with seed 42. Contains 762 facts across 12 information blocks and 15 question categories. Baseline evaluation score: 90.47%."
+}

@@ -1,14 +1,19 @@
 """CLI entry point: amplihack-eval
 
 Subcommands:
-    run          Run a long-horizon memory evaluation
-    compare      Multi-seed comparison across random seeds
-    self-improve Run the automated self-improvement loop
-    report       Print a saved evaluation report
+    run              Run a long-horizon memory evaluation
+    compare          Multi-seed comparison across random seeds
+    self-improve     Run the automated self-improvement loop
+    report           Print a saved evaluation report
+    download-dataset Download a pre-built learning DB from GitHub Releases
+    list-datasets    List available pre-built datasets
 
 Usage:
     amplihack-eval run --turns 100 --questions 20
+    amplihack-eval run --skip-learning --load-db datasets/5000t-seed42-v1.0/memory_db
     amplihack-eval compare --seeds 42,123,456,789
+    amplihack-eval download-dataset 5000t-seed42-v1.0
+    amplihack-eval list-datasets
     amplihack-eval report /path/to/report.json
 """
 
@@ -34,6 +39,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    skip_learning = getattr(args, "skip_learning", False)
+    load_db = getattr(args, "load_db", "")
+
+    if skip_learning and not load_db:
+        print("Error: --skip-learning requires --load-db <path>", file=sys.stderr)
+        return 1
+
+    if load_db and not Path(load_db).exists():
+        print(f"Error: --load-db path does not exist: {load_db}", file=sys.stderr)
+        return 1
+
     # Create adapter based on --adapter flag
     adapter = _create_adapter(args)
     if adapter is None:
@@ -49,7 +65,14 @@ def _cmd_run(args: argparse.Namespace) -> int:
             parallel_workers=getattr(args, "parallel_workers", 10),
         )
 
-        report = runner.run(adapter, grader_model=args.grader_model)
+        if skip_learning:
+            # Skip learning phase, go straight to evaluation
+            report = runner.run_skip_learning(
+                adapter, load_db_path=load_db, grader_model=args.grader_model
+            )
+        else:
+            report = runner.run(adapter, grader_model=args.grader_model)
+
         print_report(report)
 
         # Save JSON report
@@ -150,15 +173,74 @@ def _cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_download_dataset(args: argparse.Namespace) -> int:
+    """Download a pre-built learning DB dataset from GitHub Releases."""
+    from .datasets.download import download_dataset
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    name = args.dataset_name
+    output_dir = Path(args.output_dir) if args.output_dir else None
+    force = args.force
+
+    try:
+        path = download_dataset(name, output_dir=output_dir, force=force)
+        print(f"Dataset downloaded to: {path}")
+        print(f"\nTo use it:")
+        print(f"  amplihack-eval run --adapter learning-agent --skip-learning \\")
+        print(f"    --load-db {path}/memory_db --turns 5000 --questions 100")
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def _cmd_list_datasets(args: argparse.Namespace) -> int:
+    """List available pre-built datasets."""
+    from .datasets.download import list_datasets
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    datasets = list_datasets(include_remote=not args.local_only)
+
+    if not datasets:
+        print("No datasets found.")
+        print("Download one with: amplihack-eval download-dataset <name>")
+        return 0
+
+    print(f"{'Name':<30} {'Local':<8} {'Score':<10} {'Turns':<8} {'Facts':<8}")
+    print("-" * 64)
+    for ds in datasets:
+        name = ds.get("name", "unknown")
+        local = "yes" if ds.get("local") else "no"
+        score = f"{ds['baseline_score']:.2%}" if "baseline_score" in ds else "-"
+        turns = str(ds.get("turns", "-"))
+        facts = str(ds.get("facts_delivered", "-"))
+        print(f"{name:<30} {local:<8} {score:<10} {turns:<8} {facts:<8}")
+
+    return 0
+
+
 def _create_adapter(args: argparse.Namespace):
     """Create an agent adapter based on CLI args."""
     adapter_type = getattr(args, "adapter", "http")
+    load_db = getattr(args, "load_db", "")
 
     if adapter_type == "learning-agent":
         from .adapters.learning_agent import LearningAgentAdapter
 
+        storage_path = load_db if load_db else "/tmp/eval_memory_db"
         return LearningAgentAdapter(
             model=getattr(args, "model", ""),
+            storage_path=storage_path,
         )
 
     elif adapter_type == "subprocess":
@@ -218,6 +300,16 @@ def main() -> None:
         default=10,
         help="Number of parallel workers for question answering/grading (1=sequential, max 20)",
     )
+    run_parser.add_argument(
+        "--skip-learning",
+        action="store_true",
+        help="Skip learning phase (requires --load-db)",
+    )
+    run_parser.add_argument(
+        "--load-db",
+        default="",
+        help="Path to a pre-built memory DB to load instead of learning",
+    )
 
     # --- compare ---
     cmp_parser = subparsers.add_parser("compare", help="Multi-seed comparison")
@@ -275,6 +367,24 @@ def main() -> None:
     rpt_parser = subparsers.add_parser("report", help="Print a saved report")
     rpt_parser.add_argument("report_file", help="Path to report JSON file")
 
+    # --- download-dataset ---
+    dl_parser = subparsers.add_parser(
+        "download-dataset", help="Download a pre-built learning DB dataset"
+    )
+    dl_parser.add_argument("dataset_name", help="Dataset name (e.g., 5000t-seed42-v1.0)")
+    dl_parser.add_argument(
+        "--output-dir", default="", help="Output directory (default: datasets/ in repo root)"
+    )
+    dl_parser.add_argument(
+        "--force", action="store_true", help="Re-download even if already exists"
+    )
+
+    # --- list-datasets ---
+    ls_parser = subparsers.add_parser("list-datasets", help="List available datasets")
+    ls_parser.add_argument(
+        "--local-only", action="store_true", help="Only show locally available datasets"
+    )
+
     args = parser.parse_args()
 
     if not args.command:
@@ -286,6 +396,8 @@ def main() -> None:
         "compare": _cmd_compare,
         "self-improve": _cmd_self_improve,
         "report": _cmd_report,
+        "download-dataset": _cmd_download_dataset,
+        "list-datasets": _cmd_list_datasets,
     }
 
     handler = handlers.get(args.command)

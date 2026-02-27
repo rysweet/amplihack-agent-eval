@@ -35,3 +35,7 @@ site/
 
 # uv lock file
 uv.lock
+
+# Dataset binary files (distributed via GitHub Releases, not git)
+datasets/*/memory_db/
+*.tar.gz

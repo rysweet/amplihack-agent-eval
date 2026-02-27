@@ -845,6 +845,52 @@ class EvalRunner:
 
         return report
 
+    def run_skip_learning(
+        self,
+        agent: AgentAdapter,
+        load_db_path: str,
+        grader_model: str = "",
+    ) -> EvalReport:
+        """Run evaluation with a pre-built memory DB, skipping the learning phase.
+
+        The agent must already have its memory loaded from load_db_path (done by
+        the adapter's storage_path parameter). This method only generates questions
+        and runs the quiz/grading phase.
+
+        Args:
+            agent: Agent with pre-loaded memory DB
+            load_db_path: Path to the pre-built DB (for logging)
+            grader_model: Model for LLM grading
+
+        Returns:
+            Complete EvalReport with learning_time_s = 0.0
+        """
+        logger.info(
+            "Starting skip-learning eval: %d turns (questions only), %d questions, db=%s",
+            self.num_turns,
+            self.num_questions,
+            load_db_path,
+        )
+
+        # Generate questions (needs ground truth for expected answers)
+        self.generate()
+        logger.info(
+            "Generated %d questions (learning skipped, using pre-built DB)",
+            len(self.questions),
+        )
+
+        # Quiz and grade (no learning phase)
+        report = self.evaluate(agent, grader_model=grader_model)
+        report.learning_time_s = 0.0
+
+        logger.info(
+            "Skip-learning eval complete: overall=%.2f%%, grading=%.1fs",
+            report.overall_score * 100,
+            report.grading_time_s,
+        )
+
+        return report
+
 
 def print_report(report: EvalReport) -> None:
     """Print a human-readable summary of the evaluation report."""

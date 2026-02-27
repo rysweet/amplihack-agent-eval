@@ -1,0 +1,193 @@
+{
+  "overall_score": 0.9047,
+  "num_turns": 5000,
+  "num_questions": 100,
+  "total_facts_delivered": 762,
+  "questioning_time_s": 1082.14,
+  "grading_time_s": 122.28,
+  "category_breakdown": [
+    {
+      "category": "adversarial_distractor",
+      "num_questions": 12,
+      "avg_score": 0.8958,
+      "min_score": 0.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.9167,
+        "specificity": 0.875,
+        "temporal_awareness": 0.5
+      }
+    },
+    {
+      "category": "cross_reference",
+      "num_questions": 5,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "distractor_resistance",
+      "num_questions": 3,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "confidence_calibration": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "incident_tracking",
+      "num_questions": 4,
+      "avg_score": 0.8375,
+      "min_score": 0.65,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.9375,
+        "temporal_awareness": 0.6,
+        "specificity": 0.875
+      }
+    },
+    {
+      "category": "infrastructure_knowledge",
+      "num_questions": 4,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "meta_memory",
+      "num_questions": 5,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "multi_hop_reasoning",
+      "num_questions": 12,
+      "avg_score": 0.9246,
+      "min_score": 0.7143,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.9221,
+        "specificity": 0.9221,
+        "temporal_awareness": 1.0
+      }
+    },
+    {
+      "category": "needle_in_haystack",
+      "num_questions": 8,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "numerical_precision",
+      "num_questions": 6,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "numerical_reasoning",
+      "num_questions": 7,
+      "avg_score": 0.869,
+      "min_score": 0.5,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.869,
+        "specificity": 0.869
+      }
+    },
+    {
+      "category": "problem_solving",
+      "num_questions": 4,
+      "avg_score": 1.0,
+      "min_score": 1.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "security_log_analysis",
+      "num_questions": 5,
+      "avg_score": 0.9833,
+      "min_score": 0.9167,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.975,
+        "specificity": 0.975,
+        "temporal_awareness": 1.0
+      }
+    },
+    {
+      "category": "source_attribution",
+      "num_questions": 5,
+      "avg_score": 0.995,
+      "min_score": 0.975,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 1.0,
+        "source_attribution": 0.99,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "temporal_evolution",
+      "num_questions": 10,
+      "avg_score": 0.8967,
+      "min_score": 0.5,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.8,
+        "temporal_awareness": 0.99,
+        "specificity": 1.0
+      }
+    },
+    {
+      "category": "temporal_trap",
+      "num_questions": 10,
+      "avg_score": 0.5333,
+      "min_score": 0.0,
+      "max_score": 1.0,
+      "dimension_averages": {
+        "factual_accuracy": 0.2,
+        "temporal_awareness": 0.9,
+        "specificity": 0.0
+      }
+    }
+  ],
+  "memory_stats": {
+    "sensory": 0,
+    "working": 0,
+    "episodic": 5000,
+    "semantic": 10854,
+    "procedural": 0,
+    "prospective": 0,
+    "total": 15854,
+    "total_experiences": 15854
+  }
+}

@@ -365,6 +365,63 @@ This example shows the agent knows the current value but lost the change history
 
 Same seed + same agent = same scores (within LLM grading variance). Multi-vote and multi-seed evaluation reduce this variance. For fully deterministic results, set all question rubrics and use `grading_mode="deterministic"`.
 
+## Pre-built Datasets
+
+### Skip the 4+ Hour Learning Phase
+
+The 5000-turn learning phase takes 4+ hours and requires 10,000+ LLM API calls. Pre-built datasets let you skip this entirely and jump straight to evaluation.
+
+### Available Datasets
+
+| Name | Turns | Seed | Facts | Baseline Score | Size |
+|------|-------|------|-------|---------------|------|
+| `5000t-seed42-v1.0` | 5,000 | 42 | 762 | 90.47% | 1.3 MB |
+
+### Download and Use
+
+```bash
+# List available datasets
+amplihack-eval list-datasets
+
+# Download a pre-built dataset
+amplihack-eval download-dataset 5000t-seed42-v1.0
+
+# Run evaluation using the pre-built DB (skip 4+ hour learning phase)
+amplihack-eval run \
+  --adapter learning-agent \
+  --skip-learning \
+  --load-db datasets/5000t-seed42-v1.0/memory_db \
+  --turns 5000 \
+  --questions 100
+```
+
+### Programmatic Usage
+
+```python
+from amplihack_eval.datasets import download_dataset, list_datasets
+
+# List available datasets
+datasets = list_datasets()
+for ds in datasets:
+    print(f"{ds['name']}: {'local' if ds.get('local') else 'remote'}")
+
+# Download a dataset
+path = download_dataset("5000t-seed42-v1.0")
+
+# Use with evaluation
+from amplihack_eval.adapters.learning_agent import LearningAgentAdapter
+adapter = LearningAgentAdapter(storage_path=path / "memory_db")
+```
+
+### Dataset Structure
+
+Each dataset contains:
+- `metadata.json` -- Configuration and provenance (turns, seed, facts, baseline score, code version)
+- `baseline_results.json` -- Full evaluation scores at time of creation
+- `memory_db/` -- Kuzu graph database (the pre-built learning DB)
+
+Datasets are distributed via [GitHub Releases](https://github.com/rysweet/amplihack-agent-eval/releases) to keep the repository lightweight.
+
 ## CLI Usage
 
 ```bash
@@ -374,11 +431,19 @@ amplihack-eval run --turns 100 --questions 20 --adapter http --agent-url http://
 # Large-scale stress test
 amplihack-eval run --turns 5000 --questions 200 --grader-votes 5 --seed 42
 
+# Skip learning with pre-built DB
+amplihack-eval run --adapter learning-agent --skip-learning \
+  --load-db datasets/5000t-seed42-v1.0/memory_db --turns 5000 --questions 100
+
 # Multi-seed comparison
 amplihack-eval compare --seeds 42,123,456,789 --turns 100 --questions 20
 
 # With LearningAgent
 amplihack-eval run --turns 100 --adapter learning-agent --model claude-sonnet-4-5-20250929
+
+# Dataset management
+amplihack-eval list-datasets
+amplihack-eval download-dataset 5000t-seed42-v1.0
 ```
 
 ## Programmatic Usage
