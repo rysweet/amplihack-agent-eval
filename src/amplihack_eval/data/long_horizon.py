@@ -3123,9 +3123,10 @@ def _make_rubric(
 
     if keywords is None:
         keywords = []
-        # Extract numbers (including $, %, decimals)
+        # Extract numbers (including $, %, decimals). Strip trailing commas/periods
+        # so keywords like "22" match both "22, 80" and "Port 22\n- Port 80" formats.
         nums = re.findall(r"[\$]?[\d]+[.,]?[\d]*[%KMB]?", expected_answer)
-        keywords.extend(nums)
+        keywords.extend(n.rstrip(".,") for n in nums)
         # Extract capitalised multi-word names (e.g. "Sarah Chen", "Project Atlas")
         names = re.findall(r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+", expected_answer)
         keywords.extend(names)
