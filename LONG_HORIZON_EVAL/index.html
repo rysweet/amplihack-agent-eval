@@ -842,6 +842,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pre-built-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-built Datasets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-built Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#skip-the-4-hour-learning-phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skip the 4+ Hour Learning Phase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#available-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download-and-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Download and Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#programmatic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programmatic Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataset-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cli-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -853,7 +925,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#programmatic-usage" class="md-nav__link">
+  <a href="#programmatic-usage_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Programmatic Usage
@@ -1172,38 +1244,108 @@
 </ul>
 <h3 id="reproducibility">Reproducibility<a class="headerlink" href="#reproducibility" title="Permanent link">&para;</a></h3>
 <p>Same seed + same agent = same scores (within LLM grading variance). Multi-vote and multi-seed evaluation reduce this variance. For fully deterministic results, set all question rubrics and use <code>grading_mode="deterministic"</code>.</p>
-<h2 id="cli-usage">CLI Usage<a class="headerlink" href="#cli-usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Basic evaluation (100 turns, 20 questions)</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span><span class="w"> </span>--adapter<span class="w"> </span>http<span class="w"> </span>--agent-url<span class="w"> </span>http://localhost:8000
+<h2 id="pre-built-datasets">Pre-built Datasets<a class="headerlink" href="#pre-built-datasets" title="Permanent link">&para;</a></h2>
+<h3 id="skip-the-4-hour-learning-phase">Skip the 4+ Hour Learning Phase<a class="headerlink" href="#skip-the-4-hour-learning-phase" title="Permanent link">&para;</a></h3>
+<p>The 5000-turn learning phase takes 4+ hours and requires 10,000+ LLM API calls. Pre-built datasets let you skip this entirely and jump straight to evaluation.</p>
+<h3 id="available-datasets">Available Datasets<a class="headerlink" href="#available-datasets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Turns</th>
+<th>Seed</th>
+<th>Facts</th>
+<th>Baseline Score</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>5000t-seed42-v1.0</code></td>
+<td>5,000</td>
+<td>42</td>
+<td>762</td>
+<td>90.47%</td>
+<td>1.3 MB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="download-and-use">Download and Use<a class="headerlink" href="#download-and-use" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># List available datasets</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>amplihack-eval<span class="w"> </span>list-datasets
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Large-scale stress test</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">200</span><span class="w"> </span>--grader-votes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Download a pre-built dataset</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>amplihack-eval<span class="w"> </span>download-dataset<span class="w"> </span>5000t-seed42-v1.0
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Multi-seed comparison</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1"># With LearningAgent</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--model<span class="w"> </span>claude-sonnet-4-5-20250929
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Run evaluation using the pre-built DB (skip 4+ hour learning phase)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span>--load-db<span class="w"> </span>datasets/5000t-seed42-v1.0/memory_db<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span>--questions<span class="w"> </span><span class="m">100</span>
 </code></pre></div>
-<h2 id="programmatic-usage">Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvalRunner</span>
+<h3 id="programmatic-usage">Programmatic Usage<a class="headerlink" href="#programmatic-usage" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_dataset</span><span class="p">,</span> <span class="n">list_datasets</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># Create your agent (must implement AgentAdapter)</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">agent</span> <span class="o">=</span> <span class="n">MyAgent</span><span class="p">()</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="c1"># Run evaluation</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">runner</span> <span class="o">=</span> <span class="n">EvalRunner</span><span class="p">(</span><span class="n">num_turns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">num_questions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">grader_votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">report</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">grader_model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-5-20250929&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1"># Inspect results</span>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overall: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">category_breakdown</span><span class="p">:</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">avg_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2"> (n=</span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">num_questions</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="c1"># Save report</span>
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;report.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># List available datasets</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">datasets</span> <span class="o">=</span> <span class="n">list_datasets</span><span class="p">()</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">&#39;local&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;remote&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Download a dataset</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">path</span> <span class="o">=</span> <span class="n">download_dataset</span><span class="p">(</span><span class="s2">&quot;5000t-seed42-v1.0&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="c1"># Use with evaluation</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval.adapters.learning_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">LearningAgentAdapter</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="n">adapter</span> <span class="o">=</span> <span class="n">LearningAgentAdapter</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;memory_db&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="dataset-structure">Dataset Structure<a class="headerlink" href="#dataset-structure" title="Permanent link">&para;</a></h3>
+<p>Each dataset contains:
+- <code>metadata.json</code> -- Configuration and provenance (turns, seed, facts, baseline score, code version)
+- <code>baseline_results.json</code> -- Full evaluation scores at time of creation
+- <code>memory_db/</code> -- Kuzu graph database (the pre-built learning DB)</p>
+<p>Datasets are distributed via <a href="https://github.com/rysweet/amplihack-agent-eval/releases">GitHub Releases</a> to keep the repository lightweight.</p>
+<h2 id="cli-usage">CLI Usage<a class="headerlink" href="#cli-usage" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Basic evaluation (100 turns, 20 questions)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span><span class="w"> </span>--adapter<span class="w"> </span>http<span class="w"> </span>--agent-url<span class="w"> </span>http://localhost:8000
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Large-scale stress test</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">200</span><span class="w"> </span>--grader-votes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Skip learning with pre-built DB</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--skip-learning<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span>--load-db<span class="w"> </span>datasets/5000t-seed42-v1.0/memory_db<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">100</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="c1"># Multi-seed comparison</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="c1"># With LearningAgent</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--model<span class="w"> </span>claude-sonnet-4-5-20250929
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="c1"># Dataset management</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>amplihack-eval<span class="w"> </span>list-datasets
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>amplihack-eval<span class="w"> </span>download-dataset<span class="w"> </span>5000t-seed42-v1.0
+</code></pre></div>
+<h2 id="programmatic-usage_1">Programmatic Usage<a class="headerlink" href="#programmatic-usage_1" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvalRunner</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1"># Create your agent (must implement AgentAdapter)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">agent</span> <span class="o">=</span> <span class="n">MyAgent</span><span class="p">()</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># Run evaluation</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">runner</span> <span class="o">=</span> <span class="n">EvalRunner</span><span class="p">(</span><span class="n">num_turns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">num_questions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">grader_votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">report</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">grader_model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-5-20250929&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1"># Inspect results</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overall: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">category_breakdown</span><span class="p">:</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">avg_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2"> (n=</span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">num_questions</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="c1"># Save report</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;report.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </code></pre></div>
 
 
