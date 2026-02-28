@@ -2784,15 +2784,22 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         for db in INFRASTRUCTURE["databases"]:
             if turn_idx >= b_end:
                 break
+            replica_suffix = (
+                f" with {db['replicas']} replicas" if db.get("replicas") else ""
+            )
             content = (
                 f"Infrastructure: Database '{db['name']}' running {db['engine']} "
-                f"at {db['host']}:{db['port']}, size {db['size_gb']}GB."
+                f"at {db['host']}:{db['port']}, size {db['size_gb']}GB{replica_suffix}."
             )
             facts = [
                 {"entity": f"db_{db['name']}", "attribute": "engine", "value": db["engine"]},
                 {"entity": f"db_{db['name']}", "attribute": "host", "value": db["host"]},
                 {"entity": f"db_{db['name']}", "attribute": "size_gb", "value": str(db["size_gb"])},
             ]
+            if db.get("replicas"):
+                facts.append(
+                    {"entity": f"db_{db['name']}", "attribute": "replicas", "value": str(db["replicas"])}
+                )
             for f in facts:
                 ek = f"{f['entity']}.{f['attribute']}"
                 facts_by_entity.setdefault(ek, []).append({"value": f["value"], "turn": turn_idx})
