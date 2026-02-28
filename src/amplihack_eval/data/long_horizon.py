@@ -4275,6 +4275,11 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 category="incident_tracking",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "specificity"],
+                rubric=_make_rubric(
+                    "INC-2024-002 data exfiltration 15,000 customers",
+                    keywords=["INC-2024-002", "exfiltration", "15,000"],
+                    paraphrases=["15000", "svc_backup", "2.3"],
+                ),
             ),
             Question(
                 question_id="incident_03",
@@ -4283,6 +4288,11 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 category="incident_tracking",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "specificity"],
+                rubric=_make_rubric(
+                    "APT29 state-sponsored CVE-2024-3094",
+                    keywords=["APT29"],
+                    paraphrases=["state-sponsored", "CVE-2024-3094", "supply chain"],
+                ),
             ),
             Question(
                 question_id="incident_04",
@@ -4291,6 +4301,11 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 category="incident_tracking",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "temporal_awareness"],
+                rubric=_make_rubric(
+                    "Key revoked CloudTrail 3 times git-secrets",
+                    keywords=["revoked"],
+                    paraphrases=["CloudTrail", "git-secrets", "pre-commit"],
+                ),
             ),
             Question(
                 question_id="incident_05",
@@ -4299,6 +4314,11 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 category="incident_tracking",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "specificity"],
+                rubric=_make_rubric(
+                    "INC-2024-001 CVE-2024-21626 INC-2024-003 CVE-2024-3094",
+                    keywords=["CVE-2024-21626", "CVE-2024-3094"],
+                    paraphrases=["INC-2024-001", "INC-2024-003"],
+                ),
             ),
             Question(
                 question_id="incident_06",
@@ -4307,6 +4327,11 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 category="incident_tracking",
                 relevant_turns=[],
                 scoring_dimensions=["factual_accuracy", "temporal_awareness", "specificity"],
+                rubric=_make_rubric(
+                    "INC-2024-006 DLP 14:00 14:30 15:00 resigned",
+                    keywords=["14:00", "14:30"],
+                    paraphrases=["DLP", "resigned", "500", "confiscated"],
+                ),
             ),
         ]
         incident_questions = [
