@@ -59,6 +59,19 @@ from .tool_use_scenarios import (
     get_scenarios_by_difficulty,
     get_scenarios_by_domain,
 )
+from .hive_mind_scenarios import (
+    ALL_HIVE_MIND_SCENARIOS,
+    HiveMindQuestion,
+    HiveMindScenario,
+    SCENARIO_ADVERSARIAL as HIVE_SCENARIO_ADVERSARIAL,
+    SCENARIO_ARCH as HIVE_SCENARIO_ARCH,
+    SCENARIO_INCIDENT as HIVE_SCENARIO_INCIDENT,
+    SCENARIO_INFRA as HIVE_SCENARIO_INFRA,
+    SCENARIO_RESEARCH as HIVE_SCENARIO_RESEARCH,
+    get_scenario_by_id as get_hive_scenario_by_id,
+    get_scenarios_by_difficulty as get_hive_scenarios_by_difficulty,
+    get_questions_by_difficulty as get_hive_questions_by_difficulty,
+)
 
 __all__ = [
     # long_horizon
@@ -107,4 +120,16 @@ __all__ = [
     "get_decision_scenario_by_id",
     "get_decision_scenarios_by_domain",
     "get_decision_scenarios_by_difficulty",
+    # hive_mind_scenarios
+    "HiveMindQuestion",
+    "HiveMindScenario",
+    "ALL_HIVE_MIND_SCENARIOS",
+    "HIVE_SCENARIO_INFRA",
+    "HIVE_SCENARIO_ARCH",
+    "HIVE_SCENARIO_INCIDENT",
+    "HIVE_SCENARIO_RESEARCH",
+    "HIVE_SCENARIO_ADVERSARIAL",
+    "get_hive_scenario_by_id",
+    "get_hive_scenarios_by_difficulty",
+    "get_hive_questions_by_difficulty",
 ]
