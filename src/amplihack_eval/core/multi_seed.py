@@ -135,8 +135,62 @@ def _safe_stddev(values: list[float]) -> float:
     return math.sqrt(variance)
 
 
+# T-distribution critical values for 95% CI (two-tailed)
+# Precomputed for common small sample sizes to avoid scipy dependency
+_T_CRITICAL_95: dict[int, float] = {
+    2: 12.706,
+    3: 4.303,
+    4: 3.182,
+    5: 2.776,
+    6: 2.571,
+    7: 2.447,
+    8: 2.365,
+    9: 2.306,
+    10: 2.262,
+    15: 2.145,
+    20: 2.093,
+    25: 2.064,
+    30: 2.045,
+}
+
+
+def _t_critical(n: int) -> float:
+    """Return the t-distribution critical value for a 95% two-tailed CI.
+
+    Uses scipy.stats.t when available; otherwise falls back to a precomputed
+    lookup table for common small sample sizes, with 1.96 (z-score) as fallback
+    for n >= 30 where the t-distribution converges to normal.
+
+    Args:
+        n: Sample size (number of observations, NOT degrees of freedom).
+
+    Returns:
+        Critical value t* such that P(-t* < T < t*) = 0.95 with df = n - 1.
+        Returns 0.0 for n < 2 (no valid CI).
+    """
+    if n < 2:
+        return 0.0
+    try:
+        from scipy.stats import t  # type: ignore[import-untyped]
+
+        return float(t.ppf(0.975, df=n - 1))
+    except ImportError:
+        # Fall back to lookup table
+        if n in _T_CRITICAL_95:
+            return _T_CRITICAL_95[n]
+        # For unlisted n, find nearest smaller key (conservative estimate)
+        smaller = [k for k in _T_CRITICAL_95 if k <= n]
+        if smaller:
+            return _T_CRITICAL_95[max(smaller)]
+        return 1.96  # Large n fallback
+
+
 def _ci_95(mean: float, stddev: float, n: int) -> tuple[float, float, float]:
-    """Compute 95% confidence interval for a mean.
+    """Compute 95% confidence interval for a mean using t-distribution.
+
+    For small sample sizes (n < 30), the t-distribution gives wider, more
+    accurate intervals than the z-score (1.96). For example, with n=4 the
+    critical value is 3.182 instead of 1.96.
 
     Args:
         mean: Sample mean (expected in [0, 1] range)
@@ -149,7 +203,8 @@ def _ci_95(mean: float, stddev: float, n: int) -> tuple[float, float, float]:
     """
     if n < 2:
         return (mean, mean, 0.0)
-    moe = 1.96 * stddev / math.sqrt(n)
+    t_crit = _t_critical(n)
+    moe = t_crit * stddev / math.sqrt(n)
     return (max(0.0, mean - moe), min(1.0, mean + moe), moe)
 
 
@@ -398,4 +453,6 @@ __all__ = [
     "run_multi_seed_eval",
     "print_multi_seed_report",
     "_ci_95",
+    "_t_critical",
+    "_T_CRITICAL_95",
 ]
