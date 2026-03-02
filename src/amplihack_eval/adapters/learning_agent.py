@@ -47,6 +47,7 @@ class LearningAgentAdapter(AgentAdapter):
         model: str = "",
         storage_path: str | Path = "/tmp/eval_memory_db",
         use_hierarchical: bool = True,
+        hive_store: Any = None,
     ):
         try:
             from amplihack.agents.goal_seeking.learning_agent import (  # type: ignore[import-untyped]
@@ -61,11 +62,17 @@ class LearningAgentAdapter(AgentAdapter):
         import os
 
         self._model = model or os.environ.get("EVAL_MODEL", "claude-sonnet-4-5-20250929")
+
+        kwargs: dict[str, Any] = {}
+        if hive_store is not None:
+            kwargs["hive_store"] = hive_store
+
         self._agent = LearningAgent(
             agent_name=agent_name,
             model=self._model,
             storage_path=Path(storage_path),
             use_hierarchical=use_hierarchical,
+            **kwargs,
         )
 
     def learn(self, content: str) -> None:
