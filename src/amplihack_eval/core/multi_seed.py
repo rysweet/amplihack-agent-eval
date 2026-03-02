@@ -19,9 +19,10 @@ from __future__ import annotations
 
 import logging
 import math
+import statistics
 import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from ..adapters.base import AgentAdapter
@@ -56,6 +57,9 @@ class CategoryStats:
     min_score: float
     max_score: float
     scores_by_seed: dict[int, float]
+    ci_95_lower: float = 0.0
+    ci_95_upper: float = 0.0
+    margin_of_error: float = 0.0
 
 
 @dataclass
@@ -72,6 +76,11 @@ class MultiSeedReport:
     noisy_questions: list[QuestionVariance]
     all_question_variances: list[QuestionVariance]
     per_seed_reports: dict[int, EvalReport]
+    overall_ci_95_lower: float = 0.0
+    overall_ci_95_upper: float = 0.0
+    overall_margin_of_error: float = 0.0
+    repeats_per_seed: int = 1
+    intra_seed_stddev: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         """Convert report to JSON-serializable dictionary."""
@@ -82,6 +91,11 @@ class MultiSeedReport:
             "total_time_s": round(self.total_time_s, 2),
             "overall_mean": round(self.overall_mean, 4),
             "overall_stddev": round(self.overall_stddev, 4),
+            "overall_ci_95_lower": round(self.overall_ci_95_lower, 4),
+            "overall_ci_95_upper": round(self.overall_ci_95_upper, 4),
+            "overall_margin_of_error": round(self.overall_margin_of_error, 4),
+            "repeats_per_seed": self.repeats_per_seed,
+            "intra_seed_stddev": round(self.intra_seed_stddev, 4),
             "category_stats": [
                 {
                     "category": cs.category,
@@ -90,6 +104,9 @@ class MultiSeedReport:
                     "min_score": round(cs.min_score, 4),
                     "max_score": round(cs.max_score, 4),
                     "scores_by_seed": {str(k): round(v, 4) for k, v in cs.scores_by_seed.items()},
+                    "ci_95_lower": round(cs.ci_95_lower, 4),
+                    "ci_95_upper": round(cs.ci_95_upper, 4),
+                    "margin_of_error": round(cs.margin_of_error, 4),
                 }
                 for cs in self.category_stats
             ],
@@ -118,6 +135,79 @@ def _safe_stddev(values: list[float]) -> float:
     return math.sqrt(variance)
 
 
+# T-distribution critical values for 95% CI (two-tailed)
+# Precomputed for common small sample sizes to avoid scipy dependency
+_T_CRITICAL_95: dict[int, float] = {
+    2: 12.706,
+    3: 4.303,
+    4: 3.182,
+    5: 2.776,
+    6: 2.571,
+    7: 2.447,
+    8: 2.365,
+    9: 2.306,
+    10: 2.262,
+    15: 2.145,
+    20: 2.093,
+    25: 2.064,
+    30: 2.045,
+}
+
+
+def _t_critical(n: int) -> float:
+    """Return the t-distribution critical value for a 95% two-tailed CI.
+
+    Uses scipy.stats.t when available; otherwise falls back to a precomputed
+    lookup table for common small sample sizes, with 1.96 (z-score) as fallback
+    for n >= 30 where the t-distribution converges to normal.
+
+    Args:
+        n: Sample size (number of observations, NOT degrees of freedom).
+
+    Returns:
+        Critical value t* such that P(-t* < T < t*) = 0.95 with df = n - 1.
+        Returns 0.0 for n < 2 (no valid CI).
+    """
+    if n < 2:
+        return 0.0
+    try:
+        from scipy.stats import t  # type: ignore[import-untyped]
+
+        return float(t.ppf(0.975, df=n - 1))
+    except ImportError:
+        # Fall back to lookup table
+        if n in _T_CRITICAL_95:
+            return _T_CRITICAL_95[n]
+        # For unlisted n, find nearest smaller key (conservative estimate)
+        smaller = [k for k in _T_CRITICAL_95 if k <= n]
+        if smaller:
+            return _T_CRITICAL_95[max(smaller)]
+        return 1.96  # Large n fallback
+
+
+def _ci_95(mean: float, stddev: float, n: int) -> tuple[float, float, float]:
+    """Compute 95% confidence interval for a mean using t-distribution.
+
+    For small sample sizes (n < 30), the t-distribution gives wider, more
+    accurate intervals than the z-score (1.96). For example, with n=4 the
+    critical value is 3.182 instead of 1.96.
+
+    Args:
+        mean: Sample mean (expected in [0, 1] range)
+        stddev: Sample standard deviation
+        n: Sample size
+
+    Returns:
+        (lower, upper, margin_of_error) tuple.
+        Bounds are clamped to [0.0, 1.0]. Returns (mean, mean, 0.0) for n < 2.
+    """
+    if n < 2:
+        return (mean, mean, 0.0)
+    t_crit = _t_critical(n)
+    moe = t_crit * stddev / math.sqrt(n)
+    return (max(0.0, mean - moe), min(1.0, mean + moe), moe)
+
+
 def run_multi_seed_eval(
     agent_factory: Callable[[], AgentAdapter],
     num_turns: int = 100,
@@ -125,6 +215,7 @@ def run_multi_seed_eval(
     seeds: list[int] | None = None,
     grader_model: str = "",
     grader_votes: int = 3,
+    repeats_per_seed: int = 1,
 ) -> MultiSeedReport:
     """Run long-horizon eval across multiple seeds.
 
@@ -136,33 +227,65 @@ def run_multi_seed_eval(
         seeds: Random seeds to use (default: [42, 123, 456, 789])
         grader_model: Model for LLM grading
         grader_votes: Number of grading votes per question
+        repeats_per_seed: Number of repeat runs per seed. When > 1, each seed
+            is run N times. The median-scoring run is kept as the representative
+            report for that seed. Intra-seed stddev is tracked.
 
     Returns:
-        MultiSeedReport with variance analysis
+        MultiSeedReport with variance analysis and confidence intervals
     """
     seeds = seeds or DEFAULT_SEEDS
     start_time = time.time()
 
     per_seed_reports: dict[int, EvalReport] = {}
+    intra_seed_stddevs: list[float] = []
 
     for seed in seeds:
-        logger.info("=== Running seed %d ===", seed)
+        if repeats_per_seed > 1:
+            # Run multiple times per seed, keep the median
+            repeat_reports: list[EvalReport] = []
+            for rep in range(repeats_per_seed):
+                logger.info("=== Running seed %d, repeat %d/%d ===", seed, rep + 1, repeats_per_seed)
+                agent = agent_factory()
+                try:
+                    evaluator = EvalRunner(
+                        num_turns=num_turns,
+                        num_questions=num_questions,
+                        seed=seed,
+                        grader_votes=grader_votes,
+                    )
+                    report = evaluator.run(agent, grader_model=grader_model)
+                    repeat_reports.append(report)
+                    logger.info(
+                        "Seed %d repeat %d: overall=%.2f%%",
+                        seed, rep + 1, report.overall_score * 100,
+                    )
+                finally:
+                    agent.close()
 
-        # Fresh agent per seed
-        agent = agent_factory()
+            # Pick the report closest to the median score
+            scores = [r.overall_score for r in repeat_reports]
+            median_score = statistics.median(scores)
+            best_report = min(repeat_reports, key=lambda r: abs(r.overall_score - median_score))
+            per_seed_reports[seed] = best_report
 
-        try:
-            evaluator = EvalRunner(
-                num_turns=num_turns,
-                num_questions=num_questions,
-                seed=seed,
-                grader_votes=grader_votes,
-            )
-            report = evaluator.run(agent, grader_model=grader_model)
-            per_seed_reports[seed] = report
-            logger.info("Seed %d complete: overall=%.2f%%", seed, report.overall_score * 100)
-        finally:
-            agent.close()
+            # Track intra-seed variance
+            intra_seed_stddevs.append(_safe_stddev(scores))
+        else:
+            logger.info("=== Running seed %d ===", seed)
+            agent = agent_factory()
+            try:
+                evaluator = EvalRunner(
+                    num_turns=num_turns,
+                    num_questions=num_questions,
+                    seed=seed,
+                    grader_votes=grader_votes,
+                )
+                report = evaluator.run(agent, grader_model=grader_model)
+                per_seed_reports[seed] = report
+                logger.info("Seed %d complete: overall=%.2f%%", seed, report.overall_score * 100)
+            finally:
+                agent.close()
 
     total_time = time.time() - start_time
 
@@ -170,6 +293,15 @@ def run_multi_seed_eval(
     overall_scores = [r.overall_score for r in per_seed_reports.values()]
     overall_mean = sum(overall_scores) / len(overall_scores) if overall_scores else 0.0
     overall_stddev = _safe_stddev(overall_scores)
+
+    # Compute overall 95% CI
+    n_seeds = len(overall_scores)
+    overall_ci_lower, overall_ci_upper, overall_moe = _ci_95(overall_mean, overall_stddev, n_seeds)
+
+    # Compute mean intra-seed stddev
+    intra_seed_stddev = (
+        sum(intra_seed_stddevs) / len(intra_seed_stddevs) if intra_seed_stddevs else 0.0
+    )
 
     # Compute per-category stats
     all_categories: set[str] = set()
@@ -187,14 +319,21 @@ def run_multi_seed_eval(
                     break
 
         values = list(cat_scores.values())
+        cat_mean = sum(values) / len(values) if values else 0.0
+        cat_stddev = _safe_stddev(values)
+        cat_ci_lower, cat_ci_upper, cat_moe = _ci_95(cat_mean, cat_stddev, len(values))
+
         category_stats.append(
             CategoryStats(
                 category=cat,
-                mean_score=sum(values) / len(values) if values else 0.0,
-                stddev=_safe_stddev(values),
+                mean_score=cat_mean,
+                stddev=cat_stddev,
                 min_score=min(values) if values else 0.0,
                 max_score=max(values) if values else 0.0,
                 scores_by_seed=cat_scores,
+                ci_95_lower=cat_ci_lower,
+                ci_95_upper=cat_ci_upper,
+                margin_of_error=cat_moe,
             )
         )
 
@@ -252,6 +391,11 @@ def run_multi_seed_eval(
         noisy_questions=noisy,
         all_question_variances=all_variances,
         per_seed_reports=per_seed_reports,
+        overall_ci_95_lower=overall_ci_lower,
+        overall_ci_95_upper=overall_ci_upper,
+        overall_margin_of_error=overall_moe,
+        repeats_per_seed=repeats_per_seed,
+        intra_seed_stddev=intra_seed_stddev,
     )
 
 
@@ -262,8 +406,20 @@ def print_multi_seed_report(report: MultiSeedReport) -> None:
     print("=" * 70)
     print(f"Seeds: {report.seeds}")
     print(f"Turns: {report.num_turns} | Questions: {report.num_questions}")
+    if report.repeats_per_seed > 1:
+        print(f"Repeats per seed: {report.repeats_per_seed}")
     print(f"Total time: {report.total_time_s:.1f}s")
-    print(f"\nOVERALL: {report.overall_mean:.2%} +/- {report.overall_stddev:.2%}")
+
+    if report.overall_margin_of_error > 0:
+        moe_pp = report.overall_margin_of_error * 100
+        lo_pct = report.overall_ci_95_lower * 100
+        hi_pct = report.overall_ci_95_upper * 100
+        print(
+            f"\nOVERALL: {report.overall_mean:.2%} "
+            f"+/- {moe_pp:.1f}pp (95% CI: {lo_pct:.1f}% -- {hi_pct:.1f}%)"
+        )
+    else:
+        print(f"\nOVERALL: {report.overall_mean:.2%} +/- {report.overall_stddev:.2%}")
 
     print("\nPER-SEED SCORES:")
     for seed, seed_report in sorted(report.per_seed_reports.items()):
@@ -296,4 +452,7 @@ __all__ = [
     "CategoryStats",
     "run_multi_seed_eval",
     "print_multi_seed_report",
+    "_ci_95",
+    "_t_critical",
+    "_T_CRITICAL_95",
 ]

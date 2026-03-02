@@ -56,7 +56,39 @@ def _cmd_run(args: argparse.Namespace) -> int:
         print("Error: Could not create agent adapter. See --adapter options.", file=sys.stderr)
         return 1
 
+    repeats = getattr(args, "repeats", 1)
+
     try:
+        if repeats > 1:
+            # Use multi-seed eval with single seed + repeats for intra-seed CI
+            from .core.multi_seed import print_multi_seed_report, run_multi_seed_eval
+
+            def agent_factory():
+                a = _create_adapter(args)
+                if a is None:
+                    raise RuntimeError("Failed to create agent adapter")
+                return a
+
+            adapter.close()  # Close the one we created; factory will make fresh ones
+
+            ms_report = run_multi_seed_eval(
+                agent_factory=agent_factory,
+                num_turns=args.turns,
+                num_questions=args.questions,
+                seeds=[args.seed],
+                grader_model=args.grader_model,
+                grader_votes=args.grader_votes,
+                repeats_per_seed=repeats,
+            )
+
+            print_multi_seed_report(ms_report)
+
+            report_path = output_dir / "report.json"
+            with open(report_path, "w") as f:
+                json.dump(ms_report.to_dict(), f, indent=2)
+            print(f"\nReport saved to {report_path}")
+            return 0
+
         runner = EvalRunner(
             num_turns=args.turns,
             num_questions=args.questions,
@@ -100,7 +132,10 @@ def _cmd_compare(args: argparse.Namespace) -> int:
     seeds = [int(s.strip()) for s in args.seeds.split(",")]
 
     def agent_factory():
-        return _create_adapter(args)
+        a = _create_adapter(args)
+        if a is None:
+            raise RuntimeError("Failed to create agent adapter")
+        return a
 
     report = run_multi_seed_eval(
         agent_factory=agent_factory,
@@ -109,6 +144,7 @@ def _cmd_compare(args: argparse.Namespace) -> int:
         seeds=seeds,
         grader_model=args.grader_model,
         grader_votes=args.grader_votes,
+        repeats_per_seed=getattr(args, "repeats", 1),
     )
 
     print_multi_seed_report(report)
@@ -145,7 +181,10 @@ def _cmd_self_improve(args: argparse.Namespace) -> int:
     )
 
     def agent_factory():
-        return _create_adapter(args)
+        a = _create_adapter(args)
+        if a is None:
+            raise RuntimeError("Failed to create agent adapter")
+        return a
 
     result = run_self_improve(
         config=config,
@@ -310,6 +349,12 @@ def main() -> None:
         default="",
         help="Path to a pre-built memory DB to load instead of learning",
     )
+    run_parser.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="Repeats per seed for intra-seed variance (default: 1)",
+    )
 
     # --- compare ---
     cmp_parser = subparsers.add_parser("compare", help="Multi-seed comparison")
@@ -333,6 +378,12 @@ def main() -> None:
         type=int,
         default=10,
         help="Number of parallel workers for question answering/grading (1=sequential, max 20)",
+    )
+    cmp_parser.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="Repeats per seed for intra-seed variance (default: 1)",
     )
 
     # --- self-improve ---
