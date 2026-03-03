@@ -268,6 +268,43 @@ def _cmd_list_datasets(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_continuous(args: argparse.Namespace) -> int:
+    """Run continuous evaluation across single/flat/federated conditions."""
+    from .core.continuous_eval import print_continuous_report, run_continuous_eval
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s %(name)s %(levelname)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    conditions = [c.strip() for c in args.conditions.split(",")]
+
+    report = run_continuous_eval(
+        num_turns=args.turns,
+        num_questions=args.questions,
+        num_agents=args.agents,
+        num_groups=args.groups,
+        seed=args.seed,
+        model=getattr(args, "model", ""),
+        parallel_workers=getattr(args, "parallel_workers", 5),
+        prompt_variant=getattr(args, "prompt_variant", None),
+        conditions=conditions,
+    )
+
+    print_continuous_report(report)
+
+    report_path = output_dir / "continuous_report.json"
+    with open(report_path, "w") as f:
+        json.dump(report.to_dict(), f, indent=2)
+    print(f"\nReport saved to {report_path}")
+
+    return 0
+
+
 def _create_adapter(args: argparse.Namespace):
     """Create an agent adapter based on CLI args."""
     adapter_type = getattr(args, "adapter", "http")
@@ -277,9 +314,14 @@ def _create_adapter(args: argparse.Namespace):
         from .adapters.learning_agent import LearningAgentAdapter
 
         storage_path = load_db if load_db else "/tmp/eval_memory_db"
+        prompt_variant = getattr(args, "prompt_variant", None)
+        kwargs = {}
+        if prompt_variant is not None:
+            kwargs["prompt_variant"] = prompt_variant
         return LearningAgentAdapter(
             model=getattr(args, "model", ""),
             storage_path=storage_path,
+            **kwargs,
         )
 
     elif adapter_type == "subprocess":
@@ -354,6 +396,12 @@ def main() -> None:
         type=int,
         default=1,
         help="Repeats per seed for intra-seed variance (default: 1)",
+    )
+    run_parser.add_argument(
+        "--prompt-variant",
+        type=int,
+        default=None,
+        help="Prompt variant number (1-5) for testing different system prompts",
     )
 
     # --- compare ---
@@ -436,6 +484,36 @@ def main() -> None:
         "--local-only", action="store_true", help="Only show locally available datasets"
     )
 
+    # --- continuous ---
+    cont_parser = subparsers.add_parser(
+        "continuous",
+        help="Run continuous eval comparing single/flat/federated hive conditions",
+    )
+    cont_parser.add_argument("--turns", type=int, default=100, help="Dialogue turns (default: 100)")
+    cont_parser.add_argument("--questions", type=int, default=50, help="Quiz questions (default: 50)")
+    cont_parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    cont_parser.add_argument("--agents", type=int, default=5, help="Number of agents for hive conditions")
+    cont_parser.add_argument("--groups", type=int, default=2, help="Number of groups for federated")
+    cont_parser.add_argument("--model", default="", help="Agent/grader model")
+    cont_parser.add_argument("--output-dir", default="/tmp/amplihack-eval-continuous", help="Output dir")
+    cont_parser.add_argument(
+        "--prompt-variant",
+        type=int,
+        default=None,
+        help="Prompt variant number (1-5) for testing different system prompts",
+    )
+    cont_parser.add_argument(
+        "--conditions",
+        default="single,flat,federated",
+        help="Comma-separated conditions to run (default: single,flat,federated)",
+    )
+    cont_parser.add_argument(
+        "--parallel-workers",
+        type=int,
+        default=5,
+        help="Parallel workers for Q&A grading (default: 5)",
+    )
+
     args = parser.parse_args()
 
     if not args.command:
@@ -449,6 +527,7 @@ def main() -> None:
         "report": _cmd_report,
         "download-dataset": _cmd_download_dataset,
         "list-datasets": _cmd_list_datasets,
+        "continuous": _cmd_continuous,
     }
 
     handler = handlers.get(args.command)
