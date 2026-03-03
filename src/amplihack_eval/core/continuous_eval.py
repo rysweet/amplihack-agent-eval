@@ -299,7 +299,8 @@ def _run_flat(
         embedder = EmbeddingGenerator()
         if not embedder.available:
             embedder = None
-    except Exception:
+    except Exception as e:
+        logger.warning("Embedding generator unavailable: %s", e)
         embedder = None
 
     hive = InMemoryHiveGraph(
@@ -391,7 +392,8 @@ def _run_federated(
         embedder = EmbeddingGenerator()
         if not embedder.available:
             embedder = None
-    except Exception:
+    except Exception as e:
+        logger.warning("Embedding generator unavailable: %s", e)
         embedder = None
 
     root_hive = InMemoryHiveGraph(
