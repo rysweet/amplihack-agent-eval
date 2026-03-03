@@ -59,6 +59,12 @@ from .tool_use_scenarios import (
     get_scenarios_by_difficulty,
     get_scenarios_by_domain,
 )
+from .security_analyst_scenario import (
+    LEVEL_NAMES as SECURITY_LEVEL_NAMES,
+    LEVEL_DISTRIBUTION as SECURITY_LEVEL_DISTRIBUTION,
+    generate_dialogue as generate_security_dialogue,
+    generate_questions as generate_security_questions,
+)
 from .hive_mind_scenarios import (
     ALL_HIVE_MIND_SCENARIOS,
     HiveMindQuestion,
@@ -132,4 +138,9 @@ __all__ = [
     "get_hive_scenario_by_id",
     "get_hive_scenarios_by_difficulty",
     "get_hive_questions_by_difficulty",
+    # security_analyst_scenario
+    "SECURITY_LEVEL_NAMES",
+    "SECURITY_LEVEL_DISTRIBUTION",
+    "generate_security_dialogue",
+    "generate_security_questions",
 ]
