@@ -379,8 +379,12 @@ def _run_federated(
     parallel_workers: int,
     prompt_variant: int | None,
 ) -> ConditionResult:
-    """Run FEDERATED: N agents in M groups with federation tree."""
-    from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
+    """Run FEDERATED: N agents in M groups with federation tree.
+
+    Uses DistributedHiveGraph (DHT-sharded) instead of InMemoryHiveGraph
+    to avoid Kuzu mmap exhaustion with 100+ concurrent agents.
+    Falls back to InMemoryHiveGraph if DistributedHiveGraph unavailable.
+    """
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
     logger.info("=== FEDERATED: %d agents, %d groups ===", num_agents, num_groups)
@@ -396,7 +400,19 @@ def _run_federated(
         logger.warning("Embedding generator unavailable: %s", e)
         embedder = None
 
-    root_hive = InMemoryHiveGraph(
+    # Use DistributedHiveGraph (DHT-sharded) for large agent counts
+    try:
+        from amplihack.agents.goal_seeking.hive_mind.distributed_hive_graph import DistributedHiveGraph  # type: ignore[import-untyped]
+
+        HiveGraphClass = DistributedHiveGraph
+        logger.info("Using DistributedHiveGraph (DHT-sharded) for %d agents", num_agents)
+    except ImportError:
+        from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
+
+        HiveGraphClass = InMemoryHiveGraph
+        logger.warning("DistributedHiveGraph unavailable, falling back to InMemoryHiveGraph")
+
+    root_hive = HiveGraphClass(
         "root-hive",
         embedding_generator=embedder,
         enable_gossip=True,
@@ -404,7 +420,7 @@ def _run_federated(
     )
     group_hives = []
     for g in range(num_groups):
-        group_hive = InMemoryHiveGraph(
+        group_hive = HiveGraphClass(
             f"group-{g}",
             embedding_generator=embedder,
             enable_gossip=True,
