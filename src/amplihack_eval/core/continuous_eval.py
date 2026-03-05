@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 import math
+import statistics
 import tempfile
 import threading
 import time
@@ -50,6 +51,9 @@ class ConditionResult:
     elapsed_s: float
     hive_facts: int = 0
     per_level_scores: dict[str, float] = field(default_factory=dict)
+    repeat_scores: list[float] = field(default_factory=list)
+    median_score: float = 0.0
+    score_stddev: float = 0.0
 
 
 @dataclass
@@ -70,6 +74,9 @@ class ContinuousEvalReport:
                     "num_agents": c.num_agents,
                     "num_groups": c.num_groups,
                     "overall_score": round(c.report.overall_score, 4),
+                    "median_score": round(c.median_score, 4),
+                    "repeat_scores": [round(s, 4) for s in c.repeat_scores],
+                    "score_stddev": round(c.score_stddev, 4),
                     "elapsed_s": round(c.elapsed_s, 1),
                     "hive_facts": c.hive_facts,
                     "per_level_scores": {
@@ -388,11 +395,16 @@ def _run_single(
     tmpdir: str,
     parallel_workers: int,
     prompt_variant: int | None,
+    repeats: int = 3,
 ) -> ConditionResult:
-    """Run SINGLE condition: 1 LearningAgent, no hive."""
+    """Run SINGLE condition: 1 LearningAgent, no hive.
+
+    Learns ONCE, then evaluates repeats times on the same adapter.
+    Returns median_score as the primary result.
+    """
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
-    logger.info("=== SINGLE: 1 agent, no hive ===")
+    logger.info("=== SINGLE: 1 agent, no hive (repeats=%d) ===", repeats)
     t0 = time.time()
 
     kwargs: dict[str, Any] = {}
@@ -419,23 +431,37 @@ def _run_single(
         parallel_workers=parallel_workers,
     )
 
-    # Feed dialogue turns
+    # Learn ONCE
     learn_t0 = time.time()
     for turn in ground_truth.turns:
         adapter.learn(turn.content)
     learn_time = time.time() - learn_t0
 
-    # Evaluate
-    report = runner.evaluate(adapter, questions=questions, grader_model=model)
-    report.learning_time_s = learn_time
-    report.num_turns = num_turns
-    report.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+    # Evaluate N times on the same adapter
+    repeat_scores: list[float] = []
+    report = None
+    for i in range(repeats):
+        logger.info("SINGLE eval repeat %d/%d", i + 1, repeats)
+        r = runner.evaluate(adapter, questions=questions, grader_model=model)
+        r.learning_time_s = learn_time
+        r.num_turns = num_turns
+        r.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+        repeat_scores.append(r.overall_score)
+        report = r
+
+    assert report is not None  # repeats >= 1
+
+    median_score = statistics.median(repeat_scores)
+    score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
     adapter.close()
 
     per_level = _compute_per_level_scores(report)
-    logger.info("SINGLE done: %.2f%% in %.1fs", report.overall_score * 100, elapsed)
+    logger.info(
+        "SINGLE done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs",
+        median_score * 100, score_stddev, repeat_scores, elapsed,
+    )
 
     return ConditionResult(
         condition="single",
@@ -444,6 +470,9 @@ def _run_single(
         report=report,
         elapsed_s=elapsed,
         per_level_scores=per_level,
+        repeat_scores=repeat_scores,
+        median_score=median_score,
+        score_stddev=score_stddev,
     )
 
 
@@ -456,12 +485,17 @@ def _run_flat(
     tmpdir: str,
     parallel_workers: int,
     prompt_variant: int | None,
+    repeats: int = 3,
 ) -> ConditionResult:
-    """Run HIVE_FLAT: N agents sharing a single InMemoryHiveGraph."""
+    """Run HIVE_FLAT: N agents sharing a single InMemoryHiveGraph.
+
+    Learns ONCE, then evaluates repeats times on the same adapter.
+    Returns median_score as the primary result.
+    """
     from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
-    logger.info("=== FLAT: %d agents, shared hive ===", num_agents)
+    logger.info("=== FLAT: %d agents, shared hive (repeats=%d) ===", num_agents, repeats)
     t0 = time.time()
 
     try:
@@ -511,6 +545,7 @@ def _run_flat(
         parallel_workers=parallel_workers,
     )
 
+    # Learn ONCE
     learn_time = adapter.learn_parallel(ground_truth.turns)
 
     # Run gossip rounds to spread knowledge before Q&A
@@ -521,17 +556,32 @@ def _run_flat(
     except Exception as e:
         logger.warning("Flat hive gossip failed: %s", e)
 
-    report = runner.evaluate(adapter, questions=questions, grader_model=model)
-    report.learning_time_s = learn_time
-    report.num_turns = num_turns
-    report.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+    # Evaluate N times on the same adapter
+    repeat_scores: list[float] = []
+    report = None
+    for i in range(repeats):
+        logger.info("FLAT eval repeat %d/%d", i + 1, repeats)
+        r = runner.evaluate(adapter, questions=questions, grader_model=model)
+        r.learning_time_s = learn_time
+        r.num_turns = num_turns
+        r.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+        repeat_scores.append(r.overall_score)
+        report = r
+
+    assert report is not None  # repeats >= 1
+
+    median_score = statistics.median(repeat_scores)
+    score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
     hive_facts = hive.get_stats().get("fact_count", 0)
     adapter.close()
 
     per_level = _compute_per_level_scores(report)
-    logger.info("FLAT done: %.2f%% in %.1fs (hive facts: %d)", report.overall_score * 100, elapsed, hive_facts)
+    logger.info(
+        "FLAT done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
+        median_score * 100, score_stddev, repeat_scores, elapsed, hive_facts,
+    )
 
     return ConditionResult(
         condition="flat",
@@ -541,6 +591,9 @@ def _run_flat(
         elapsed_s=elapsed,
         hive_facts=hive_facts,
         per_level_scores=per_level,
+        repeat_scores=repeat_scores,
+        median_score=median_score,
+        score_stddev=score_stddev,
     )
 
 
@@ -554,12 +607,16 @@ def _run_federated(
     tmpdir: str,
     parallel_workers: int,
     prompt_variant: int | None,
+    repeats: int = 3,
 ) -> ConditionResult:
     """Run FEDERATED: N agents in M groups with federation tree.
 
     Uses DistributedHiveGraph (DHT-sharded) instead of InMemoryHiveGraph
     to avoid Kuzu mmap exhaustion with 100+ concurrent agents.
     Falls back to InMemoryHiveGraph if DistributedHiveGraph unavailable.
+
+    Learns ONCE, then evaluates repeats times on the same adapter.
+    Returns median_score as the primary result.
     """
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
@@ -642,6 +699,7 @@ def _run_federated(
         parallel_workers=parallel_workers,
     )
 
+    # Learn ONCE
     learn_time = adapter.learn_parallel(ground_truth.turns)
 
     # Run gossip rounds on all group hives and root to spread knowledge before Q&A
@@ -658,10 +716,22 @@ def _run_federated(
             logger.warning("Gossip failed on hive %s: %s", getattr(h, "hive_id", "?"), e)
     logger.info("Federated gossip rounds complete")
 
-    report = runner.evaluate(adapter, questions=questions, grader_model=model)
-    report.learning_time_s = learn_time
-    report.num_turns = num_turns
-    report.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+    # Evaluate N times on the same adapter
+    repeat_scores: list[float] = []
+    report = None
+    for i in range(repeats):
+        logger.info("FEDERATED eval repeat %d/%d", i + 1, repeats)
+        r = runner.evaluate(adapter, questions=questions, grader_model=model)
+        r.learning_time_s = learn_time
+        r.num_turns = num_turns
+        r.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+        repeat_scores.append(r.overall_score)
+        report = r
+
+    assert report is not None  # repeats >= 1
+
+    median_score = statistics.median(repeat_scores)
+    score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
     total_hive_facts = 0
@@ -672,8 +742,8 @@ def _run_federated(
 
     per_level = _compute_per_level_scores(report)
     logger.info(
-        "FEDERATED done: %.2f%% in %.1fs (hive facts: %d)",
-        report.overall_score * 100, elapsed, total_hive_facts,
+        "FEDERATED done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
+        median_score * 100, score_stddev, repeat_scores, elapsed, total_hive_facts,
     )
 
     return ConditionResult(
@@ -684,6 +754,9 @@ def _run_federated(
         elapsed_s=elapsed,
         hive_facts=total_hive_facts,
         per_level_scores=per_level,
+        repeat_scores=repeat_scores,
+        median_score=median_score,
+        score_stddev=score_stddev,
     )
 
 
@@ -702,10 +775,12 @@ def run_continuous_eval(
     parallel_workers: int = 5,
     prompt_variant: int | None = None,
     conditions: list[str] | None = None,
+    repeats: int = 3,
 ) -> ContinuousEvalReport:
     """Run continuous evaluation across single, flat, and federated conditions.
 
     Uses the security analyst scenario with L1-L12 questions for all conditions.
+    Learns once per condition, evaluates N times (repeats), reports median score.
 
     Args:
         num_turns: Number of dialogue turns
@@ -717,6 +792,7 @@ def run_continuous_eval(
         parallel_workers: Parallel workers for Q&A grading
         prompt_variant: Optional prompt variant (1-5)
         conditions: Which conditions to run (default: all three)
+        repeats: Number of evaluation repeats per condition (default: 3); median taken
 
     Returns:
         ContinuousEvalReport comparing all conditions
@@ -738,13 +814,14 @@ def run_continuous_eval(
         "model": model,
         "prompt_variant": prompt_variant,
         "conditions": conditions,
+        "repeats": repeats,
     }
 
     logger.info("=" * 60)
     logger.info("Continuous Evaluation — Security Analyst Scenario")
     logger.info(
-        "Turns=%d, Questions=%d, Agents=%d, Groups=%d, Variant=%s",
-        num_turns, num_questions, num_agents, num_groups, prompt_variant,
+        "Turns=%d, Questions=%d, Agents=%d, Groups=%d, Variant=%s, Repeats=%d",
+        num_turns, num_questions, num_agents, num_groups, prompt_variant, repeats,
     )
     logger.info("Conditions: %s", conditions)
     logger.info("=" * 60)
@@ -755,21 +832,21 @@ def run_continuous_eval(
         if "single" in conditions:
             r = _run_single(
                 model, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant,
+                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
             )
             results.append(r)
 
         if "flat" in conditions:
             r = _run_flat(
                 model, num_agents, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant,
+                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
             )
             results.append(r)
 
         if "federated" in conditions:
             r = _run_federated(
                 model, num_agents, num_groups, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant,
+                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
             )
             results.append(r)
 
@@ -829,21 +906,30 @@ def print_continuous_report(report: ContinuousEvalReport) -> None:
 
     cfg = report.config
     print(f"Turns: {cfg['num_turns']}, Questions: {cfg['num_questions']}, "
-          f"Agents: {cfg['num_agents']}, Groups: {cfg['num_groups']}")
+          f"Agents: {cfg['num_agents']}, Groups: {cfg['num_groups']}, "
+          f"Repeats: {cfg.get('repeats', 1)}")
     if cfg.get("prompt_variant"):
         print(f"Prompt Variant: {cfg['prompt_variant']}")
     print()
 
-    # Overall scores
-    print(f"{'Condition':<15} {'Agents':>7} {'Score':>8} {'Time':>8} {'Hive Facts':>11}")
-    print("-" * 55)
+    # Overall scores — show median as primary
+    print(f"{'Condition':<15} {'Agents':>7} {'Median':>8} {'Stddev':>8} {'Time':>8} {'Hive Facts':>11}")
+    print("-" * 65)
     for c in report.conditions:
         print(
             f"{c.condition:<15} {c.num_agents:>7} "
-            f"{c.report.overall_score:>7.1%} "
+            f"{c.median_score:>7.1%} "
+            f"{c.score_stddev:>7.3f} "
             f"{c.elapsed_s:>7.1f}s "
             f"{c.hive_facts:>11}"
         )
+
+    # Per-repeat scores
+    print()
+    print("Per-repeat scores:")
+    for c in report.conditions:
+        scores_str = "  ".join(f"{s:.1%}" for s in c.repeat_scores)
+        print(f"  {c.condition:<12}: [{scores_str}]  median={c.median_score:.1%}  stddev={c.score_stddev:.4f}")
 
     # Per-level comparison
     if report.comparison.get("per_level"):

@@ -293,6 +293,7 @@ def _cmd_continuous(args: argparse.Namespace) -> int:
         parallel_workers=getattr(args, "parallel_workers", 5),
         prompt_variant=getattr(args, "prompt_variant", None),
         conditions=conditions,
+        repeats=getattr(args, "repeats", 3),
     )
 
     print_continuous_report(report)
@@ -512,6 +513,12 @@ def main() -> None:
         type=int,
         default=5,
         help="Parallel workers for Q&A grading (default: 5)",
+    )
+    cont_parser.add_argument(
+        "--repeats",
+        type=int,
+        default=3,
+        help="Number of evaluation repeats per condition; median taken as primary score (default: 3)",
     )
 
     args = parser.parse_args()
