@@ -20,8 +20,12 @@ from __future__ import annotations
 
 import logging
 import math
+import statistics
 import tempfile
+import threading
 import time
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -47,6 +51,9 @@ class ConditionResult:
     elapsed_s: float
     hive_facts: int = 0
     per_level_scores: dict[str, float] = field(default_factory=dict)
+    repeat_scores: list[float] = field(default_factory=list)
+    median_score: float = 0.0
+    score_stddev: float = 0.0
 
 
 @dataclass
@@ -67,6 +74,9 @@ class ContinuousEvalReport:
                     "num_agents": c.num_agents,
                     "num_groups": c.num_groups,
                     "overall_score": round(c.report.overall_score, 4),
+                    "median_score": round(c.median_score, 4),
+                    "repeat_scores": [round(s, 4) for s in c.repeat_scores],
+                    "score_stddev": round(c.score_stddev, 4),
                     "elapsed_s": round(c.elapsed_s, 1),
                     "hive_facts": c.hive_facts,
                     "per_level_scores": {
@@ -128,6 +138,21 @@ def _compute_per_level_scores(report: EvalReport) -> dict[str, float]:
 # Adapter wrappers (mirror run_learning_agent_hive_eval.py patterns)
 # ---------------------------------------------------------------------------
 
+_NO_INFO_PHRASES = frozenset([
+    "i don't have",
+    "i do not have",
+    "no information",
+    "i cannot",
+    "i can't",
+    "not enough information",
+    "i lack",
+    "no data",
+    "unable to find",
+    "no relevant",
+    "don't know",
+    "do not know",
+])
+
 
 class _SingleAgentAdapter(AgentAdapter):
     """Wraps a LearningAgent for single-agent evaluation."""
@@ -163,33 +188,186 @@ class _SingleAgentAdapter(AgentAdapter):
 class _MultiAgentAdapter(AgentAdapter):
     """N agents sharing a hive, presented as a single AgentAdapter.
 
-    Learning: turns distributed round-robin.
-    Answering: queries all agents, returns longest non-error answer.
+    Learning: turns distributed round-robin. Supports parallel learning
+    via learn_parallel() for multi-agent speedup.
+    Answering: queries agents in parallel, returns longest non-error answer.
     """
 
-    def __init__(self, agents: list[Any], model: str):
+    def __init__(self, agents: list[Any], model: str, parallel_workers: int = 10, hive_store: Any = None):
         self._agents = agents
         self._model = model
         self._turn_idx = 0
+        self._parallel_workers = parallel_workers
+        self._hive_store = hive_store
+        self._agent_map: dict[str, Any] = {
+            getattr(a, "agent_name", f"agent_{i}"): a for i, a in enumerate(agents)
+        }
 
     def learn(self, content: str) -> None:
+        """Sequential learning (one turn at a time, round-robin)."""
         agent = self._agents[self._turn_idx % len(self._agents)]
         agent.learn_from_content(content)
         self._turn_idx += 1
 
+    def learn_parallel(self, turns: list[Any]) -> float:
+        """Parallel learning: pre-assign turns to agents, learn concurrently.
+
+        Distributes turns round-robin across agents, then each agent
+        learns its batch in parallel with other agents.
+
+        Returns learning time in seconds.
+        """
+        # Pre-assign turns to agents (round-robin)
+        agent_batches: dict[int, list[str]] = defaultdict(list)
+        for i, turn in enumerate(turns):
+            agent_idx = i % len(self._agents)
+            content = turn.content if hasattr(turn, "content") else str(turn)
+            agent_batches[agent_idx].append(content)
+
+        num_agents = len(agent_batches)
+        logger.info(
+            "Parallel learning: %d turns across %d agents (%d workers)",
+            len(turns),
+            num_agents,
+            self._parallel_workers,
+        )
+
+        learn_t0 = time.time()
+        completed = 0
+        lock = threading.Lock()
+
+        def _learn_batch(agent_idx: int, contents: list[str]) -> int:
+            nonlocal completed
+            agent = self._agents[agent_idx]
+            name = getattr(agent, "agent_name", f"agent_{agent_idx}")
+            count = 0
+            for content in contents:
+                try:
+                    agent.learn_from_content(content)
+                    count += 1
+                except Exception as e:
+                    logger.warning("Agent %s learn failed: %s", name, e)
+            with lock:
+                completed += count
+                if completed % 100 == 0:
+                    elapsed = time.time() - learn_t0
+                    logger.info(
+                        "Learning progress: %d/%d turns (%.0fs)",
+                        completed,
+                        len(turns),
+                        elapsed,
+                    )
+            return count
+
+        with ThreadPoolExecutor(max_workers=self._parallel_workers) as pool:
+            futures = {
+                pool.submit(_learn_batch, idx, batch): idx
+                for idx, batch in agent_batches.items()
+            }
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    logger.warning("Batch learning failed: %s", e)
+
+        learn_time = time.time() - learn_t0
+        logger.info(
+            "Parallel learning complete: %d turns in %.1fs (%.1f turns/s)",
+            completed,
+            learn_time,
+            completed / max(0.1, learn_time),
+        )
+        return learn_time
+
+    def _select_relevant_agents(self, question: str, k: int = 10) -> list[Any]:
+        """Select K most relevant agents via hive query_facts expertise routing.
+
+        Falls back to all agents if hive routing is unavailable or agent count <= k.
+        """
+        if self._hive_store is None or len(self._agents) <= k:
+            return self._agents
+
+        try:
+            facts = self._hive_store.query_facts(question, limit=30)
+            relevant_names = {f.source_agent for f in facts if f.source_agent}
+            relevant_agents = [
+                a for a in self._agents
+                if getattr(a, "agent_name", "") in relevant_names
+            ]
+
+            if len(relevant_agents) < k:
+                # Pad with random extras for coverage
+                import random as _random
+                relevant_set = {id(a) for a in relevant_agents}
+                extras = [a for a in self._agents if id(a) not in relevant_set]
+                _random.shuffle(extras)
+                relevant_agents.extend(extras[: k - len(relevant_agents)])
+
+            logger.debug(
+                "Hive routing: %d relevant agents selected (from %d facts)",
+                len(relevant_agents), len(facts),
+            )
+            return relevant_agents[:k]
+        except Exception as e:
+            logger.debug("Hive routing failed, querying all agents: %s", e)
+            return self._agents
+
+    def _pick_consensus(self, answers: list[str]) -> str:
+        """Pick the most consensus-supported answer by word-overlap similarity.
+
+        Scores each answer by total Jaccard overlap with all others.
+        Ties broken by answer length (prefer more detailed).
+        """
+        if len(answers) == 1:
+            return answers[0]
+
+        def _jaccard(a: str, b: str) -> float:
+            wa = set(a.lower().split())
+            wb = set(b.lower().split())
+            if not wa or not wb:
+                return 0.0
+            return len(wa & wb) / len(wa | wb)
+
+        scored = [
+            (sum(_jaccard(ans, other) for j, other in enumerate(answers) if j != i), len(ans), ans)
+            for i, ans in enumerate(answers)
+        ]
+        scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return scored[0][2]
+
     def answer(self, question: str) -> AgentResponse:
-        best_answer = ""
-        for agent in self._agents:
+        """Query K relevant agents via hive routing, return consensus answer.
+
+        Filters empty/no-info responses before consensus selection.
+        """
+        agents_to_query = self._select_relevant_agents(question, k=10)
+
+        def _ask_agent(agent: Any) -> str | None:
             try:
                 result = agent.answer_question(question)
                 text = result[0] if isinstance(result, tuple) else str(result)
-                if len(text) > len(best_answer) and not text.startswith("Error:"):
-                    best_answer = text
+                lower = text.lower()
+                if not text.startswith("Error:") and not any(
+                    phrase in lower for phrase in _NO_INFO_PHRASES
+                ):
+                    return text
             except Exception as e:
-                logger.debug("Agent %s failed: %s", getattr(agent, "agent_name", "?"), e)
-        if not best_answer:
-            best_answer = "No agent could answer"
-        return AgentResponse(answer=best_answer, metadata={"model": self._model})
+                logger.debug(
+                    "Agent %s failed: %s",
+                    getattr(agent, "agent_name", "?"),
+                    e,
+                )
+            return None
+
+        with ThreadPoolExecutor(max_workers=self._parallel_workers) as pool:
+            futures = [pool.submit(_ask_agent, agent) for agent in agents_to_query]
+            real_answers = [f.result() for f in as_completed(futures) if f.result()]
+
+        if not real_answers:
+            return AgentResponse(answer="No agent could answer", metadata={"model": self._model})
+
+        best = self._pick_consensus(real_answers)
+        return AgentResponse(answer=best, metadata={"model": self._model})
 
     def reset(self) -> None:
         self.close()
@@ -217,11 +395,16 @@ def _run_single(
     tmpdir: str,
     parallel_workers: int,
     prompt_variant: int | None,
+    repeats: int = 3,
 ) -> ConditionResult:
-    """Run SINGLE condition: 1 LearningAgent, no hive."""
+    """Run SINGLE condition: 1 LearningAgent, no hive.
+
+    Learns ONCE, then evaluates repeats times on the same adapter.
+    Returns median_score as the primary result.
+    """
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
-    logger.info("=== SINGLE: 1 agent, no hive ===")
+    logger.info("=== SINGLE: 1 agent, no hive (repeats=%d) ===", repeats)
     t0 = time.time()
 
     kwargs: dict[str, Any] = {}
@@ -248,23 +431,37 @@ def _run_single(
         parallel_workers=parallel_workers,
     )
 
-    # Feed dialogue turns
+    # Learn ONCE
     learn_t0 = time.time()
     for turn in ground_truth.turns:
         adapter.learn(turn.content)
     learn_time = time.time() - learn_t0
 
-    # Evaluate
-    report = runner.evaluate(adapter, questions=questions, grader_model=model)
-    report.learning_time_s = learn_time
-    report.num_turns = num_turns
-    report.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+    # Evaluate N times on the same adapter
+    repeat_scores: list[float] = []
+    report = None
+    for i in range(repeats):
+        logger.info("SINGLE eval repeat %d/%d", i + 1, repeats)
+        r = runner.evaluate(adapter, questions=questions, grader_model=model)
+        r.learning_time_s = learn_time
+        r.num_turns = num_turns
+        r.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+        repeat_scores.append(r.overall_score)
+        report = r
+
+    assert report is not None  # repeats >= 1
+
+    median_score = statistics.median(repeat_scores)
+    score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
     adapter.close()
 
     per_level = _compute_per_level_scores(report)
-    logger.info("SINGLE done: %.2f%% in %.1fs", report.overall_score * 100, elapsed)
+    logger.info(
+        "SINGLE done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs",
+        median_score * 100, score_stddev, repeat_scores, elapsed,
+    )
 
     return ConditionResult(
         condition="single",
@@ -273,6 +470,9 @@ def _run_single(
         report=report,
         elapsed_s=elapsed,
         per_level_scores=per_level,
+        repeat_scores=repeat_scores,
+        median_score=median_score,
+        score_stddev=score_stddev,
     )
 
 
@@ -285,12 +485,17 @@ def _run_flat(
     tmpdir: str,
     parallel_workers: int,
     prompt_variant: int | None,
+    repeats: int = 3,
 ) -> ConditionResult:
-    """Run HIVE_FLAT: N agents sharing a single InMemoryHiveGraph."""
+    """Run HIVE_FLAT: N agents sharing a single InMemoryHiveGraph.
+
+    Learns ONCE, then evaluates repeats times on the same adapter.
+    Returns median_score as the primary result.
+    """
     from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
-    logger.info("=== FLAT: %d agents, shared hive ===", num_agents)
+    logger.info("=== FLAT: %d agents, shared hive (repeats=%d) ===", num_agents, repeats)
     t0 = time.time()
 
     try:
@@ -328,7 +533,7 @@ def _run_flat(
         )
         agents.append(agent)
 
-    adapter = _MultiAgentAdapter(agents, model)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers, hive_store=hive)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -340,22 +545,43 @@ def _run_flat(
         parallel_workers=parallel_workers,
     )
 
-    learn_t0 = time.time()
-    for turn in ground_truth.turns:
-        adapter.learn(turn.content)
-    learn_time = time.time() - learn_t0
+    # Learn ONCE
+    learn_time = adapter.learn_parallel(ground_truth.turns)
 
-    report = runner.evaluate(adapter, questions=questions, grader_model=model)
-    report.learning_time_s = learn_time
-    report.num_turns = num_turns
-    report.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+    # Run gossip rounds to spread knowledge before Q&A
+    logger.info("Running post-learning gossip rounds on flat hive...")
+    try:
+        hive.run_gossip([])
+        logger.info("Flat hive gossip complete")
+    except Exception as e:
+        logger.warning("Flat hive gossip failed: %s", e)
+
+    # Evaluate N times on the same adapter
+    repeat_scores: list[float] = []
+    report = None
+    for i in range(repeats):
+        logger.info("FLAT eval repeat %d/%d", i + 1, repeats)
+        r = runner.evaluate(adapter, questions=questions, grader_model=model)
+        r.learning_time_s = learn_time
+        r.num_turns = num_turns
+        r.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+        repeat_scores.append(r.overall_score)
+        report = r
+
+    assert report is not None  # repeats >= 1
+
+    median_score = statistics.median(repeat_scores)
+    score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
     hive_facts = hive.get_stats().get("fact_count", 0)
     adapter.close()
 
     per_level = _compute_per_level_scores(report)
-    logger.info("FLAT done: %.2f%% in %.1fs (hive facts: %d)", report.overall_score * 100, elapsed, hive_facts)
+    logger.info(
+        "FLAT done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
+        median_score * 100, score_stddev, repeat_scores, elapsed, hive_facts,
+    )
 
     return ConditionResult(
         condition="flat",
@@ -365,6 +591,9 @@ def _run_flat(
         elapsed_s=elapsed,
         hive_facts=hive_facts,
         per_level_scores=per_level,
+        repeat_scores=repeat_scores,
+        median_score=median_score,
+        score_stddev=score_stddev,
     )
 
 
@@ -378,9 +607,17 @@ def _run_federated(
     tmpdir: str,
     parallel_workers: int,
     prompt_variant: int | None,
+    repeats: int = 3,
 ) -> ConditionResult:
-    """Run FEDERATED: N agents in M groups with federation tree."""
-    from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
+    """Run FEDERATED: N agents in M groups with federation tree.
+
+    Uses DistributedHiveGraph (DHT-sharded) instead of InMemoryHiveGraph
+    to avoid Kuzu mmap exhaustion with 100+ concurrent agents.
+    Falls back to InMemoryHiveGraph if DistributedHiveGraph unavailable.
+
+    Learns ONCE, then evaluates repeats times on the same adapter.
+    Returns median_score as the primary result.
+    """
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
     logger.info("=== FEDERATED: %d agents, %d groups ===", num_agents, num_groups)
@@ -396,7 +633,19 @@ def _run_federated(
         logger.warning("Embedding generator unavailable: %s", e)
         embedder = None
 
-    root_hive = InMemoryHiveGraph(
+    # Use DistributedHiveGraph (DHT-sharded) for large agent counts
+    try:
+        from amplihack.agents.goal_seeking.hive_mind.distributed_hive_graph import DistributedHiveGraph  # type: ignore[import-untyped]
+
+        HiveGraphClass = DistributedHiveGraph
+        logger.info("Using DistributedHiveGraph (DHT-sharded) for %d agents", num_agents)
+    except ImportError:
+        from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
+
+        HiveGraphClass = InMemoryHiveGraph
+        logger.warning("DistributedHiveGraph unavailable, falling back to InMemoryHiveGraph")
+
+    root_hive = HiveGraphClass(
         "root-hive",
         embedding_generator=embedder,
         enable_gossip=True,
@@ -404,7 +653,7 @@ def _run_federated(
     )
     group_hives = []
     for g in range(num_groups):
-        group_hive = InMemoryHiveGraph(
+        group_hive = HiveGraphClass(
             f"group-{g}",
             embedding_generator=embedder,
             enable_gossip=True,
@@ -438,7 +687,7 @@ def _run_federated(
             agents.append(agent)
             agent_idx += 1
 
-    adapter = _MultiAgentAdapter(agents, model)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers, hive_store=root_hive)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -450,15 +699,39 @@ def _run_federated(
         parallel_workers=parallel_workers,
     )
 
-    learn_t0 = time.time()
-    for turn in ground_truth.turns:
-        adapter.learn(turn.content)
-    learn_time = time.time() - learn_t0
+    # Learn ONCE
+    learn_time = adapter.learn_parallel(ground_truth.turns)
 
-    report = runner.evaluate(adapter, questions=questions, grader_model=model)
-    report.learning_time_s = learn_time
-    report.num_turns = num_turns
-    report.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+    # Run gossip rounds on all group hives and root to spread knowledge before Q&A
+    logger.info("Running post-learning gossip rounds on %d group hives...", len(group_hives))
+    all_hives = [root_hive, *group_hives]
+    for h in all_hives:
+        try:
+            if hasattr(h, "run_gossip_round"):
+                h.run_gossip_round()
+            else:
+                peers = [p for p in all_hives if p is not h]
+                h.run_gossip(peers)
+        except Exception as e:
+            logger.warning("Gossip failed on hive %s: %s", getattr(h, "hive_id", "?"), e)
+    logger.info("Federated gossip rounds complete")
+
+    # Evaluate N times on the same adapter
+    repeat_scores: list[float] = []
+    report = None
+    for i in range(repeats):
+        logger.info("FEDERATED eval repeat %d/%d", i + 1, repeats)
+        r = runner.evaluate(adapter, questions=questions, grader_model=model)
+        r.learning_time_s = learn_time
+        r.num_turns = num_turns
+        r.total_facts_delivered = sum(len(t.facts) for t in ground_truth.turns)
+        repeat_scores.append(r.overall_score)
+        report = r
+
+    assert report is not None  # repeats >= 1
+
+    median_score = statistics.median(repeat_scores)
+    score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
     total_hive_facts = 0
@@ -469,8 +742,8 @@ def _run_federated(
 
     per_level = _compute_per_level_scores(report)
     logger.info(
-        "FEDERATED done: %.2f%% in %.1fs (hive facts: %d)",
-        report.overall_score * 100, elapsed, total_hive_facts,
+        "FEDERATED done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
+        median_score * 100, score_stddev, repeat_scores, elapsed, total_hive_facts,
     )
 
     return ConditionResult(
@@ -481,6 +754,9 @@ def _run_federated(
         elapsed_s=elapsed,
         hive_facts=total_hive_facts,
         per_level_scores=per_level,
+        repeat_scores=repeat_scores,
+        median_score=median_score,
+        score_stddev=score_stddev,
     )
 
 
@@ -499,10 +775,12 @@ def run_continuous_eval(
     parallel_workers: int = 5,
     prompt_variant: int | None = None,
     conditions: list[str] | None = None,
+    repeats: int = 3,
 ) -> ContinuousEvalReport:
     """Run continuous evaluation across single, flat, and federated conditions.
 
     Uses the security analyst scenario with L1-L12 questions for all conditions.
+    Learns once per condition, evaluates N times (repeats), reports median score.
 
     Args:
         num_turns: Number of dialogue turns
@@ -514,6 +792,7 @@ def run_continuous_eval(
         parallel_workers: Parallel workers for Q&A grading
         prompt_variant: Optional prompt variant (1-5)
         conditions: Which conditions to run (default: all three)
+        repeats: Number of evaluation repeats per condition (default: 3); median taken
 
     Returns:
         ContinuousEvalReport comparing all conditions
@@ -535,13 +814,14 @@ def run_continuous_eval(
         "model": model,
         "prompt_variant": prompt_variant,
         "conditions": conditions,
+        "repeats": repeats,
     }
 
     logger.info("=" * 60)
     logger.info("Continuous Evaluation — Security Analyst Scenario")
     logger.info(
-        "Turns=%d, Questions=%d, Agents=%d, Groups=%d, Variant=%s",
-        num_turns, num_questions, num_agents, num_groups, prompt_variant,
+        "Turns=%d, Questions=%d, Agents=%d, Groups=%d, Variant=%s, Repeats=%d",
+        num_turns, num_questions, num_agents, num_groups, prompt_variant, repeats,
     )
     logger.info("Conditions: %s", conditions)
     logger.info("=" * 60)
@@ -552,21 +832,21 @@ def run_continuous_eval(
         if "single" in conditions:
             r = _run_single(
                 model, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant,
+                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
             )
             results.append(r)
 
         if "flat" in conditions:
             r = _run_flat(
                 model, num_agents, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant,
+                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
             )
             results.append(r)
 
         if "federated" in conditions:
             r = _run_federated(
                 model, num_agents, num_groups, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant,
+                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
             )
             results.append(r)
 
@@ -626,21 +906,30 @@ def print_continuous_report(report: ContinuousEvalReport) -> None:
 
     cfg = report.config
     print(f"Turns: {cfg['num_turns']}, Questions: {cfg['num_questions']}, "
-          f"Agents: {cfg['num_agents']}, Groups: {cfg['num_groups']}")
+          f"Agents: {cfg['num_agents']}, Groups: {cfg['num_groups']}, "
+          f"Repeats: {cfg.get('repeats', 1)}")
     if cfg.get("prompt_variant"):
         print(f"Prompt Variant: {cfg['prompt_variant']}")
     print()
 
-    # Overall scores
-    print(f"{'Condition':<15} {'Agents':>7} {'Score':>8} {'Time':>8} {'Hive Facts':>11}")
-    print("-" * 55)
+    # Overall scores — show median as primary
+    print(f"{'Condition':<15} {'Agents':>7} {'Median':>8} {'Stddev':>8} {'Time':>8} {'Hive Facts':>11}")
+    print("-" * 65)
     for c in report.conditions:
         print(
             f"{c.condition:<15} {c.num_agents:>7} "
-            f"{c.report.overall_score:>7.1%} "
+            f"{c.median_score:>7.1%} "
+            f"{c.score_stddev:>7.3f} "
             f"{c.elapsed_s:>7.1f}s "
             f"{c.hive_facts:>11}"
         )
+
+    # Per-repeat scores
+    print()
+    print("Per-repeat scores:")
+    for c in report.conditions:
+        scores_str = "  ".join(f"{s:.1%}" for s in c.repeat_scores)
+        print(f"  {c.condition:<12}: [{scores_str}]  median={c.median_score:.1%}  stddev={c.score_stddev:.4f}")
 
     # Per-level comparison
     if report.comparison.get("per_level"):
