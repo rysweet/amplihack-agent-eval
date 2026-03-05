@@ -352,9 +352,12 @@ class _MultiAgentAdapter(AgentAdapter):
                 ):
                     return text
             except Exception as e:
-                logger.debug(
-                    "Agent %s failed: %s",
+                # Log at WARNING level so _synthesize_with_llm errors are visible
+                # (LearningAgent swallows these internally; we surface them here)
+                logger.warning(
+                    "Agent %s answer_question raised %s: %s",
                     getattr(agent, "agent_name", "?"),
+                    type(e).__name__,
                     e,
                 )
             return None
@@ -609,18 +612,24 @@ def _run_federated(
     prompt_variant: int | None,
     repeats: int = 3,
 ) -> ConditionResult:
-    """Run FEDERATED: N agents in M groups with federation tree.
+    """Run FEDERATED: N agents on a SINGLE shared DistributedHiveGraph (DHT ring).
 
-    Uses DistributedHiveGraph (DHT-sharded) instead of InMemoryHiveGraph
-    to avoid Kuzu mmap exhaustion with 100+ concurrent agents.
+    All agents register on ONE shared hive so facts learned during training
+    are accessible to all agents during Q&A. The --groups parameter is logged
+    for informational purposes but does NOT affect hive topology.
+
+    Uses DistributedHiveGraph with replication_factor=3 and enable_gossip=True.
     Falls back to InMemoryHiveGraph if DistributedHiveGraph unavailable.
 
-    Learns ONCE, then evaluates repeats times on the same adapter.
+    Learns ONCE, runs 3 gossip rounds, then evaluates repeats times.
     Returns median_score as the primary result.
     """
     from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
 
-    logger.info("=== FEDERATED: %d agents, %d groups ===", num_agents, num_groups)
+    logger.info(
+        "=== FEDERATED: %d agents, %d groups (single DHT ring) ===",
+        num_agents, num_groups,
+    )
     t0 = time.time()
 
     try:
@@ -633,61 +642,47 @@ def _run_federated(
         logger.warning("Embedding generator unavailable: %s", e)
         embedder = None
 
-    # Use DistributedHiveGraph (DHT-sharded) for large agent counts
+    # Single shared DHT ring — all agents on one hive so facts are accessible during Q&A
     try:
         from amplihack.agents.goal_seeking.hive_mind.distributed_hive_graph import DistributedHiveGraph  # type: ignore[import-untyped]
 
-        HiveGraphClass = DistributedHiveGraph
-        logger.info("Using DistributedHiveGraph (DHT-sharded) for %d agents", num_agents)
+        shared_hive = DistributedHiveGraph(
+            "federated-hive",
+            embedding_generator=embedder,
+            replication_factor=3,
+            enable_gossip=True,
+        )
+        logger.info("Using DistributedHiveGraph (single DHT ring) for %d agents", num_agents)
     except ImportError:
         from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
 
-        HiveGraphClass = InMemoryHiveGraph
-        logger.warning("DistributedHiveGraph unavailable, falling back to InMemoryHiveGraph")
-
-    root_hive = HiveGraphClass(
-        "root-hive",
-        embedding_generator=embedder,
-        enable_gossip=True,
-        enable_ttl=True,
-    )
-    group_hives = []
-    for g in range(num_groups):
-        group_hive = HiveGraphClass(
-            f"group-{g}",
+        shared_hive = InMemoryHiveGraph(
+            "federated-hive",
             embedding_generator=embedder,
             enable_gossip=True,
             enable_ttl=True,
         )
-        group_hive.set_parent(root_hive)
-        root_hive.add_child(group_hive)
-        group_hives.append(group_hive)
+        logger.warning("DistributedHiveGraph unavailable, falling back to InMemoryHiveGraph")
 
     kwargs: dict[str, Any] = {}
     if prompt_variant is not None:
         kwargs["prompt_variant"] = prompt_variant
 
-    agents_per_group = max(1, num_agents // num_groups)
     agents = []
-    agent_idx = 0
+    for i in range(num_agents):
+        name = f"fed_agent_{i}"
+        shared_hive.register_agent(name)
+        agent = LearningAgent(
+            agent_name=name,
+            model=model,
+            storage_path=Path(tmpdir) / f"fed_{i}",
+            use_hierarchical=True,
+            hive_store=shared_hive,
+            **kwargs,
+        )
+        agents.append(agent)
 
-    for g, group_hive in enumerate(group_hives):
-        n = agents_per_group if g < num_groups - 1 else num_agents - agent_idx
-        for _ in range(n):
-            name = f"fed_agent_{agent_idx}"
-            group_hive.register_agent(name)
-            agent = LearningAgent(
-                agent_name=name,
-                model=model,
-                storage_path=Path(tmpdir) / f"fed_{agent_idx}",
-                use_hierarchical=True,
-                hive_store=group_hive,
-                **kwargs,
-            )
-            agents.append(agent)
-            agent_idx += 1
-
-    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers, hive_store=root_hive)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers, hive_store=shared_hive)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -702,19 +697,25 @@ def _run_federated(
     # Learn ONCE
     learn_time = adapter.learn_parallel(ground_truth.turns)
 
-    # Run gossip rounds on all group hives and root to spread knowledge before Q&A
-    logger.info("Running post-learning gossip rounds on %d group hives...", len(group_hives))
-    all_hives = [root_hive, *group_hives]
-    for h in all_hives:
+    # Run 3 gossip rounds after learning to spread knowledge across the shared hive
+    logger.info("Running 3 post-learning gossip rounds on shared federated hive...")
+    for round_num in range(3):
         try:
-            if hasattr(h, "run_gossip_round"):
-                h.run_gossip_round()
+            if hasattr(shared_hive, "run_gossip_round"):
+                shared_hive.run_gossip_round()
             else:
-                peers = [p for p in all_hives if p is not h]
-                h.run_gossip(peers)
+                shared_hive.run_gossip([])
+            logger.info("Gossip round %d/3 complete", round_num + 1)
         except Exception as e:
-            logger.warning("Gossip failed on hive %s: %s", getattr(h, "hive_id", "?"), e)
-    logger.info("Federated gossip rounds complete")
+            logger.warning("Gossip round %d failed: %s", round_num + 1, e)
+    logger.info("Federated gossip complete")
+
+    # Log hive stats after gossip
+    try:
+        stats = shared_hive.get_stats()
+        logger.info("Shared hive stats after gossip: %s", stats)
+    except Exception as e:
+        logger.debug("Could not get hive stats: %s", e)
 
     # Evaluate N times on the same adapter
     repeat_scores: list[float] = []
@@ -734,16 +735,13 @@ def _run_federated(
     score_stddev = statistics.stdev(repeat_scores) if len(repeat_scores) > 1 else 0.0
 
     elapsed = time.time() - t0
-    total_hive_facts = 0
-    for hive in [root_hive, *group_hives]:
-        total_hive_facts += hive.get_stats().get("fact_count", 0)
-
+    hive_facts = shared_hive.get_stats().get("fact_count", 0)
     adapter.close()
 
     per_level = _compute_per_level_scores(report)
     logger.info(
         "FEDERATED done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
-        median_score * 100, score_stddev, repeat_scores, elapsed, total_hive_facts,
+        median_score * 100, score_stddev, repeat_scores, elapsed, hive_facts,
     )
 
     return ConditionResult(
@@ -752,7 +750,7 @@ def _run_federated(
         num_groups=num_groups,
         report=report,
         elapsed_s=elapsed,
-        hive_facts=total_hive_facts,
+        hive_facts=hive_facts,
         per_level_scores=per_level,
         repeat_scores=repeat_scores,
         median_score=median_score,
