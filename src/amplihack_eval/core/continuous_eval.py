@@ -21,7 +21,10 @@ from __future__ import annotations
 import logging
 import math
 import tempfile
+import threading
 import time
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -163,30 +166,125 @@ class _SingleAgentAdapter(AgentAdapter):
 class _MultiAgentAdapter(AgentAdapter):
     """N agents sharing a hive, presented as a single AgentAdapter.
 
-    Learning: turns distributed round-robin.
-    Answering: queries all agents, returns longest non-error answer.
+    Learning: turns distributed round-robin. Supports parallel learning
+    via learn_parallel() for multi-agent speedup.
+    Answering: queries agents in parallel, returns longest non-error answer.
     """
 
-    def __init__(self, agents: list[Any], model: str):
+    def __init__(self, agents: list[Any], model: str, parallel_workers: int = 10):
         self._agents = agents
         self._model = model
         self._turn_idx = 0
+        self._parallel_workers = parallel_workers
 
     def learn(self, content: str) -> None:
+        """Sequential learning (one turn at a time, round-robin)."""
         agent = self._agents[self._turn_idx % len(self._agents)]
         agent.learn_from_content(content)
         self._turn_idx += 1
 
+    def learn_parallel(self, turns: list[Any]) -> float:
+        """Parallel learning: pre-assign turns to agents, learn concurrently.
+
+        Distributes turns round-robin across agents, then each agent
+        learns its batch in parallel with other agents.
+
+        Returns learning time in seconds.
+        """
+        # Pre-assign turns to agents (round-robin)
+        agent_batches: dict[int, list[str]] = defaultdict(list)
+        for i, turn in enumerate(turns):
+            agent_idx = i % len(self._agents)
+            content = turn.content if hasattr(turn, "content") else str(turn)
+            agent_batches[agent_idx].append(content)
+
+        num_agents = len(agent_batches)
+        logger.info(
+            "Parallel learning: %d turns across %d agents (%d workers)",
+            len(turns),
+            num_agents,
+            self._parallel_workers,
+        )
+
+        learn_t0 = time.time()
+        completed = 0
+        lock = threading.Lock()
+
+        def _learn_batch(agent_idx: int, contents: list[str]) -> int:
+            nonlocal completed
+            agent = self._agents[agent_idx]
+            name = getattr(agent, "agent_name", f"agent_{agent_idx}")
+            count = 0
+            for content in contents:
+                try:
+                    agent.learn_from_content(content)
+                    count += 1
+                except Exception as e:
+                    logger.warning("Agent %s learn failed: %s", name, e)
+            with lock:
+                completed += count
+                if completed % 100 == 0:
+                    elapsed = time.time() - learn_t0
+                    logger.info(
+                        "Learning progress: %d/%d turns (%.0fs)",
+                        completed,
+                        len(turns),
+                        elapsed,
+                    )
+            return count
+
+        with ThreadPoolExecutor(max_workers=self._parallel_workers) as pool:
+            futures = {
+                pool.submit(_learn_batch, idx, batch): idx
+                for idx, batch in agent_batches.items()
+            }
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    logger.warning("Batch learning failed: %s", e)
+
+        learn_time = time.time() - learn_t0
+        logger.info(
+            "Parallel learning complete: %d turns in %.1fs (%.1f turns/s)",
+            completed,
+            learn_time,
+            completed / max(0.1, learn_time),
+        )
+        return learn_time
+
     def answer(self, question: str) -> AgentResponse:
+        """Query agents in parallel, return longest non-error answer."""
         best_answer = ""
-        for agent in self._agents:
+        lock = threading.Lock()
+
+        def _ask_agent(agent: Any) -> str | None:
             try:
                 result = agent.answer_question(question)
                 text = result[0] if isinstance(result, tuple) else str(result)
-                if len(text) > len(best_answer) and not text.startswith("Error:"):
-                    best_answer = text
+                if not text.startswith("Error:"):
+                    return text
             except Exception as e:
-                logger.debug("Agent %s failed: %s", getattr(agent, "agent_name", "?"), e)
+                logger.debug(
+                    "Agent %s failed: %s",
+                    getattr(agent, "agent_name", "?"),
+                    e,
+                )
+            return None
+
+        # Query all agents in parallel
+        with ThreadPoolExecutor(max_workers=self._parallel_workers) as pool:
+            futures = {pool.submit(_ask_agent, agent): agent for agent in self._agents}
+            for future in as_completed(futures):
+                try:
+                    text = future.result()
+                    if text and len(text) > len(best_answer):
+                        with lock:
+                            if len(text) > len(best_answer):
+                                best_answer = text
+                except Exception:
+                    pass
+
         if not best_answer:
             best_answer = "No agent could answer"
         return AgentResponse(answer=best_answer, metadata={"model": self._model})
@@ -328,7 +426,7 @@ def _run_flat(
         )
         agents.append(agent)
 
-    adapter = _MultiAgentAdapter(agents, model)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -340,10 +438,7 @@ def _run_flat(
         parallel_workers=parallel_workers,
     )
 
-    learn_t0 = time.time()
-    for turn in ground_truth.turns:
-        adapter.learn(turn.content)
-    learn_time = time.time() - learn_t0
+    learn_time = adapter.learn_parallel(ground_truth.turns)
 
     report = runner.evaluate(adapter, questions=questions, grader_model=model)
     report.learning_time_s = learn_time
@@ -454,7 +549,7 @@ def _run_federated(
             agents.append(agent)
             agent_idx += 1
 
-    adapter = _MultiAgentAdapter(agents, model)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -466,10 +561,7 @@ def _run_federated(
         parallel_workers=parallel_workers,
     )
 
-    learn_t0 = time.time()
-    for turn in ground_truth.turns:
-        adapter.learn(turn.content)
-    learn_time = time.time() - learn_t0
+    learn_time = adapter.learn_parallel(ground_truth.turns)
 
     report = runner.evaluate(adapter, questions=questions, grader_model=model)
     report.learning_time_s = learn_time
