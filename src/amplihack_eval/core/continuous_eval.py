@@ -131,6 +131,21 @@ def _compute_per_level_scores(report: EvalReport) -> dict[str, float]:
 # Adapter wrappers (mirror run_learning_agent_hive_eval.py patterns)
 # ---------------------------------------------------------------------------
 
+_NO_INFO_PHRASES = frozenset([
+    "i don't have",
+    "i do not have",
+    "no information",
+    "i cannot",
+    "i can't",
+    "not enough information",
+    "i lack",
+    "no data",
+    "unable to find",
+    "no relevant",
+    "don't know",
+    "do not know",
+])
+
 
 class _SingleAgentAdapter(AgentAdapter):
     """Wraps a LearningAgent for single-agent evaluation."""
@@ -171,11 +186,15 @@ class _MultiAgentAdapter(AgentAdapter):
     Answering: queries agents in parallel, returns longest non-error answer.
     """
 
-    def __init__(self, agents: list[Any], model: str, parallel_workers: int = 10):
+    def __init__(self, agents: list[Any], model: str, parallel_workers: int = 10, hive_store: Any = None):
         self._agents = agents
         self._model = model
         self._turn_idx = 0
         self._parallel_workers = parallel_workers
+        self._hive_store = hive_store
+        self._agent_map: dict[str, Any] = {
+            getattr(a, "agent_name", f"agent_{i}"): a for i, a in enumerate(agents)
+        }
 
     def learn(self, content: str) -> None:
         """Sequential learning (one turn at a time, round-robin)."""
@@ -253,16 +272,77 @@ class _MultiAgentAdapter(AgentAdapter):
         )
         return learn_time
 
+    def _select_relevant_agents(self, question: str, k: int = 10) -> list[Any]:
+        """Select K most relevant agents via hive query_facts expertise routing.
+
+        Falls back to all agents if hive routing is unavailable or agent count <= k.
+        """
+        if self._hive_store is None or len(self._agents) <= k:
+            return self._agents
+
+        try:
+            facts = self._hive_store.query_facts(question, limit=30)
+            relevant_names = {f.source_agent for f in facts if f.source_agent}
+            relevant_agents = [
+                a for a in self._agents
+                if getattr(a, "agent_name", "") in relevant_names
+            ]
+
+            if len(relevant_agents) < k:
+                # Pad with random extras for coverage
+                import random as _random
+                relevant_set = {id(a) for a in relevant_agents}
+                extras = [a for a in self._agents if id(a) not in relevant_set]
+                _random.shuffle(extras)
+                relevant_agents.extend(extras[: k - len(relevant_agents)])
+
+            logger.debug(
+                "Hive routing: %d relevant agents selected (from %d facts)",
+                len(relevant_agents), len(facts),
+            )
+            return relevant_agents[:k]
+        except Exception as e:
+            logger.debug("Hive routing failed, querying all agents: %s", e)
+            return self._agents
+
+    def _pick_consensus(self, answers: list[str]) -> str:
+        """Pick the most consensus-supported answer by word-overlap similarity.
+
+        Scores each answer by total Jaccard overlap with all others.
+        Ties broken by answer length (prefer more detailed).
+        """
+        if len(answers) == 1:
+            return answers[0]
+
+        def _jaccard(a: str, b: str) -> float:
+            wa = set(a.lower().split())
+            wb = set(b.lower().split())
+            if not wa or not wb:
+                return 0.0
+            return len(wa & wb) / len(wa | wb)
+
+        scored = [
+            (sum(_jaccard(ans, other) for j, other in enumerate(answers) if j != i), len(ans), ans)
+            for i, ans in enumerate(answers)
+        ]
+        scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return scored[0][2]
+
     def answer(self, question: str) -> AgentResponse:
-        """Query agents in parallel, return longest non-error answer."""
-        best_answer = ""
-        lock = threading.Lock()
+        """Query K relevant agents via hive routing, return consensus answer.
+
+        Filters empty/no-info responses before consensus selection.
+        """
+        agents_to_query = self._select_relevant_agents(question, k=10)
 
         def _ask_agent(agent: Any) -> str | None:
             try:
                 result = agent.answer_question(question)
                 text = result[0] if isinstance(result, tuple) else str(result)
-                if not text.startswith("Error:"):
+                lower = text.lower()
+                if not text.startswith("Error:") and not any(
+                    phrase in lower for phrase in _NO_INFO_PHRASES
+                ):
                     return text
             except Exception as e:
                 logger.debug(
@@ -272,22 +352,15 @@ class _MultiAgentAdapter(AgentAdapter):
                 )
             return None
 
-        # Query all agents in parallel
         with ThreadPoolExecutor(max_workers=self._parallel_workers) as pool:
-            futures = {pool.submit(_ask_agent, agent): agent for agent in self._agents}
-            for future in as_completed(futures):
-                try:
-                    text = future.result()
-                    if text and len(text) > len(best_answer):
-                        with lock:
-                            if len(text) > len(best_answer):
-                                best_answer = text
-                except Exception:
-                    pass
+            futures = [pool.submit(_ask_agent, agent) for agent in agents_to_query]
+            real_answers = [f.result() for f in as_completed(futures) if f.result()]
 
-        if not best_answer:
-            best_answer = "No agent could answer"
-        return AgentResponse(answer=best_answer, metadata={"model": self._model})
+        if not real_answers:
+            return AgentResponse(answer="No agent could answer", metadata={"model": self._model})
+
+        best = self._pick_consensus(real_answers)
+        return AgentResponse(answer=best, metadata={"model": self._model})
 
     def reset(self) -> None:
         self.close()
@@ -426,7 +499,7 @@ def _run_flat(
         )
         agents.append(agent)
 
-    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers, hive_store=hive)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -439,6 +512,14 @@ def _run_flat(
     )
 
     learn_time = adapter.learn_parallel(ground_truth.turns)
+
+    # Run gossip rounds to spread knowledge before Q&A
+    logger.info("Running post-learning gossip rounds on flat hive...")
+    try:
+        hive.run_gossip([])
+        logger.info("Flat hive gossip complete")
+    except Exception as e:
+        logger.warning("Flat hive gossip failed: %s", e)
 
     report = runner.evaluate(adapter, questions=questions, grader_model=model)
     report.learning_time_s = learn_time
@@ -549,7 +630,7 @@ def _run_federated(
             agents.append(agent)
             agent_idx += 1
 
-    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers)
+    adapter = _MultiAgentAdapter(agents, model, parallel_workers=parallel_workers, hive_store=root_hive)
 
     ground_truth = generate_dialogue(num_turns=num_turns, seed=seed)
     questions = generate_questions(ground_truth, num_questions=num_questions)
@@ -562,6 +643,20 @@ def _run_federated(
     )
 
     learn_time = adapter.learn_parallel(ground_truth.turns)
+
+    # Run gossip rounds on all group hives and root to spread knowledge before Q&A
+    logger.info("Running post-learning gossip rounds on %d group hives...", len(group_hives))
+    all_hives = [root_hive, *group_hives]
+    for h in all_hives:
+        try:
+            if hasattr(h, "run_gossip_round"):
+                h.run_gossip_round()
+            else:
+                peers = [p for p in all_hives if p is not h]
+                h.run_gossip(peers)
+        except Exception as e:
+            logger.warning("Gossip failed on hive %s: %s", getattr(h, "hive_id", "?"), e)
+    logger.info("Federated gossip rounds complete")
 
     report = runner.evaluate(adapter, questions=questions, grader_model=model)
     report.learning_time_s = learn_time
