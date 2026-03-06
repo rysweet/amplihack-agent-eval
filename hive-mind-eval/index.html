@@ -460,15 +460,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-three-topologies" class="md-nav__link">
+  <a href="#the-four-topologies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Three Topologies
+        The Four Topologies
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Three Topologies">
+    <nav class="md-nav" aria-label="The Four Topologies">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -483,10 +483,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#flat" class="md-nav__link">
+  <a href="#flat-inmemoryhivegraph" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Flat
+        Flat (InMemoryHiveGraph)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distributed-single-dht-distributedhivegraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distributed Single DHT (DistributedHiveGraph)
       
     </span>
   </a>
@@ -533,10 +544,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#run-all-three-topologies" class="md-nav__link">
+  <a href="#run-all-four-topologies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run All Three Topologies
+        Run All Four Topologies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parallel-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel Learning
       
     </span>
   </a>
@@ -548,6 +570,17 @@
     <span class="md-ellipsis">
       
         Skip Learning (Q&amp;A Only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pre-built-baseline-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Built Baseline Dataset
       
     </span>
   </a>
@@ -583,10 +616,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#per-question-grading" class="md-nav__link">
+  <a href="#per-question-grading-median-of-3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Per-Question Grading
+        Per-Question Grading (Median-of-3)
       
     </span>
   </a>
@@ -605,10 +638,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#difficulty-levels" class="md-nav__link">
+  <a href="#question-categories-15" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Difficulty Levels
+        Question Categories (15)
       
     </span>
   </a>
@@ -620,6 +653,67 @@
     <span class="md-ellipsis">
       
         What "Better" Means
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#latest-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Latest Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Latest Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#single-agent-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-Agent Baseline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-agent-topology-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Agent Topology Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Findings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-to-closing-the-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path to Closing the Gap
       
     </span>
   </a>
@@ -669,8 +763,16 @@ instances. Instead of each agent operating in isolation with its own Kuzu
 knowledge graph, the hive mind lets agents pool facts, propagate discoveries,
 and answer questions using collective knowledge.</p>
 <p>The core abstraction is the <strong>HiveGraph</strong> — a shared fact store that agents
-promote facts into and query from. Different topologies control how facts flow
-between agents and how queries resolve across the network.</p>
+promote facts into and query from. Two implementations exist:</p>
+<ul>
+<li><code>InMemoryHiveGraph</code> — all facts in one shared dict; suitable for &lt; 20 agents
+  (single-process, no network)</li>
+<li><code>DistributedHiveGraph</code> — DHT-sharded across agent shards; designed for 20–1000+
+  agents. Each agent holds <code>O(F/N)</code> facts instead of <code>O(F)</code> total. Queries fan
+  out to K shard owners (default 5) instead of all N agents.</li>
+</ul>
+<p>Different topologies control how facts flow between agents and how queries
+resolve across the network.</p>
 <h2 id="why-evaluate-the-hive-mind">Why Evaluate the Hive Mind?<a class="headerlink" href="#why-evaluate-the-hive-mind" title="Permanent link">&para;</a></h2>
 <p>Shared knowledge introduces trade-offs that don't exist in single-agent mode:</p>
 <ul>
@@ -682,10 +784,12 @@ between agents and how queries resolve across the network.</p>
   fact before it's visible. Does this block legitimate facts or only junk?</li>
 <li><strong>Scale effects</strong>: Do 20 agents sharing knowledge outperform 1 agent that
   sees everything?</li>
+<li><strong>Parallel learning</strong>: Multiple agents learning in parallel speeds ingestion
+  but introduces ordering effects on fact extraction.</li>
 </ul>
 <p>The eval measures whether collective knowledge actually improves Q&amp;A accuracy
 compared to the single-agent baseline.</p>
-<h2 id="the-three-topologies">The Three Topologies<a class="headerlink" href="#the-three-topologies" title="Permanent link">&para;</a></h2>
+<h2 id="the-four-topologies">The Four Topologies<a class="headerlink" href="#the-four-topologies" title="Permanent link">&para;</a></h2>
 <h3 id="single-baseline">Single (Baseline)<a class="headerlink" href="#single-baseline" title="Permanent link">&para;</a></h3>
 <p>One agent learns all dialogue turns. All facts live in one Kuzu DB. No hive
 involved. This is the control group.</p>
@@ -695,10 +799,10 @@ involved. This is the control group.</p>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    end
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    Turns[All dialogue turns] --&gt; SingleAgent
 </code></pre></div>
-<h3 id="flat">Flat<a class="headerlink" href="#flat" title="Permanent link">&para;</a></h3>
+<h3 id="flat-inmemoryhivegraph">Flat (InMemoryHiveGraph)<a class="headerlink" href="#flat-inmemoryhivegraph" title="Permanent link">&para;</a></h3>
 <p>N agents split the dialogue turns (round-robin). Each has its own Kuzu DB plus
 a shared <code>InMemoryHiveGraph</code>. Every promoted fact is immediately visible to all
-agents.</p>
+agents. Suitable for in-process testing with up to ~20 agents.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>graph TD
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    T[Dialogue turns&lt;br/&gt;round-robin split] --&gt; A0 &amp; A1 &amp; A2 &amp; A3 &amp; A4
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -708,149 +812,441 @@ agents.</p>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    A3[Agent 3&lt;br/&gt;Kuzu DB] --&gt; Hive
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    A4[Agent 4&lt;br/&gt;Kuzu DB] --&gt; Hive
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    Hive[&quot;Shared InMemoryHiveGraph&lt;br/&gt;All facts in one pool&quot;]
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    Hive[&quot;Shared InMemoryHiveGraph&lt;br/&gt;All facts in one pool&lt;br/&gt;O(F) memory — all agents hold all facts&quot;]
 </code></pre></div>
-<h3 id="federated">Federated<a class="headerlink" href="#federated" title="Permanent link">&para;</a></h3>
-<p>N agents organized into M groups. Each group has its own hive. A root hive
-connects the groups. High-confidence facts (≥ 0.9) broadcast across groups
-via the root. Lower-confidence facts stay in their group but are reachable
-through <code>query_federated()</code> tree traversal with RRF merge.</p>
+<h3 id="distributed-single-dht-distributedhivegraph">Distributed Single DHT (DistributedHiveGraph)<a class="headerlink" href="#distributed-single-dht-distributedhivegraph" title="Permanent link">&para;</a></h3>
+<p>All N agents share one <code>DistributedHiveGraph</code>. Facts are partitioned via
+consistent hashing (DHT): each agent owns a keyspace shard and holds only
+<code>O(F/N)</code> facts. Queries fan out to K shard owners and merge via RRF. No
+federation tree overhead. Designed for 20–1000+ agents.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>graph TD
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    Root[&quot;Root Hive&lt;br/&gt;broadcast copies only&quot;]
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    Root --&gt; G0[&quot;Group 0 Hive&quot;]
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    Root --&gt; G1[&quot;Group 1 Hive&quot;]
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    G0 --&gt; A0[Agent 0&lt;br/&gt;Kuzu]
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    G0 --&gt; A1[Agent 1&lt;br/&gt;Kuzu]
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    G0 --&gt; A2[Agent 2&lt;br/&gt;Kuzu]
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    G1 --&gt; A3[Agent 3&lt;br/&gt;Kuzu]
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    G1 --&gt; A4[Agent 4&lt;br/&gt;Kuzu]
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    T0[Group 0 turns] --&gt; A0 &amp; A1 &amp; A2
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    T1[Group 1 turns] --&gt; A3 &amp; A4
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    T[Dialogue turns&lt;br/&gt;round-robin split] --&gt; A0 &amp; A1 &amp; A2 &amp; A3 &amp; A4
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    subgraph DHT[&quot;DistributedHiveGraph (consistent hash ring)&quot;]
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        A0[Agent 0&lt;br/&gt;Shard: facts 0..F/N]
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        A1[Agent 1&lt;br/&gt;Shard: facts F/N..2F/N]
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        A2[Agent 2&lt;br/&gt;Shard: facts 2F/N..3F/N]
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        A3[Agent 3&lt;br/&gt;Shard: facts 3F/N..4F/N]
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        A4[Agent 4&lt;br/&gt;Shard: facts 4F/N..5F/N]
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    end
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    Q[query] --&gt; DHT
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    DHT --&gt;|&quot;fan-out to K=5 shard owners&lt;br/&gt;RRF merge&quot;| Result
+</code></pre></div>
+<p><strong>Key property:</strong> Memory is <code>O(F/N)</code> per agent instead of <code>O(F)</code> total. 100
+agents: 12.3 s creation, 4.8 GB RSS (previously OOM crash with InMemoryHiveGraph).</p>
+<h3 id="federated">Federated<a class="headerlink" href="#federated" title="Permanent link">&para;</a></h3>
+<p>N agents organized into M groups. Each group has its own hive (InMemoryHiveGraph
+or DistributedHiveGraph). A root hive connects the groups. High-confidence facts
+(≥ 0.9) broadcast across groups via the root. Lower-confidence facts stay in
+their group but are reachable through <code>query_federated()</code> tree traversal with
+RRF merge.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>graph TD
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    Root[&quot;Root Hive&lt;br/&gt;broadcast copies only&quot;]
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    Root --&gt; G0[&quot;Group 0 Hive&quot;]
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    Root --&gt; G1[&quot;Group 1 Hive&quot;]
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    G0 --&gt; A0[Agent 0&lt;br/&gt;Kuzu]
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    G0 --&gt; A1[Agent 1&lt;br/&gt;Kuzu]
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    G0 --&gt; A2[Agent 2&lt;br/&gt;Kuzu]
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    G1 --&gt; A3[Agent 3&lt;br/&gt;Kuzu]
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    G1 --&gt; A4[Agent 4&lt;br/&gt;Kuzu]
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    T0[Group 0 turns] --&gt; A0 &amp; A1 &amp; A2
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    T1[Group 1 turns] --&gt; A3 &amp; A4
 </code></pre></div>
 <h2 id="how-to-run-the-eval">How to Run the Eval<a class="headerlink" href="#how-to-run-the-eval" title="Permanent link">&para;</a></h2>
 <h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack5<span class="w">          </span><span class="c1"># hive mind + learning agent</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack-agent-eval<span class="w">  </span><span class="c1"># eval harness</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>...<span class="w">                    </span><span class="c1"># or AZURE_OPENAI_* vars</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack<span class="w">           </span><span class="c1"># hive mind + learning agent</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack-agent-eval<span class="w">  </span><span class="c1"># eval harness</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>...<span class="w">                </span><span class="c1"># or OPENAI_API_KEY / AZURE_OPENAI_* vars</span>
 </code></pre></div>
-<h3 id="run-all-three-topologies">Run All Three Topologies<a class="headerlink" href="#run-all-three-topologies" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Single-agent baseline</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--topology<span class="w"> </span>single<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/single
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Flat hive (5 agents)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span>--topology<span class="w"> </span>flat<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span>--num-agents<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/flat
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1"># Federated hive (5 agents, 2 groups)</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span>--topology<span class="w"> </span>federated<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">  </span>--num-agents<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">  </span>--num-groups<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/federated
+<h3 id="run-all-four-topologies">Run All Four Topologies<a class="headerlink" href="#run-all-four-topologies" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Single-agent baseline</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>--topology<span class="w"> </span>single<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/single
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Flat hive (5 agents, InMemoryHiveGraph)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span>--topology<span class="w"> </span>flat<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span>--num-agents<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/flat
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1"># Distributed single DHT (20 agents, DistributedHiveGraph)</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span>--topology<span class="w"> </span>distributed<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">  </span>--num-agents<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/distributed
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="c1"># Federated hive (10 agents, 2 groups)</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">  </span>--topology<span class="w"> </span>federated<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">  </span>--num-agents<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">  </span>--num-groups<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/federated
 </code></pre></div>
+<h3 id="parallel-learning">Parallel Learning<a class="headerlink" href="#parallel-learning" title="Permanent link">&para;</a></h3>
+<p>Use <code>--parallel-workers</code> to run the learning phase with multiple agents in
+parallel. This reduces wall-clock time significantly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># 9x learning speedup with 10 parallel workers</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>--topology<span class="w"> </span>distributed<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span>--num-agents<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span>--parallel-workers<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/distributed-parallel
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Workers</th>
+<th>Approx. wall-clock (5000 turns)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 (sequential)</td>
+<td>~21.6 hours</td>
+<td>Baseline</td>
+</tr>
+<tr>
+<td>10 (parallel)</td>
+<td>~2.4 hours</td>
+<td>9x speedup</td>
+</tr>
+</tbody>
+</table>
+<p>Note: parallel learning introduces ordering effects — agents see different
+subsets of turns. Run with <code>--seed</code> for reproducibility.</p>
 <h3 id="skip-learning-qa-only">Skip Learning (Q&amp;A Only)<a class="headerlink" href="#skip-learning-qa-only" title="Permanent link">&para;</a></h3>
 <p>If you already have a populated memory DB from a previous run:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--topology<span class="w"> </span>flat<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>--load-db<span class="w"> </span>results/flat/memory_db<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/flat-qa-only
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--topology<span class="w"> </span>flat<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span>--load-db<span class="w"> </span>results/flat/memory_db<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/flat-qa-only
 </code></pre></div>
+<h3 id="pre-built-baseline-dataset">Pre-Built Baseline Dataset<a class="headerlink" href="#pre-built-baseline-dataset" title="Permanent link">&para;</a></h3>
+<p>The <code>5000t-seed42-v1.0</code> dataset ships a pre-built memory DB from the 5000-turn
+learning phase. Use it for rapid Q&amp;A-only evaluation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Load the pre-built baseline (no learning phase needed)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span>--scenario<span class="w"> </span>long_horizon<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span>--topology<span class="w"> </span>single<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span>--load-db<span class="w"> </span>datasets/5000t-seed42-v1.0/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span>--output-dir<span class="w"> </span>results/single-prebuilt
+</code></pre></div>
+<p>Dataset metadata:
+- <strong>Turns</strong>: 5000 — seed 42
+- <strong>Facts delivered</strong>: 762 across 12 information blocks
+- <strong>Memory nodes</strong>: 15,854 (10,854 semantic + 5,000 episodic)
+- <strong>Baseline score</strong>: 90.47% (median-of-3 grading)
+- <strong>Date</strong>: 2026-02-24</p>
 <h3 id="compare-results">Compare Results<a class="headerlink" href="#compare-results" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.compare<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>results/single/scores.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>results/flat/scores.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>results/federated/scores.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.compare<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span>results/single/scores.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>results/flat/scores.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span>results/distributed/scores.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span>results/federated/scores.json
 </code></pre></div>
 <h2 id="scoring-methodology">Scoring Methodology<a class="headerlink" href="#scoring-methodology" title="Permanent link">&para;</a></h2>
-<h3 id="per-question-grading">Per-Question Grading<a class="headerlink" href="#per-question-grading" title="Permanent link">&para;</a></h3>
-<p>Each question is graded on a 0.0–1.0 scale by an LLM grader that compares the
-agent's answer against the ground-truth answer. The grader checks:</p>
+<h3 id="per-question-grading-median-of-3">Per-Question Grading (Median-of-3)<a class="headerlink" href="#per-question-grading-median-of-3" title="Permanent link">&para;</a></h3>
+<p>Each question is graded on a 0.0–1.0 scale using <strong>median-of-3 voting</strong> to
+reduce LLM grading noise: the grader runs 3 times per question, and the median
+score per dimension is taken as the final grade. The reasoning from the vote
+closest to the median is preserved for inspection.</p>
+<p>The grader checks per dimension:</p>
 <ol>
 <li><strong>Factual correctness</strong>: Does the answer contain the right facts?</li>
 <li><strong>Completeness</strong>: Does it cover all required details (e.g., port numbers,
    replica counts)?</li>
 <li><strong>Absence of hallucination</strong>: Does it avoid stating things not in the
    knowledge base?</li>
+<li><strong>Specificity</strong>: Are the right entities named (server names, IPs, versions)?</li>
+<li><strong>Temporal awareness</strong>: Does the answer reflect the correct time ordering?</li>
+<li><strong>Confidence calibration</strong>: Is uncertainty expressed when facts are ambiguous?</li>
 </ol>
 <h3 id="aggregation">Aggregation<a class="headerlink" href="#aggregation" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Level scores</strong>: Mean score across all questions in a difficulty level (L1–L7).</li>
-<li><strong>Topology score</strong>: Mean across all levels, weighted equally.</li>
+<li><strong>Category scores</strong>: Mean score across all questions in a category (15 categories).</li>
+<li><strong>Topology score</strong>: Mean across all categories, weighted equally.</li>
+<li><strong>Statistical rigor</strong>: Run 3+ seeds, report median (more robust than mean).</li>
 <li><strong>Comparison</strong>: Delta between topology score and single-agent baseline.</li>
 </ul>
-<h3 id="difficulty-levels">Difficulty Levels<a class="headerlink" href="#difficulty-levels" title="Permanent link">&para;</a></h3>
+<h3 id="question-categories-15">Question Categories (15)<a class="headerlink" href="#question-categories-15" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Level</th>
+<th>Category</th>
 <th>Description</th>
-<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>L1</td>
-<td>Simple recall</td>
-<td>"What database does prod-01 run?"</td>
+<td><code>needle_in_haystack</code></td>
+<td>Finding specific facts in a large corpus</td>
 </tr>
 <tr>
-<td>L2</td>
-<td>Multi-source synthesis</td>
-<td>"How many PostgreSQL servers are there?"</td>
+<td><code>temporal_evolution</code></td>
+<td>Understanding time-ordered changes</td>
 </tr>
 <tr>
-<td>L3</td>
-<td>Temporal reasoning</td>
-<td>"What changed after the maintenance window?"</td>
+<td><code>temporal_trap</code></td>
+<td>Contradictory time-ordered facts with misleading cues</td>
 </tr>
 <tr>
-<td>L4</td>
-<td>Contradiction resolution</td>
-<td>"Server was upgraded from 14 to 15 — which version?"</td>
+<td><code>numerical_precision</code></td>
+<td>Exact numbers, ports, versions</td>
 </tr>
 <tr>
-<td>L5</td>
-<td>Cross-domain inference</td>
-<td>"Which servers could be affected by the network issue?"</td>
+<td><code>numerical_reasoning</code></td>
+<td>Derived quantities (totals, averages)</td>
 </tr>
 <tr>
-<td>L6</td>
-<td>Incremental updates</td>
-<td>"After adding 2 replicas, how many total?"</td>
+<td><code>cross_reference</code></td>
+<td>Connecting facts from different domains</td>
 </tr>
 <tr>
-<td>L7</td>
-<td>Adversarial / noisy facts</td>
-<td>"Ignore the rumor — what's the actual status?"</td>
+<td><code>meta_memory</code></td>
+<td>Self-awareness of what the agent has learned</td>
+</tr>
+<tr>
+<td><code>source_attribution</code></td>
+<td>Citing where facts originated</td>
+</tr>
+<tr>
+<td><code>infrastructure_knowledge</code></td>
+<td>Server/network/deployment facts</td>
+</tr>
+<tr>
+<td><code>security_log_analysis</code></td>
+<td>Security event interpretation</td>
+</tr>
+<tr>
+<td><code>distractor_resistance</code></td>
+<td>Ignoring irrelevant or false information</td>
+</tr>
+<tr>
+<td><code>adversarial_distractor</code></td>
+<td>Facts injected by an adversarial agent</td>
+</tr>
+<tr>
+<td><code>incident_tracking</code></td>
+<td>Following incident timelines</td>
+</tr>
+<tr>
+<td><code>multi_hop_reasoning</code></td>
+<td>Connecting 3+ facts for the answer</td>
+</tr>
+<tr>
+<td><code>problem_solving</code></td>
+<td>Applying facts to solve a scenario</td>
 </tr>
 </tbody>
 </table>
 <h3 id="what-better-means">What "Better" Means<a class="headerlink" href="#what-better-means" title="Permanent link">&para;</a></h3>
 <p>A topology is better than the baseline if:</p>
 <ul>
-<li>Mean score is higher (statistical significance via 3-run median)</li>
-<li>No individual level regresses by more than 5 percentage points</li>
-<li>Adversarial level (L7) does not degrade (consensus should help, not hurt)</li>
+<li>Median score across 3 seeds is higher (primary criterion)</li>
+<li>No individual category regresses by more than 5 percentage points</li>
+<li><code>adversarial_distractor</code> and <code>distractor_resistance</code> do not degrade (consensus
+  should filter noise, not pass it through)</li>
+<li><code>temporal_trap</code> score does not fall below baseline (DHT sharding should not
+  confuse temporal ordering)</li>
 </ul>
+<h2 id="latest-results">Latest Results<a class="headerlink" href="#latest-results" title="Permanent link">&para;</a></h2>
+<p>Results from the <code>5000t-seed42-v1.0</code> dataset (5000 turns, seed 42, 100 questions
+across 15 categories). Median-of-3 grading. Scores are median across 3 seeds
+unless noted.</p>
+<h3 id="single-agent-baseline">Single-Agent Baseline<a class="headerlink" href="#single-agent-baseline" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cross_reference</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>distractor_resistance</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>infrastructure_knowledge</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>meta_memory</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>needle_in_haystack</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>problem_solving</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>security_log_analysis</td>
+<td>98.3%</td>
+</tr>
+<tr>
+<td>source_attribution</td>
+<td>99.5%</td>
+</tr>
+<tr>
+<td>multi_hop_reasoning</td>
+<td>92.5%</td>
+</tr>
+<tr>
+<td>numerical_precision</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>numerical_reasoning</td>
+<td>86.9%</td>
+</tr>
+<tr>
+<td>temporal_evolution</td>
+<td>89.7%</td>
+</tr>
+<tr>
+<td>adversarial_distractor</td>
+<td>89.6%</td>
+</tr>
+<tr>
+<td>incident_tracking</td>
+<td>83.8%</td>
+</tr>
+<tr>
+<td>temporal_trap</td>
+<td>53.3%</td>
+</tr>
+<tr>
+<td><strong>Overall</strong></td>
+<td><strong>90.47%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="multi-agent-topology-comparison">Multi-Agent Topology Comparison<a class="headerlink" href="#multi-agent-topology-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Topology</th>
+<th>Agents</th>
+<th>Median Score</th>
+<th>Std Dev</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single agent</td>
+<td>1</td>
+<td><strong>90.47%</strong></td>
+<td>—</td>
+<td>Baseline, dataset 5000t-seed42-v1.0</td>
+</tr>
+<tr>
+<td>Federated smoke test</td>
+<td>10</td>
+<td>65.7%</td>
+<td>6.7%</td>
+<td>Best multi-agent, lowest variance</td>
+</tr>
+<tr>
+<td>Distributed single DHT</td>
+<td>20</td>
+<td>47.2%</td>
+<td>—</td>
+<td>One DistributedHiveGraph, no federation tree</td>
+</tr>
+<tr>
+<td>Federated 100 agents</td>
+<td>100</td>
+<td>45.8%</td>
+<td>21.7%</td>
+<td>Routing precision degrades at scale</td>
+</tr>
+<tr>
+<td>Federated semantic+OODA</td>
+<td>10</td>
+<td>45.8%</td>
+<td>21.7%</td>
+<td>OODA-integrated routing</td>
+</tr>
+<tr>
+<td>Federated v1 naive</td>
+<td>5</td>
+<td>40.0%</td>
+<td>—</td>
+<td>Longest-answer-wins merge (deprecated)</td>
+</tr>
+<tr>
+<td>Federated broken routing</td>
+<td>5</td>
+<td>34.9%</td>
+<td>31.2%</td>
+<td>Root hive empty; root bug (fixed)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-findings">Key Findings<a class="headerlink" href="#key-findings" title="Permanent link">&para;</a></h3>
+<p><strong>Single DHT (<code>DistributedHiveGraph</code>):</strong>
+- 47.2% median — competitive with federated approaches at large scale
+- Memory: <code>O(F/N)</code> per agent vs <code>O(F)</code> total for InMemoryHiveGraph
+- 100 agents: 12.3 s creation, 4.8 GB RSS (previously OOM crash)
+- Avoids federation tree overhead — simpler routing, lower latency</p>
+<p><strong>Parallel learning:</strong>
+- 9x wall-clock speedup with 10 workers (21.6 h → 2.4 h for 5000 turns)
+- Works with both InMemoryHiveGraph and DistributedHiveGraph
+- Introduces ordering effects — use fixed seed for reproducibility
+- Score impact: not yet measured independently (confounded with topology)</p>
+<p><strong>Variance:</strong>
+- Broken routing had 31.2% stddev — results ranged 23%–83%
+- Smoke test (10 agents) had 6.7% stddev — most reproducible multi-agent setup
+- Federated 100 agents: 21.7% stddev — scale amplifies routing sensitivity</p>
+<p><strong>Gap to close:</strong> 90.47% (single) − 65.7% (best multi-agent) = <strong>24.77 pp</strong></p>
+<h3 id="path-to-closing-the-gap">Path to Closing the Gap<a class="headerlink" href="#path-to-closing-the-gap" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Domain-aware routing</strong> — route queries to agents that learned domain-specific
+   content, not random shard owners</li>
+<li><strong>Consensus-weighted retrieval</strong> — fact confidence boosted by confirmation count
+   across agents (CONFIRMED_BY edges)</li>
+<li><strong>Adversarial consensus filtering</strong> — require ≥ 2 agent confirmations before
+   promoting facts from low-trust sources</li>
+<li><strong>Temporal-aware reranking</strong> — give recency preference to time-ordered facts,
+   which are the primary failure mode (<code>temporal_trap</code>: 53.3%)</li>
+<li><strong>Pre-built DHT warm-up</strong> — populate the DHT from the pre-built baseline
+   dataset before the Q&amp;A phase (eliminates cold-start penalty)</li>
+</ol>
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>amplihack PR <a href="https://github.com/rysweet/amplihack5/pull/2717">#2717</a></strong>:
   Hive mind implementation (InMemoryHiveGraph, CRDTs, gossip, federation)</li>
+<li><strong>amplihack PR <a href="https://github.com/rysweet/amplihack5/pull/2876">#2876</a></strong>:
+  DistributedHiveGraph — DHT sharding for 100+ agents</li>
 <li><strong>amplihack issue <a href="https://github.com/rysweet/amplihack5/issues/2839">#2839</a></strong>:
   Hive mind eval scenarios tracking issue</li>
-<li><strong>Architecture doc</strong>: <code>docs/hive_mind/ARCHITECTURE.md</code> in the amplihack5 repo</li>
+<li><strong>Dataset</strong>: <code>datasets/5000t-seed42-v1.0/</code> — pre-built 5000-turn baseline DB</li>
+<li><strong>Architecture doc</strong>: <code>docs/hive_mind/ARCHITECTURE.md</code> in the amplihack repo</li>
+<li><strong>Tutorial</strong>: <code>docs/tutorial_prompt_to_distributed_hive.md</code> in the amplihack repo</li>
+<li><strong>Azure resources</strong>: resource group <code>hive-mind-rg</code>, registry <code>hivacrhivemind</code>,
+  Service Bus <code>hive-sb-dj2qo2w7vu5zi</code></li>
 </ul>
 
 
