@@ -44,6 +44,13 @@ from ..data.long_horizon import (
 
 logger = logging.getLogger(__name__)
 
+# Limits for parallel execution and grading
+MAX_PARALLEL_WORKERS = 20
+MAX_GRADER_VOTES = 9
+# Truncation limits for report serialization
+MAX_ANSWER_LENGTH_IN_REPORT = 500
+MAX_REASONING_LENGTH_IN_REPORT = 200
+
 
 @dataclass
 class DimensionScore:
@@ -124,13 +131,13 @@ class EvalReport:
                     "question_text": r.question_text,
                     "category": r.category,
                     "expected_answer": r.expected_answer,
-                    "actual_answer": r.actual_answer[:500],
+                    "actual_answer": r.actual_answer[:MAX_ANSWER_LENGTH_IN_REPORT],
                     "overall_score": round(r.overall_score, 4),
                     "dimensions": [
                         {
                             "dimension": d.dimension,
                             "score": round(d.score, 4),
-                            "reasoning": d.reasoning[:200],
+                            "reasoning": d.reasoning[:MAX_REASONING_LENGTH_IN_REPORT],
                         }
                         for d in r.dimensions
                     ],
@@ -365,8 +372,10 @@ def _grade_with_llm(
 
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        # Return zero scores if no API key
-        return [DimensionScore(dimension=d, score=0.0, reasoning="No API key") for d in dimensions]
+        raise OSError(
+            "ANTHROPIC_API_KEY environment variable is required for LLM grading. "
+            "Set it or use deterministic grading mode."
+        )
 
     client = anthropic.Anthropic(api_key=api_key)
 
@@ -462,12 +471,15 @@ Scoring guide:
         return dimension_scores
 
     except Exception as e:
-        logger.warning("Grading failed for %s: %s", question.question_id, e)
-        return [DimensionScore(dimension=d, score=0.0, reasoning=f"Error: {e}") for d in dimensions]
+        raise RuntimeError(f"LLM grading failed for question {question.question_id}: {e}") from e
 
 
 def _extract_json(text: str) -> dict:
-    """Extract JSON from LLM response text."""
+    """Extract JSON from LLM response text.
+
+    Raises:
+        json.JSONDecodeError: If no valid JSON object can be extracted.
+    """
     stripped = text.strip()
     try:
         return json.loads(stripped)
@@ -488,7 +500,11 @@ def _extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    return {}
+    raise json.JSONDecodeError(
+        f"No valid JSON found in response: {stripped[:200]}",
+        stripped,
+        0,
+    )
 
 
 class EvalRunner:
@@ -535,7 +551,7 @@ class EvalRunner:
         self.num_questions = num_questions
         self.seed = seed
         self.grader_votes = max(1, grader_votes)
-        self.parallel_workers = max(1, min(20, parallel_workers))
+        self.parallel_workers = max(1, min(MAX_PARALLEL_WORKERS, parallel_workers))
         self.ground_truth: GroundTruth | None = None
         self.questions: list[Question] = []
 
@@ -724,9 +740,7 @@ class EvalRunner:
                 )
 
         with ThreadPoolExecutor(max_workers=self.parallel_workers) as executor:
-            futures = {
-                executor.submit(_worker, i, q): i for i, q in enumerate(qs)
-            }
+            futures = {executor.submit(_worker, i, q): i for i, q in enumerate(qs)}
             # Wait for all futures and propagate exceptions from workers
             for future in as_completed(futures):
                 exc = future.exception()
@@ -1147,9 +1161,7 @@ def run_suite(
             passed_ids.add(level_id)
 
     overall = (
-        sum(r.overall_score for r in level_results) / len(level_results)
-        if level_results
-        else 0.0
+        sum(r.overall_score for r in level_results) / len(level_results) if level_results else 0.0
     )
 
     return SuiteResult(

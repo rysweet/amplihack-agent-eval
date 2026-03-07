@@ -143,14 +143,16 @@ def _make_eval_report(
             cat_results.append(result)
 
         scores = [r.overall_score for r in cat_results]
-        breakdown.append(CategoryBreakdown(
-            category=cat,
-            num_questions=len(cat_results),
-            avg_score=sum(scores) / len(scores),
-            min_score=min(scores),
-            max_score=max(scores),
-            dimension_averages={"factual_accuracy": sum(scores) / len(scores)},
-        ))
+        breakdown.append(
+            CategoryBreakdown(
+                category=cat,
+                num_questions=len(cat_results),
+                avg_score=sum(scores) / len(scores),
+                min_score=min(scores),
+                max_score=max(scores),
+                dimension_averages={"factual_accuracy": sum(scores) / len(scores)},
+            )
+        )
 
     return EvalReport(
         num_turns=100,
@@ -377,7 +379,8 @@ class TestExtractJson:
         assert result["score"] == 0.8
 
     def test_no_json(self):
-        assert _extract_json("just plain text") == {}
+        with pytest.raises(json.JSONDecodeError, match="No valid JSON"):
+            _extract_json("just plain text")
 
 
 # ====================================================================
@@ -408,8 +411,13 @@ class TestAdversaryAgent:
 
         agent = AdversaryAgent()
         results = [
-            {"question_text": "Q1?", "expected_answer": "A1", "actual_answer": "wrong",
-             "score": 0.3, "category": "cat_a"},
+            {
+                "question_text": "Q1?",
+                "expected_answer": "A1",
+                "actual_answer": "wrong",
+                "score": 0.3,
+                "category": "cat_a",
+            },
         ]
         questions = agent.generate_adversarial_questions(
             ground_truth=_make_ground_truth(),
@@ -424,12 +432,27 @@ class TestAdversaryAgent:
 
         # Agent does well on cat_a, poorly on cat_b
         results = [
-            {"question_text": "Q1", "expected_answer": "A1", "actual_answer": "A1",
-             "score": 0.95, "category": "cat_a"},
-            {"question_text": "Q2", "expected_answer": "A2", "actual_answer": "A2",
-             "score": 0.9, "category": "cat_a"},
-            {"question_text": "Q3", "expected_answer": "A3", "actual_answer": "wrong",
-             "score": 0.2, "category": "cat_b"},
+            {
+                "question_text": "Q1",
+                "expected_answer": "A1",
+                "actual_answer": "A1",
+                "score": 0.95,
+                "category": "cat_a",
+            },
+            {
+                "question_text": "Q2",
+                "expected_answer": "A2",
+                "actual_answer": "A2",
+                "score": 0.9,
+                "category": "cat_a",
+            },
+            {
+                "question_text": "Q3",
+                "expected_answer": "A3",
+                "actual_answer": "wrong",
+                "score": 0.2,
+                "category": "cat_b",
+            },
         ]
 
         # We cannot test the actual LLM call without mocking, but we can
@@ -842,10 +865,7 @@ class TestIntegration:
         analysis = analyst.analyze(report)
 
         # Should identify the weak category
-        weak_patterns = [
-            fp for fp in analysis.failure_patterns
-            if "weak" in fp.pattern_name
-        ]
+        weak_patterns = [fp for fp in analysis.failure_patterns if "weak" in fp.pattern_name]
         assert len(weak_patterns) >= 1
 
         # Should suggest improvements

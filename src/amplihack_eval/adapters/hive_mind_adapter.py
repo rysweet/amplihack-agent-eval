@@ -27,6 +27,9 @@ from .base import AgentAdapter, AgentResponse
 
 logger = logging.getLogger(__name__)
 
+# Maximum number of shared facts to inject as context when answering a question
+MAX_SHARED_CONTEXT_FACTS = 50
+
 
 @runtime_checkable
 class SharedMemoryStore(Protocol):
@@ -79,10 +82,43 @@ class InMemorySharedStore:
         """Query with simple keyword matching across all agents' facts."""
         question_words = set(question.lower().split())
         # Remove common stop words for better matching
-        stop_words = {"the", "a", "an", "is", "are", "was", "were", "what", "how",
-                      "does", "do", "and", "or", "of", "in", "to", "for", "with",
-                      "on", "at", "by", "from", "that", "this", "it", "be", "has",
-                      "have", "had", "not", "but", "if", "can", "which", "as"}
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "what",
+            "how",
+            "does",
+            "do",
+            "and",
+            "or",
+            "of",
+            "in",
+            "to",
+            "for",
+            "with",
+            "on",
+            "at",
+            "by",
+            "from",
+            "that",
+            "this",
+            "it",
+            "be",
+            "has",
+            "have",
+            "had",
+            "not",
+            "but",
+            "if",
+            "can",
+            "which",
+            "as",
+        }
         query_terms = question_words - stop_words
 
         if not query_terms:
@@ -202,8 +238,7 @@ class HiveMindGroupAdapter:
         for agent_id, facts in agent_knowledge.items():
             if agent_id not in self.agents:
                 raise ValueError(
-                    f"Agent '{agent_id}' not found in hive. "
-                    f"Available: {list(self.agents.keys())}"
+                    f"Agent '{agent_id}' not found in hive. Available: {list(self.agents.keys())}"
                 )
 
             agent = self.agents[agent_id]
@@ -289,8 +324,7 @@ class HiveMindGroupAdapter:
         """
         if agent_id not in self.agents:
             raise ValueError(
-                f"Agent '{agent_id}' not found in hive. "
-                f"Available: {list(self.agents.keys())}"
+                f"Agent '{agent_id}' not found in hive. Available: {list(self.agents.keys())}"
             )
 
         # Query shared store for relevant context
@@ -299,7 +333,7 @@ class HiveMindGroupAdapter:
         # Feed context to agent if available
         if shared_context:
             context_text = "Shared knowledge from the hive:\n" + "\n".join(
-                f"- {fact}" for fact in shared_context[:50]  # Cap at 50 facts
+                f"- {fact}" for fact in shared_context[:MAX_SHARED_CONTEXT_FACTS]
             )
             self.agents[agent_id].learn(context_text)
 
@@ -316,18 +350,27 @@ class HiveMindGroupAdapter:
 
         Returns:
             Dict mapping agent_id to AgentResponse
+
+        Raises:
+            RuntimeError: If any agent fails to answer. The error message
+                includes which agent(s) failed and why.
         """
         responses: dict[str, AgentResponse] = {}
+        errors: dict[str, Exception] = {}
 
         for agent_id in self.agents:
             try:
                 responses[agent_id] = self.ask_agent(agent_id, question)
             except Exception as e:
-                logger.warning("Agent '%s' failed to answer: %s", agent_id, e)
-                responses[agent_id] = AgentResponse(
-                    answer=f"Error: {e}",
-                    metadata={"error": True, "agent_id": agent_id},
-                )
+                errors[agent_id] = e
+
+        if errors:
+            error_details = "; ".join(
+                f"{aid}: {type(e).__name__}: {e}" for aid, e in errors.items()
+            )
+            raise RuntimeError(
+                f"{len(errors)}/{len(self.agents)} agents failed to answer: {error_details}"
+            )
 
         return responses
 
@@ -358,9 +401,7 @@ class HiveMindGroupAdapter:
             per_agent[agent_id] = {
                 "own_facts": len(self.shared_store.get_all_facts(agent_id)),
                 "total_known": len(agent_facts),
-                "coverage_pct": (
-                    len(agent_facts) / total_facts * 100 if total_facts > 0 else 0.0
-                ),
+                "coverage_pct": (len(agent_facts) / total_facts * 100 if total_facts > 0 else 0.0),
             }
 
         return {

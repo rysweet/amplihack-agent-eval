@@ -83,14 +83,16 @@ class SubprocessAdapter(AgentAdapter):
                 env=env,
             )
             if result.returncode != 0:
-                logger.warning("Subprocess returned %d: %s", result.returncode, result.stderr[:500])
+                raise subprocess.CalledProcessError(
+                    result.returncode, full_cmd, result.stdout, result.stderr
+                )
             return result.stdout.strip()
-        except subprocess.TimeoutExpired:
-            logger.error("Subprocess timed out after %.1fs", self._timeout)
-            return ""
-        except FileNotFoundError:
-            logger.error("Command not found: %s", full_cmd)
-            return ""
+        except subprocess.TimeoutExpired as e:
+            raise TimeoutError(
+                f"Subprocess timed out after {self._timeout:.1f}s: {full_cmd}"
+            ) from e
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Command not found: {full_cmd}") from e
 
     def learn(self, content: str) -> None:
         """Send content to the agent for learning."""
@@ -120,8 +122,10 @@ class SubprocessAdapter(AgentAdapter):
                     confidence=float(data.get("confidence", 0.0)),
                     metadata={"elapsed_s": elapsed},
                 )
-            except (json.JSONDecodeError, KeyError):
-                pass
+            except (json.JSONDecodeError, KeyError) as e:
+                raise ValueError(
+                    f"Failed to parse JSON output from subprocess: {output[:200]}"
+                ) from e
 
         return AgentResponse(
             answer=output,

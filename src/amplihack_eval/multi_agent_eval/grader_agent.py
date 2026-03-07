@@ -119,7 +119,11 @@ class AggregateGrade:
 
 
 def _extract_json(text: str) -> dict:
-    """Extract a JSON object from LLM response text."""
+    """Extract a JSON object from LLM response text.
+
+    Raises:
+        json.JSONDecodeError: If no valid JSON object can be extracted.
+    """
     stripped = text.strip()
     try:
         return json.loads(stripped)
@@ -140,7 +144,11 @@ def _extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    return {}
+    raise json.JSONDecodeError(
+        f"No valid JSON found in response: {stripped[:200]}",
+        stripped,
+        0,
+    )
 
 
 def _deterministic_grade(rubric: GradingRubric, actual_answer: str) -> float | None:
@@ -163,8 +171,7 @@ def _deterministic_grade(rubric: GradingRubric, actual_answer: str) -> float | N
     # Keyword matching
     if rubric.required_keywords:
         matched = sum(
-            1 for kw in rubric.required_keywords
-            if re.search(re.escape(kw.lower()), answer_lower)
+            1 for kw in rubric.required_keywords if re.search(re.escape(kw.lower()), answer_lower)
         )
         ratio = matched / len(rubric.required_keywords)
     else:
@@ -173,7 +180,8 @@ def _deterministic_grade(rubric: GradingRubric, actual_answer: str) -> float | N
     # Paraphrase bonus
     if rubric.acceptable_paraphrases:
         hits = sum(
-            1 for p in rubric.acceptable_paraphrases
+            1
+            for p in rubric.acceptable_paraphrases
             if re.search(re.escape(p.lower()), answer_lower)
         )
         ratio = min(1.0, ratio + hits * 0.1)
@@ -203,9 +211,7 @@ class GraderAgent:
 
     def __init__(self, perspective: str, model: str = ""):
         if perspective not in PERSPECTIVES:
-            raise ValueError(
-                f"Invalid perspective '{perspective}'. Must be one of: {PERSPECTIVES}"
-            )
+            raise ValueError(f"Invalid perspective '{perspective}'. Must be one of: {PERSPECTIVES}")
         self.perspective = perspective
         self.model = model or os.environ.get("GRADER_MODEL", "claude-sonnet-4-5-20250929")
         self._system_prompt = _PERSPECTIVE_PROMPTS[perspective]

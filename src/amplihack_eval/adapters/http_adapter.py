@@ -77,29 +77,29 @@ class HttpAdapter(AgentAdapter):
                     return json.loads(response_body)
                 return {}
         except URLError as e:
-            logger.error("HTTP request failed for %s: %s", url, e)
-            return {"error": str(e)}
-        except json.JSONDecodeError:
-            logger.warning("Non-JSON response from %s", url)
-            return {"raw": response_body}
+            raise ConnectionError(f"HTTP request failed for {url}: {e}") from e
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Non-JSON response from {url}: {response_body[:200]}") from e
 
     def learn(self, content: str) -> None:
-        """Send content to the agent for learning via HTTP."""
-        result = self._post(self._learn_path, {"content": content})
-        if "error" in result:
-            logger.warning("Learn request failed: %s", result["error"])
+        """Send content to the agent for learning via HTTP.
+
+        Raises:
+            ConnectionError: If the HTTP request fails.
+            ValueError: If the response is not valid JSON.
+        """
+        self._post(self._learn_path, {"content": content})
 
     def answer(self, question: str) -> AgentResponse:
-        """Ask the agent a question via HTTP."""
+        """Ask the agent a question via HTTP.
+
+        Raises:
+            ConnectionError: If the HTTP request fails.
+            ValueError: If the response is not valid JSON.
+        """
         start = time.time()
         result = self._post(self._answer_path, {"question": question})
         elapsed = time.time() - start
-
-        if "error" in result:
-            return AgentResponse(
-                answer=f"Error: {result['error']}",
-                metadata={"elapsed_s": elapsed},
-            )
 
         # Parse tool calls if present
         tool_calls = []
@@ -121,10 +121,12 @@ class HttpAdapter(AgentAdapter):
         )
 
     def reset(self) -> None:
-        """Reset agent state via HTTP."""
-        result = self._post(self._reset_path, {})
-        if "error" in result:
-            logger.warning("Reset request failed: %s", result["error"])
+        """Reset agent state via HTTP.
+
+        Raises:
+            ConnectionError: If the HTTP request fails.
+        """
+        self._post(self._reset_path, {})
 
     def close(self) -> None:
         """No persistent HTTP resources to clean up."""
