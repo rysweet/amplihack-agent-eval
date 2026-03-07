@@ -71,7 +71,7 @@ python experiments/hive_mind/query_hive.py --run-eval --timeout 15
 ```
 ======================================================================
 LIVE AZURE HIVE Q&A EVAL
-Hive: hive-sb-dj2qo2w7vu5zi / topic: hive-graph
+Hive: hive-sb / topic: hive-graph
 Questions: 15
 Timeout per query: 10s
 ======================================================================
@@ -191,7 +191,7 @@ client.close()
 | Component | Value |
 |---|---|
 | Azure resource group | `hive-mind-rg` |
-| Service Bus namespace | `hive-sb-dj2qo2w7vu5zi` |
+| Service Bus namespace | See `HIVE_CONNECTION_STRING` env var |
 | Topic | `hive-graph` |
 | Eval subscription | `eval-query-agent` |
 | Agent subscriptions | `agent-0` … `agent-19` |
