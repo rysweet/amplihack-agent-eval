@@ -1796,17 +1796,11 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
                 continue
             content_map = {
                 "birthday": f"{pname}'s birthday is {val}.",
-                "allergy": (
-                    f"{pname} is allergic to {val}."
-                    if val != "none"
-                    else f"{pname} has no known allergies."
-                ),
+                "allergy": (f"{pname} is allergic to {val}." if val != "none" else f"{pname} has no known allergies."),
                 "hobby": f"{pname} enjoys {val} in their free time.",
                 "role": f"{pname} works as a {val}.",
                 "team": f"{pname} is on the {val} team.",
-                "pet": (
-                    f"{pname} has a {val}." if val != "none" else f"{pname} doesn't have any pets."
-                ),
+                "pet": (f"{pname} has a {val}." if val != "none" else f"{pname} doesn't have any pets."),
                 "hometown": f"{pname} is originally from {val}.",
                 "favorite_food": f"{pname}'s favorite food is {val}.",
                 "degree": f"{pname} holds a {val}.",
@@ -1831,9 +1825,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
                 if key == "name":
                     continue
                 entity_key = f"{pname}.{key}"
-                facts_by_entity.setdefault(entity_key, []).append(
-                    {"value": str(val), "turn": turn_idx}
-                )
+                facts_by_entity.setdefault(entity_key, []).append({"value": str(val), "turn": turn_idx})
                 current_values[entity_key] = str(val)
 
         turns.append(
@@ -1883,9 +1875,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
             facts_by_entity.setdefault(ek, []).append({"value": f["value"], "turn": turn_idx})
             current_values[ek] = f["value"]
 
-        turns.append(
-            Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=facts)
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=facts))
         turn_idx += 1
 
     # Project updates (spread through the block)
@@ -1901,14 +1891,8 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
             break
         # Pad with filler turns if needed
         while turn_idx < min(target_turn, b_end):
-            content = (
-                f"Routine check-in: Project {rng.choice(PROJECTS)['name']} is proceeding normally."
-            )
-            turns.append(
-                Turn(
-                    turn_number=turn_idx, content=content, block=2, block_name="projects", facts=[]
-                )
-            )
+            content = f"Routine check-in: Project {rng.choice(PROJECTS)['name']} is proceeding normally."
+            turns.append(Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=[]))
             turn_idx += 1
 
         if turn_idx >= b_end:
@@ -1920,8 +1904,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         new_val = str(upd["new"])
 
         content = (
-            f"Update on {entity}: the {attr} has been changed from {old_val} to {new_val} "
-            f"because {upd['reason']}."
+            f"Update on {entity}: the {attr} has been changed from {old_val} to {new_val} because {upd['reason']}."
         )
         facts = [{"entity": entity, "attribute": attr, "value": new_val, "supersedes": old_val}]
 
@@ -1932,20 +1915,14 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         facts_by_entity.setdefault(ek, []).append({"value": new_val, "turn": turn_idx})
         current_values[ek] = new_val
 
-        turns.append(
-            Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=facts)
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=facts))
         turn_idx += 1
 
     # Fill remaining block 2 turns
     while turn_idx < b_end:
         proj = rng.choice(PROJECTS)
-        content = (
-            f"Status update: Project {proj['name']} team met for their weekly standup. No changes."
-        )
-        turns.append(
-            Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=[])
-        )
+        content = f"Status update: Project {proj['name']} team met for their weekly standup. No changes."
+        turns.append(Turn(turn_number=turn_idx, content=content, block=2, block_name="projects", facts=[]))
         turn_idx += 1
 
     # Block 3: Technical facts
@@ -1965,11 +1942,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         facts_by_entity.setdefault(ek, []).append({"value": fact_text, "turn": turn_idx})
         current_values[ek] = fact_text
 
-        turns.append(
-            Turn(
-                turn_number=turn_idx, content=content, block=3, block_name="technical", facts=facts
-            )
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=3, block_name="technical", facts=facts))
         turn_idx += 1
         tech_idx += 1
 
@@ -1978,9 +1951,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         domain = rng.choice(list(TECHNICAL_DOMAINS.keys()))
         fact_text = rng.choice(TECHNICAL_DOMAINS[domain])
         content = f"Reminder about {domain}: {fact_text}"
-        turns.append(
-            Turn(turn_number=turn_idx, content=content, block=3, block_name="technical", facts=[])
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=3, block_name="technical", facts=[]))
         turn_idx += 1
 
     # Block 4: Evolving storyline with corrections
@@ -2179,9 +2150,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
     num_idx = 0
     while turn_idx < b_end and num_idx < len(NUMERICAL_DATA):
         nd = NUMERICAL_DATA[num_idx]
-        content = (
-            f"Data point: The {nd['entity']} is {nd['value']}. Additional context: {nd['detail']}."
-        )
+        content = f"Data point: The {nd['entity']} is {nd['value']}. Additional context: {nd['detail']}."
         facts = [
             {"entity": nd["entity"], "attribute": "value", "value": nd["value"]},
             {"entity": nd["entity"], "attribute": "detail", "value": nd["detail"]},
@@ -2192,11 +2161,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         current_values[ek] = nd["value"]
         current_values[f"{ek}.detail"] = nd["detail"]
 
-        turns.append(
-            Turn(
-                turn_number=turn_idx, content=content, block=5, block_name="numerical", facts=facts
-            )
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=5, block_name="numerical", facts=facts))
         turn_idx += 1
         num_idx += 1
 
@@ -2204,9 +2169,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
     while turn_idx < b_end:
         nd = NUMERICAL_DATA[turn_idx % len(NUMERICAL_DATA)]
         content = f"Reminder: The {nd['entity']} remains at {nd['value']}."
-        turns.append(
-            Turn(turn_number=turn_idx, content=content, block=5, block_name="numerical", facts=[])
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=5, block_name="numerical", facts=[]))
         turn_idx += 1
 
     # Block 6: Contradictory reports
@@ -2215,10 +2178,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         for src in cr["sources"]:
             if turn_idx >= b_end:
                 break
-            content = (
-                f"Report from {src['name']}: The {cr['topic']} is {src['claim']}. "
-                f"Detail: {src['detail']}."
-            )
+            content = f"Report from {src['name']}: The {cr['topic']} is {src['claim']}. Detail: {src['detail']}."
             facts = [
                 {
                     "entity": cr["topic"],
@@ -2229,9 +2189,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
             ]
 
             ek = f"contradiction.{cr['topic']}.{src['name']}"
-            facts_by_entity.setdefault(ek, []).append(
-                {"value": src["claim"], "turn": turn_idx, "source": src["name"]}
-            )
+            facts_by_entity.setdefault(ek, []).append({"value": src["claim"], "turn": turn_idx, "source": src["name"]})
             current_values[ek] = src["claim"]
 
             turns.append(
@@ -2314,11 +2272,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         entity, attr, text = callback_templates[cb_idx]
         content = text
         facts = [{"entity": entity, "attribute": f"callback_{attr}", "value": text}]
-        turns.append(
-            Turn(
-                turn_number=turn_idx, content=content, block=7, block_name="callbacks", facts=facts
-            )
-        )
+        turns.append(Turn(turn_number=turn_idx, content=content, block=7, block_name="callbacks", facts=facts))
         turn_idx += 1
         cb_idx += 1
 
@@ -2472,9 +2426,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         # Cycle through events if more turns needed
         while turn_idx < b_end:
             evt = SECURITY_EVENTS[turn_idx % len(SECURITY_EVENTS)]
-            content = (
-                f"Security log replay [{evt['timestamp']}]: {evt['event']} from {evt['source_ip']}."
-            )
+            content = f"Security log replay [{evt['timestamp']}]: {evt['event']} from {evt['source_ip']}."
             turns.append(
                 Turn(
                     turn_number=turn_idx,
@@ -2588,9 +2540,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
                     "reason": upd["detail"],
                 }
             )
-            facts_by_entity.setdefault(ek, []).append(
-                {"value": upd["new_status"], "turn": turn_idx}
-            )
+            facts_by_entity.setdefault(ek, []).append({"value": upd["new_status"], "turn": turn_idx})
             current_values[ek] = upd["new_status"]
 
             turns.append(
@@ -2757,10 +2707,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         for dns in INFRASTRUCTURE["dns_records"]:
             if turn_idx >= b_end:
                 break
-            content = (
-                f"Infrastructure: DNS record {dns['name']} ({dns['type']}) "
-                f"-> {dns['target']}, TTL {dns['ttl']}s."
-            )
+            content = f"Infrastructure: DNS record {dns['name']} ({dns['type']}) -> {dns['target']}, TTL {dns['ttl']}s."
             facts = [
                 {"entity": f"dns_{dns['name']}", "attribute": "type", "value": dns["type"]},
                 {"entity": f"dns_{dns['name']}", "attribute": "target", "value": dns["target"]},
@@ -2784,9 +2731,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
         for db in INFRASTRUCTURE["databases"]:
             if turn_idx >= b_end:
                 break
-            replica_suffix = (
-                f" with {db['replicas']} replicas" if db.get("replicas") else ""
-            )
+            replica_suffix = f" with {db['replicas']} replicas" if db.get("replicas") else ""
             content = (
                 f"Infrastructure: Database '{db['name']}' running {db['engine']} "
                 f"at {db['host']}:{db['port']}, size {db['size_gb']}GB{replica_suffix}."
@@ -2797,9 +2742,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
                 {"entity": f"db_{db['name']}", "attribute": "size_gb", "value": str(db["size_gb"])},
             ]
             if db.get("replicas"):
-                facts.append(
-                    {"entity": f"db_{db['name']}", "attribute": "replicas", "value": str(db["replicas"])}
-                )
+                facts.append({"entity": f"db_{db['name']}", "attribute": "replicas", "value": str(db["replicas"])})
             for f in facts:
                 ek = f"{f['entity']}.{f['attribute']}"
                 facts_by_entity.setdefault(ek, []).append({"value": f["value"], "turn": turn_idx})
@@ -2856,9 +2799,7 @@ def generate_dialogue(num_turns: int = 1000, seed: int = 42) -> GroundTruth:
                 },
             ]
             for cf in task["context_facts"]:
-                facts.append(
-                    {"entity": f"problem_task_{ps_idx}", "attribute": "context", "value": cf}
-                )
+                facts.append({"entity": f"problem_task_{ps_idx}", "attribute": "context", "value": cf})
 
             for f in facts:
                 ek = f"{f['entity']}.{f['attribute']}"
@@ -2939,9 +2880,7 @@ def _delivered_entities(ground_truth: GroundTruth) -> set[str]:
     return entities
 
 
-def _question_references_delivered(
-    question: Question, delivered: set[str], ground_truth: GroundTruth
-) -> bool:
+def _question_references_delivered(question: Question, delivered: set[str], ground_truth: GroundTruth) -> bool:
     """Check if a question's answer facts were delivered in the dialogue.
 
     Validates that key entities from the expected answer actually appear in
@@ -3377,9 +3316,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             rubric=_make_rubric("Saga pattern", keywords=["Saga"]),
         ),
     ]
-    needle_questions = [
-        q for q in needle_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    needle_questions = [q for q in needle_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(needle_questions[:needle_count])
 
     # Category 2: Temporal evolution (15% of questions)
@@ -3576,9 +3513,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ),
     ]
-    temporal_questions = [
-        q for q in temporal_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    temporal_questions = [q for q in temporal_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(temporal_questions[:temporal_count])
 
     # Category 3: Numerical precision (15% of questions)
@@ -3699,9 +3634,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             category="numerical_precision",
             relevant_turns=[],
             scoring_dimensions=["factual_accuracy", "specificity"],
-            rubric=_make_rubric(
-                "17 issues: 3 critical, 5 high, 9 medium", keywords=["17", "3", "5", "9"]
-            ),
+            rubric=_make_rubric("17 issues: 3 critical, 5 high, 9 medium", keywords=["17", "3", "5", "9"]),
         ),
         Question(
             question_id="numerical_14",
@@ -3722,9 +3655,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             rubric=_make_rubric("23 minutes, down from 45", keywords=["23", "45"]),
         ),
     ]
-    numerical_questions = [
-        q for q in numerical_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    numerical_questions = [q for q in numerical_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(numerical_questions[:numerical_count])
 
     # Category 4: Source attribution (10% of questions)
@@ -3854,9 +3785,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ),
     ]
-    source_questions = [
-        q for q in source_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    source_questions = [q for q in source_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(source_questions[:source_count])
 
     # Category 5: Cross-reference (10% of questions)
@@ -3981,9 +3910,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ),
     ]
-    cross_ref_questions = [
-        q for q in cross_ref_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    cross_ref_questions = [q for q in cross_ref_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(cross_ref_questions[:cross_ref_count])
 
     # Category 6: Distractor resistance (10% of questions)
@@ -4110,9 +4037,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     distractor_questions = [
-        q
-        for q in distractor_questions
-        if _question_references_delivered(q, delivered, ground_truth)
+        q for q in distractor_questions if _question_references_delivered(q, delivered, ground_truth)
     ]
     questions.extend(distractor_questions[:distractor_count])
 
@@ -4171,9 +4096,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             rubric=_make_rubric("8 domains", keywords=["8"]),
         ),
     ]
-    meta_questions = [
-        q for q in meta_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    meta_questions = [q for q in meta_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(meta_questions[:meta_count])
 
     # Category 8: Security log analysis (conditional on security blocks being delivered)
@@ -4246,11 +4169,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 scoring_dimensions=["factual_accuracy", "specificity"],
             ),
         ]
-        sec_log_questions = [
-            q
-            for q in sec_log_questions
-            if _question_references_delivered(q, delivered, ground_truth)
-        ]
+        sec_log_questions = [q for q in sec_log_questions if _question_references_delivered(q, delivered, ground_truth)]
         questions.extend(sec_log_questions[:sec_log_count])
 
     # Category 9: Incident tracking (conditional on incidents block)
@@ -4343,9 +4262,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ]
         incident_questions = [
-            q
-            for q in incident_questions
-            if _question_references_delivered(q, delivered, ground_truth)
+            q for q in incident_questions if _question_references_delivered(q, delivered, ground_truth)
         ]
         questions.extend(incident_questions[:incident_count])
 
@@ -4408,9 +4325,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 scoring_dimensions=["factual_accuracy"],
             ),
         ]
-        infra_questions = [
-            q for q in infra_questions if _question_references_delivered(q, delivered, ground_truth)
-        ]
+        infra_questions = [q for q in infra_questions if _question_references_delivered(q, delivered, ground_truth)]
         questions.extend(infra_questions[:infra_count])
 
     # Category 11: Problem solving (conditional on problem_solving block)
@@ -4451,11 +4366,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
                 scoring_dimensions=["factual_accuracy", "specificity"],
             ),
         ]
-        problem_questions = [
-            q
-            for q in problem_questions
-            if _question_references_delivered(q, delivered, ground_truth)
-        ]
+        problem_questions = [q for q in problem_questions if _question_references_delivered(q, delivered, ground_truth)]
         questions.extend(problem_questions[:problem_count])
 
     # Category 12: Multi-hop reasoning (chains across blocks)
@@ -4535,9 +4446,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ]
         )
 
-    multi_hop_questions = [
-        q for q in multi_hop_questions if _question_references_delivered(q, delivered, ground_truth)
-    ]
+    multi_hop_questions = [q for q in multi_hop_questions if _question_references_delivered(q, delivered, ground_truth)]
     questions.extend(multi_hop_questions[:multi_hop_count])
 
     # Add bonus questions to fill up to num_questions if needed
@@ -4681,9 +4590,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
 
     remaining = num_questions - len(questions)
     if remaining > 0:
-        bonus_questions = [
-            q for q in bonus_questions if _question_references_delivered(q, delivered, ground_truth)
-        ]
+        bonus_questions = [q for q in bonus_questions if _question_references_delivered(q, delivered, ground_truth)]
         questions.extend(bonus_questions[:remaining])
 
     # Ensure all questions have rubrics (backfill for security/infra questions)

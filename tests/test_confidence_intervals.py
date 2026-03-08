@@ -17,13 +17,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from amplihack_eval.core.multi_seed import (
+    _T_CRITICAL_95,
     CategoryStats,
     MultiSeedReport,
-    _T_CRITICAL_95,
     _ci_95,
     _t_critical,
 )
-
 
 # ── _ci_95 helper ──────────────────────────────────────────────────────
 
@@ -101,7 +100,6 @@ class TestTCritical:
     def test_without_scipy_uses_lookup(self):
         """When scipy import is blocked, falls back to lookup table."""
         import sys
-        import importlib
 
         # Temporarily block scipy
         original = sys.modules.get("scipy.stats")
@@ -284,17 +282,18 @@ class TestLearningAgentAdapterHiveStore:
         mock_hive = MagicMock(name="hive_store")
         mock_agent_cls = MagicMock(name="LearningAgent")
 
-        with patch.dict("sys.modules", {
-            "amplihack": MagicMock(),
-            "amplihack.agents": MagicMock(),
-            "amplihack.agents.goal_seeking": MagicMock(),
-            "amplihack.agents.goal_seeking.learning_agent": MagicMock(
-                LearningAgent=mock_agent_cls
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "amplihack": MagicMock(),
+                "amplihack.agents": MagicMock(),
+                "amplihack.agents.goal_seeking": MagicMock(),
+                "amplihack.agents.goal_seeking.learning_agent": MagicMock(LearningAgent=mock_agent_cls),
+            },
+        ):
             from amplihack_eval.adapters.learning_agent import LearningAgentAdapter
 
-            adapter = LearningAgentAdapter(
+            LearningAgentAdapter(
                 model="test-model",
                 storage_path="/tmp/test",
                 hive_store=mock_hive,
@@ -308,17 +307,18 @@ class TestLearningAgentAdapterHiveStore:
         """When hive_store is not given, it is not passed to LearningAgent."""
         mock_agent_cls = MagicMock(name="LearningAgent")
 
-        with patch.dict("sys.modules", {
-            "amplihack": MagicMock(),
-            "amplihack.agents": MagicMock(),
-            "amplihack.agents.goal_seeking": MagicMock(),
-            "amplihack.agents.goal_seeking.learning_agent": MagicMock(
-                LearningAgent=mock_agent_cls
-            ),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "amplihack": MagicMock(),
+                "amplihack.agents": MagicMock(),
+                "amplihack.agents.goal_seeking": MagicMock(),
+                "amplihack.agents.goal_seeking.learning_agent": MagicMock(LearningAgent=mock_agent_cls),
+            },
+        ):
             from amplihack_eval.adapters.learning_agent import LearningAgentAdapter
 
-            adapter = LearningAgentAdapter(
+            LearningAgentAdapter(
                 model="test-model",
                 storage_path="/tmp/test",
             )

@@ -79,9 +79,7 @@ class ContinuousEvalReport:
                     "score_stddev": round(c.score_stddev, 4),
                     "elapsed_s": round(c.elapsed_s, 1),
                     "hive_facts": c.hive_facts,
-                    "per_level_scores": {
-                        k: round(v, 4) for k, v in c.per_level_scores.items()
-                    },
+                    "per_level_scores": {k: round(v, 4) for k, v in c.per_level_scores.items()},
                     "category_breakdown": [
                         {
                             "category": cb.category,
@@ -128,30 +126,29 @@ def _compute_per_level_scores(report: EvalReport) -> dict[str, float]:
             level_scores[level] = []
         level_scores[level].append(result.overall_score)
 
-    return {
-        level: sum(scores) / len(scores) if scores else 0.0
-        for level, scores in sorted(level_scores.items())
-    }
+    return {level: sum(scores) / len(scores) if scores else 0.0 for level, scores in sorted(level_scores.items())}
 
 
 # ---------------------------------------------------------------------------
 # Adapter wrappers (mirror run_learning_agent_hive_eval.py patterns)
 # ---------------------------------------------------------------------------
 
-_NO_INFO_PHRASES = frozenset([
-    "i don't have",
-    "i do not have",
-    "no information",
-    "i cannot",
-    "i can't",
-    "not enough information",
-    "i lack",
-    "no data",
-    "unable to find",
-    "no relevant",
-    "don't know",
-    "do not know",
-])
+_NO_INFO_PHRASES = frozenset(
+    [
+        "i don't have",
+        "i do not have",
+        "no information",
+        "i cannot",
+        "i can't",
+        "not enough information",
+        "i lack",
+        "no data",
+        "unable to find",
+        "no relevant",
+        "don't know",
+        "do not know",
+    ]
+)
 
 
 class _SingleAgentAdapter(AgentAdapter):
@@ -197,17 +194,17 @@ class _MultiAgentAdapter(AgentAdapter):
         self._agents = agents
         self._model = model
         self._turn_idx = 0
+        self._turn_lock = threading.Lock()
         self._parallel_workers = parallel_workers
         self._hive_store = hive_store
-        self._agent_map: dict[str, Any] = {
-            getattr(a, "agent_name", f"agent_{i}"): a for i, a in enumerate(agents)
-        }
+        self._agent_map: dict[str, Any] = {getattr(a, "agent_name", f"agent_{i}"): a for i, a in enumerate(agents)}
 
     def learn(self, content: str) -> None:
         """Sequential learning (one turn at a time, round-robin)."""
-        agent = self._agents[self._turn_idx % len(self._agents)]
+        with self._turn_lock:
+            agent = self._agents[self._turn_idx % len(self._agents)]
+            self._turn_idx += 1
         agent.learn_from_content(content)
-        self._turn_idx += 1
 
     def learn_parallel(self, turns: list[Any]) -> float:
         """Parallel learning: pre-assign turns to agents, learn concurrently.
@@ -260,10 +257,7 @@ class _MultiAgentAdapter(AgentAdapter):
             return count
 
         with ThreadPoolExecutor(max_workers=self._parallel_workers) as pool:
-            futures = {
-                pool.submit(_learn_batch, idx, batch): idx
-                for idx, batch in agent_batches.items()
-            }
+            futures = {pool.submit(_learn_batch, idx, batch): idx for idx, batch in agent_batches.items()}
             for future in as_completed(futures):
                 try:
                     future.result()
@@ -290,14 +284,12 @@ class _MultiAgentAdapter(AgentAdapter):
         try:
             facts = self._hive_store.query_facts(question, limit=30)
             relevant_names = {f.source_agent for f in facts if f.source_agent}
-            relevant_agents = [
-                a for a in self._agents
-                if getattr(a, "agent_name", "") in relevant_names
-            ]
+            relevant_agents = [a for a in self._agents if getattr(a, "agent_name", "") in relevant_names]
 
             if len(relevant_agents) < k:
                 # Pad with random extras for coverage
                 import random as _random
+
                 relevant_set = {id(a) for a in relevant_agents}
                 extras = [a for a in self._agents if id(a) not in relevant_set]
                 _random.shuffle(extras)
@@ -305,7 +297,8 @@ class _MultiAgentAdapter(AgentAdapter):
 
             logger.debug(
                 "Hive routing: %d relevant agents selected (from %d facts)",
-                len(relevant_agents), len(facts),
+                len(relevant_agents),
+                len(facts),
             )
             return relevant_agents[:k]
         except Exception as e:
@@ -347,9 +340,7 @@ class _MultiAgentAdapter(AgentAdapter):
                 result = agent.answer_question(question)
                 text = result[0] if isinstance(result, tuple) else str(result)
                 lower = text.lower()
-                if not text.startswith("Error:") and not any(
-                    phrase in lower for phrase in _NO_INFO_PHRASES
-                ):
+                if not text.startswith("Error:") and not any(phrase in lower for phrase in _NO_INFO_PHRASES):
                     return text
             except Exception as e:
                 # Log at WARNING level so _synthesize_with_llm errors are visible
@@ -405,7 +396,9 @@ def _run_single(
     Learns ONCE, then evaluates repeats times on the same adapter.
     Returns median_score as the primary result.
     """
-    from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
+    from amplihack.agents.goal_seeking.learning_agent import (
+        LearningAgent,  # type: ignore[import-untyped]
+    )
 
     logger.info("=== SINGLE: 1 agent, no hive (repeats=%d) ===", repeats)
     t0 = time.time()
@@ -463,7 +456,10 @@ def _run_single(
     per_level = _compute_per_level_scores(report)
     logger.info(
         "SINGLE done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs",
-        median_score * 100, score_stddev, repeat_scores, elapsed,
+        median_score * 100,
+        score_stddev,
+        repeat_scores,
+        elapsed,
     )
 
     return ConditionResult(
@@ -495,14 +491,20 @@ def _run_flat(
     Learns ONCE, then evaluates repeats times on the same adapter.
     Returns median_score as the primary result.
     """
-    from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
-    from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
+    from amplihack.agents.goal_seeking.hive_mind.hive_graph import (
+        InMemoryHiveGraph,  # type: ignore[import-untyped]
+    )
+    from amplihack.agents.goal_seeking.learning_agent import (
+        LearningAgent,  # type: ignore[import-untyped]
+    )
 
     logger.info("=== FLAT: %d agents, shared hive (repeats=%d) ===", num_agents, repeats)
     t0 = time.time()
 
     try:
-        from amplihack.agents.goal_seeking.hive_mind.embeddings import EmbeddingGenerator  # type: ignore[import-untyped]
+        from amplihack.agents.goal_seeking.hive_mind.embeddings import (
+            EmbeddingGenerator,  # type: ignore[import-untyped]
+        )
 
         embedder = EmbeddingGenerator()
         if not embedder.available:
@@ -583,7 +585,11 @@ def _run_flat(
     per_level = _compute_per_level_scores(report)
     logger.info(
         "FLAT done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
-        median_score * 100, score_stddev, repeat_scores, elapsed, hive_facts,
+        median_score * 100,
+        score_stddev,
+        repeat_scores,
+        elapsed,
+        hive_facts,
     )
 
     return ConditionResult(
@@ -624,16 +630,21 @@ def _run_federated(
     Learns ONCE, runs 3 gossip rounds, then evaluates repeats times.
     Returns median_score as the primary result.
     """
-    from amplihack.agents.goal_seeking.learning_agent import LearningAgent  # type: ignore[import-untyped]
+    from amplihack.agents.goal_seeking.learning_agent import (
+        LearningAgent,  # type: ignore[import-untyped]
+    )
 
     logger.info(
         "=== FEDERATED: %d agents, %d groups (single DHT ring) ===",
-        num_agents, num_groups,
+        num_agents,
+        num_groups,
     )
     t0 = time.time()
 
     try:
-        from amplihack.agents.goal_seeking.hive_mind.embeddings import EmbeddingGenerator  # type: ignore[import-untyped]
+        from amplihack.agents.goal_seeking.hive_mind.embeddings import (
+            EmbeddingGenerator,  # type: ignore[import-untyped]
+        )
 
         embedder = EmbeddingGenerator()
         if not embedder.available:
@@ -644,7 +655,9 @@ def _run_federated(
 
     # Single shared DHT ring — all agents on one hive so facts are accessible during Q&A
     try:
-        from amplihack.agents.goal_seeking.hive_mind.distributed_hive_graph import DistributedHiveGraph  # type: ignore[import-untyped]
+        from amplihack.agents.goal_seeking.hive_mind.distributed_hive_graph import (
+            DistributedHiveGraph,
+        )  # type: ignore[import-untyped]
 
         shared_hive = DistributedHiveGraph(
             "federated-hive",
@@ -654,7 +667,9 @@ def _run_federated(
         )
         logger.info("Using DistributedHiveGraph (single DHT ring) for %d agents", num_agents)
     except ImportError:
-        from amplihack.agents.goal_seeking.hive_mind.hive_graph import InMemoryHiveGraph  # type: ignore[import-untyped]
+        from amplihack.agents.goal_seeking.hive_mind.hive_graph import (
+            InMemoryHiveGraph,  # type: ignore[import-untyped]
+        )
 
         shared_hive = InMemoryHiveGraph(
             "federated-hive",
@@ -741,7 +756,11 @@ def _run_federated(
     per_level = _compute_per_level_scores(report)
     logger.info(
         "FEDERATED done: median=%.2f%% stddev=%.3f repeats=%s in %.1fs (hive facts: %d)",
-        median_score * 100, score_stddev, repeat_scores, elapsed, hive_facts,
+        median_score * 100,
+        score_stddev,
+        repeat_scores,
+        elapsed,
+        hive_facts,
     )
 
     return ConditionResult(
@@ -819,7 +838,12 @@ def run_continuous_eval(
     logger.info("Continuous Evaluation — Security Analyst Scenario")
     logger.info(
         "Turns=%d, Questions=%d, Agents=%d, Groups=%d, Variant=%s, Repeats=%d",
-        num_turns, num_questions, num_agents, num_groups, prompt_variant, repeats,
+        num_turns,
+        num_questions,
+        num_agents,
+        num_groups,
+        prompt_variant,
+        repeats,
     )
     logger.info("Conditions: %s", conditions)
     logger.info("=" * 60)
@@ -829,22 +853,43 @@ def run_continuous_eval(
     with tempfile.TemporaryDirectory(prefix="continuous_eval_") as tmpdir:
         if "single" in conditions:
             r = _run_single(
-                model, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
+                model,
+                num_turns,
+                num_questions,
+                seed,
+                tmpdir,
+                parallel_workers,
+                prompt_variant,
+                repeats=repeats,
             )
             results.append(r)
 
         if "flat" in conditions:
             r = _run_flat(
-                model, num_agents, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
+                model,
+                num_agents,
+                num_turns,
+                num_questions,
+                seed,
+                tmpdir,
+                parallel_workers,
+                prompt_variant,
+                repeats=repeats,
             )
             results.append(r)
 
         if "federated" in conditions:
             r = _run_federated(
-                model, num_agents, num_groups, num_turns, num_questions, seed,
-                tmpdir, parallel_workers, prompt_variant, repeats=repeats,
+                model,
+                num_agents,
+                num_groups,
+                num_turns,
+                num_questions,
+                seed,
+                tmpdir,
+                parallel_workers,
+                prompt_variant,
+                repeats=repeats,
             )
             results.append(r)
 
@@ -861,19 +906,14 @@ def run_continuous_eval(
 
         level_comparison = {}
         for level in sorted(all_levels):
-            level_comparison[level] = {
-                r.condition: round(r.per_level_scores.get(level, 0.0), 4)
-                for r in results
-            }
+            level_comparison[level] = {r.condition: round(r.per_level_scores.get(level, 0.0), 4) for r in results}
         comparison["per_level"] = level_comparison
 
         # Delta vs baseline (single)
         baseline = scores.get("single")
         if baseline is not None:
             comparison["delta_vs_single"] = {
-                cond: round(score - baseline, 4)
-                for cond, score in scores.items()
-                if cond != "single"
+                cond: round(score - baseline, 4) for cond, score in scores.items() if cond != "single"
             }
 
         # CIs per condition (using per-question scores)
@@ -903,9 +943,11 @@ def print_continuous_report(report: ContinuousEvalReport) -> None:
     print("=" * 75)
 
     cfg = report.config
-    print(f"Turns: {cfg['num_turns']}, Questions: {cfg['num_questions']}, "
-          f"Agents: {cfg['num_agents']}, Groups: {cfg['num_groups']}, "
-          f"Repeats: {cfg.get('repeats', 1)}")
+    print(
+        f"Turns: {cfg['num_turns']}, Questions: {cfg['num_questions']}, "
+        f"Agents: {cfg['num_agents']}, Groups: {cfg['num_groups']}, "
+        f"Repeats: {cfg.get('repeats', 1)}"
+    )
     if cfg.get("prompt_variant"):
         print(f"Prompt Variant: {cfg['prompt_variant']}")
     print()

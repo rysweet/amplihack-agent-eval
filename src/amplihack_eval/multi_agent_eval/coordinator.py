@@ -23,14 +23,13 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any
 
 from ..adapters.base import AgentAdapter
-from ..core.runner import EvalReport, EvalResult, EvalRunner, CategoryBreakdown, DimensionScore
+from ..core.runner import CategoryBreakdown, DimensionScore, EvalReport, EvalResult, EvalRunner
 from ..data.long_horizon import GroundTruth, Question
 from .adversary_agent import AdversaryAgent
-from .analyst_agent import AnalysisReport, AnalystAgent
-from .grader_agent import AggregateGrade, GraderAgent
+from .analyst_agent import AnalystAgent
+from .grader_agent import GraderAgent
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +51,7 @@ class EvalConfig:
     num_turns: int = 100
     num_questions: int = 20
     seed: int = 42
-    grader_perspectives: list[str] = field(
-        default_factory=lambda: ["factual", "reasoning", "completeness"]
-    )
+    grader_perspectives: list[str] = field(default_factory=lambda: ["factual", "reasoning", "completeness"])
     enable_adversary: bool = True
     adversarial_questions: int = 10
     grader_model: str = ""
@@ -142,9 +139,7 @@ class EvalCoordinator:
         adversarial_results: list[EvalResult] = []
         if self._enable_adversary and self._adversary:
             logger.info("Step 4: Adversarial question generation")
-            adversarial_results = self._run_adversarial_round(
-                agent, ground_truth, results, config
-            )
+            adversarial_results = self._run_adversarial_round(agent, ground_truth, results, config)
 
         # Step 5: Build report
         all_results = results + adversarial_results
@@ -174,11 +169,8 @@ class EvalCoordinator:
 
     def _init_agents(self, config: EvalConfig) -> None:
         """Initialize all evaluation agents."""
-        perspectives = config.grader_perspectives[:self._num_graders]
-        self._graders = [
-            GraderAgent(perspective=p, model=config.grader_model)
-            for p in perspectives
-        ]
+        perspectives = config.grader_perspectives[: self._num_graders]
+        self._graders = [GraderAgent(perspective=p, model=config.grader_model) for p in perspectives]
         logger.info("Initialized %d grader agents: %s", len(self._graders), perspectives)
 
         if self._enable_adversary:
@@ -210,15 +202,10 @@ class EvalCoordinator:
 
             # Grade with all perspectives
             grade_start = time.time()
-            perspective_grades = [
-                grader.grade(question, answer, question.rubric)
-                for grader in self._graders
-            ]
+            perspective_grades = [grader.grade(question, answer, question.rubric) for grader in self._graders]
 
             # Aggregate grades
-            aggregate = GraderAgent.aggregate_grades(
-                perspective_grades, question, answer
-            )
+            aggregate = GraderAgent.aggregate_grades(perspective_grades, question, answer)
             grade_time = time.time() - grade_start
             total_grade_time += grade_time
 
@@ -332,26 +319,24 @@ class EvalCoordinator:
                 for d in r.dimensions:
                     dim_avgs.setdefault(d.dimension, []).append(d.score)
 
-            breakdown.append(CategoryBreakdown(
-                category=cat,
-                num_questions=len(cat_results),
-                avg_score=sum(scores) / len(scores),
-                min_score=min(scores),
-                max_score=max(scores),
-                dimension_averages={k: sum(v) / len(v) for k, v in dim_avgs.items()},
-            ))
+            breakdown.append(
+                CategoryBreakdown(
+                    category=cat,
+                    num_questions=len(cat_results),
+                    avg_score=sum(scores) / len(scores),
+                    min_score=min(scores),
+                    max_score=max(scores),
+                    dimension_averages={k: sum(v) / len(v) for k, v in dim_avgs.items()},
+                )
+            )
 
-        overall = (
-            sum(r.overall_score for r in all_results) / len(all_results)
-            if all_results else 0.0
-        )
+        overall = sum(r.overall_score for r in all_results) / len(all_results) if all_results else 0.0
 
         total_facts = sum(len(t.facts) for t in ground_truth.turns)
 
         # Separate standard vs adversarial counts for metadata
         standard_count = sum(
-            1 for r in all_results
-            if not r.category.startswith("adversarial") and r.category != "forgetting_probe"
+            1 for r in all_results if not r.category.startswith("adversarial") and r.category != "forgetting_probe"
         )
         adversarial_count = len(all_results) - standard_count
 

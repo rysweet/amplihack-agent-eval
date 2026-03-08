@@ -13,7 +13,7 @@ superseded.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -499,9 +499,21 @@ SCENARIO_F15 = ForgettingScenario(
 
 
 ALL_FORGETTING_SCENARIOS = [
-    SCENARIO_F01, SCENARIO_F02, SCENARIO_F03, SCENARIO_F04, SCENARIO_F05,
-    SCENARIO_F06, SCENARIO_F07, SCENARIO_F08, SCENARIO_F09, SCENARIO_F10,
-    SCENARIO_F11, SCENARIO_F12, SCENARIO_F13, SCENARIO_F14, SCENARIO_F15,
+    SCENARIO_F01,
+    SCENARIO_F02,
+    SCENARIO_F03,
+    SCENARIO_F04,
+    SCENARIO_F05,
+    SCENARIO_F06,
+    SCENARIO_F07,
+    SCENARIO_F08,
+    SCENARIO_F09,
+    SCENARIO_F10,
+    SCENARIO_F11,
+    SCENARIO_F12,
+    SCENARIO_F13,
+    SCENARIO_F14,
+    SCENARIO_F15,
 ]
 
 

@@ -44,6 +44,13 @@ from ..data.long_horizon import (
 
 logger = logging.getLogger(__name__)
 
+# Limits for parallel execution and grading
+MAX_PARALLEL_WORKERS = 20
+MAX_GRADER_VOTES = 9
+# Truncation limits for report serialization
+MAX_ANSWER_LENGTH_IN_REPORT = 500
+MAX_REASONING_LENGTH_IN_REPORT = 200
+
 
 @dataclass
 class DimensionScore:
@@ -112,9 +119,7 @@ class EvalReport:
                     "avg_score": round(cb.avg_score, 4),
                     "min_score": round(cb.min_score, 4),
                     "max_score": round(cb.max_score, 4),
-                    "dimension_averages": {
-                        k: round(v, 4) for k, v in cb.dimension_averages.items()
-                    },
+                    "dimension_averages": {k: round(v, 4) for k, v in cb.dimension_averages.items()},
                 }
                 for cb in self.category_breakdown
             ],
@@ -124,13 +129,13 @@ class EvalReport:
                     "question_text": r.question_text,
                     "category": r.category,
                     "expected_answer": r.expected_answer,
-                    "actual_answer": r.actual_answer[:500],
+                    "actual_answer": r.actual_answer[:MAX_ANSWER_LENGTH_IN_REPORT],
                     "overall_score": round(r.overall_score, 4),
                     "dimensions": [
                         {
                             "dimension": d.dimension,
                             "score": round(d.score, 4),
-                            "reasoning": d.reasoning[:200],
+                            "reasoning": d.reasoning[:MAX_REASONING_LENGTH_IN_REPORT],
                         }
                         for d in r.dimensions
                     ],
@@ -183,9 +188,7 @@ def _deterministic_grade(
 
         # Check incorrect patterns first -- instant 0
         if rubric.incorrect_patterns:
-            found_incorrect = any(
-                re.search(re.escape(pat.lower()), answer_lower) for pat in rubric.incorrect_patterns
-            )
+            found_incorrect = any(re.search(re.escape(pat.lower()), answer_lower) for pat in rubric.incorrect_patterns)
             if found_incorrect:
                 scores[dim] = DimensionScore(
                     dimension=dim,
@@ -197,11 +200,7 @@ def _deterministic_grade(
         # Keyword matching
         matched = 0
         if rubric.required_keywords:
-            matched = sum(
-                1
-                for kw in rubric.required_keywords
-                if re.search(re.escape(kw.lower()), answer_lower)
-            )
+            matched = sum(1 for kw in rubric.required_keywords if re.search(re.escape(kw.lower()), answer_lower))
             ratio = matched / len(rubric.required_keywords)
         else:
             ratio = 0.5  # No keywords = neutral
@@ -210,17 +209,13 @@ def _deterministic_grade(
         paraphrase_hits = 0
         if rubric.acceptable_paraphrases:
             paraphrase_hits = sum(
-                1
-                for p in rubric.acceptable_paraphrases
-                if re.search(re.escape(p.lower()), answer_lower)
+                1 for p in rubric.acceptable_paraphrases if re.search(re.escape(p.lower()), answer_lower)
             )
             ratio = min(1.0, ratio + paraphrase_hits * 0.1)
 
         reasoning_parts = []
         if rubric.required_keywords:
-            reasoning_parts.append(
-                f"Matched {matched}/{len(rubric.required_keywords)} required keywords"
-            )
+            reasoning_parts.append(f"Matched {matched}/{len(rubric.required_keywords)} required keywords")
         if rubric.acceptable_paraphrases and paraphrase_hits:
             reasoning_parts.append(f"+{paraphrase_hits} paraphrase bonus")
 
@@ -365,8 +360,10 @@ def _grade_with_llm(
 
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        # Return zero scores if no API key
-        return [DimensionScore(dimension=d, score=0.0, reasoning="No API key") for d in dimensions]
+        raise OSError(
+            "ANTHROPIC_API_KEY environment variable is required for LLM grading. "
+            "Set it or use deterministic grading mode."
+        )
 
     client = anthropic.Anthropic(api_key=api_key)
 
@@ -378,9 +375,7 @@ def _grade_with_llm(
         "confidence_calibration": "Does the answer express appropriate confidence/uncertainty?",
     }
 
-    dims_text = "\n".join(
-        f"- {d}: {dimension_descriptions.get(d, 'General quality')}" for d in dimensions
-    )
+    dims_text = "\n".join(f"- {d}: {dimension_descriptions.get(d, 'General quality')}" for d in dimensions)
 
     prompt = f"""Grade this answer on the following dimensions (0.0 to 1.0 each):
 
@@ -462,12 +457,15 @@ Scoring guide:
         return dimension_scores
 
     except Exception as e:
-        logger.warning("Grading failed for %s: %s", question.question_id, e)
-        return [DimensionScore(dimension=d, score=0.0, reasoning=f"Error: {e}") for d in dimensions]
+        raise RuntimeError(f"LLM grading failed for question {question.question_id}: {e}") from e
 
 
 def _extract_json(text: str) -> dict:
-    """Extract JSON from LLM response text."""
+    """Extract JSON from LLM response text.
+
+    Raises:
+        json.JSONDecodeError: If no valid JSON object can be extracted.
+    """
     stripped = text.strip()
     try:
         return json.loads(stripped)
@@ -488,7 +486,11 @@ def _extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    return {}
+    raise json.JSONDecodeError(
+        f"No valid JSON found in response: {stripped[:200]}",
+        stripped,
+        0,
+    )
 
 
 class EvalRunner:
@@ -535,7 +537,7 @@ class EvalRunner:
         self.num_questions = num_questions
         self.seed = seed
         self.grader_votes = max(1, grader_votes)
-        self.parallel_workers = max(1, min(20, parallel_workers))
+        self.parallel_workers = max(1, min(MAX_PARALLEL_WORKERS, parallel_workers))
         self.ground_truth: GroundTruth | None = None
         self.questions: list[Question] = []
 
@@ -652,9 +654,7 @@ class EvalRunner:
         mem_stats: dict[str, Any] = {}
 
         # Count facts delivered
-        total_facts = sum(
-            len(t.facts) for t in (self.ground_truth.turns if self.ground_truth else [])
-        )
+        total_facts = sum(len(t.facts) for t in (self.ground_truth.turns if self.ground_truth else []))
 
         overall_score = sum(r.overall_score for r in results) / len(results) if results else 0.0
 
@@ -724,9 +724,7 @@ class EvalRunner:
                 )
 
         with ThreadPoolExecutor(max_workers=self.parallel_workers) as executor:
-            futures = {
-                executor.submit(_worker, i, q): i for i, q in enumerate(qs)
-            }
+            futures = {executor.submit(_worker, i, q): i for i, q in enumerate(qs)}
             # Wait for all futures and propagate exceptions from workers
             for future in as_completed(futures):
                 exc = future.exception()
@@ -778,9 +776,7 @@ class EvalRunner:
         # Grade the answer (hybrid deterministic + LLM, with multi-vote)
         grade_start = time.time()
         dimensions = q.scoring_dimensions or ["factual_accuracy"]
-        dim_scores = _grade_multi_vote(
-            q, answer, dimensions, grader_model, num_votes=self.grader_votes
-        )
+        dim_scores = _grade_multi_vote(q, answer, dimensions, grader_model, num_votes=self.grader_votes)
         grade_time = time.time() - grade_start
 
         # Compute overall score as average of dimension scores
@@ -909,10 +905,7 @@ def print_report(report: EvalReport) -> None:
     print(f"{'Category':<25} {'Avg':>8} {'Min':>8} {'Max':>8} {'Count':>6}")
     print("-" * 70)
     for cb in report.category_breakdown:
-        print(
-            f"{cb.category:<25} {cb.avg_score:>7.2%} {cb.min_score:>7.2%} "
-            f"{cb.max_score:>7.2%} {cb.num_questions:>6}"
-        )
+        print(f"{cb.category:<25} {cb.avg_score:>7.2%} {cb.min_score:>7.2%} {cb.max_score:>7.2%} {cb.num_questions:>6}")
     print("-" * 70)
 
     print("\nDIMENSION AVERAGES BY CATEGORY:")
@@ -1146,11 +1139,7 @@ def run_suite(
         if result.passed:
             passed_ids.add(level_id)
 
-    overall = (
-        sum(r.overall_score for r in level_results) / len(level_results)
-        if level_results
-        else 0.0
-    )
+    overall = sum(r.overall_score for r in level_results) / len(level_results) if level_results else 0.0
 
     return SuiteResult(
         level_results=level_results,

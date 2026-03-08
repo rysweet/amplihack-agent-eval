@@ -15,7 +15,7 @@ as the ability to recall.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -106,9 +106,20 @@ def score_stale_data_penalty(
     # Historical context indicators - if the answer uses these phrases around
     # old values, it's acceptable (agent is describing the change)
     historical_indicators = [
-        "previously", "was previously", "changed from", "moved from",
-        "used to be", "formerly", "before", "old value", "updated from",
-        "earlier", "prior", "original", "superseded", "replaced",
+        "previously",
+        "was previously",
+        "changed from",
+        "moved from",
+        "used to be",
+        "formerly",
+        "before",
+        "old value",
+        "updated from",
+        "earlier",
+        "prior",
+        "original",
+        "superseded",
+        "replaced",
     ]
 
     stale_count = 0
@@ -118,9 +129,7 @@ def score_stale_data_penalty(
             continue  # Old value not mentioned at all - good
 
         # Check if old value appears in historical context
-        has_historical_context = any(
-            indicator in answer_lower for indicator in historical_indicators
-        )
+        has_historical_context = any(indicator in answer_lower for indicator in historical_indicators)
 
         if not has_historical_context:
             stale_count += 1
@@ -164,19 +173,35 @@ def score_update_awareness(
 
     # Check for update language
     update_indicators = [
-        "changed", "updated", "moved", "increased", "decreased",
-        "promoted", "transferred", "upgraded", "migrated", "switched",
-        "raised", "lowered", "adjusted", "extended", "pushed",
-        "was previously", "previously was", "changed from", "moved from",
-        "now", "currently", "as of", "effective",
+        "changed",
+        "updated",
+        "moved",
+        "increased",
+        "decreased",
+        "promoted",
+        "transferred",
+        "upgraded",
+        "migrated",
+        "switched",
+        "raised",
+        "lowered",
+        "adjusted",
+        "extended",
+        "pushed",
+        "was previously",
+        "previously was",
+        "changed from",
+        "moved from",
+        "now",
+        "currently",
+        "as of",
+        "effective",
     ]
 
     has_update_language = any(indicator in answer_lower for indicator in update_indicators)
 
     # Check if any old values are mentioned in historical context
-    mentions_old = any(
-        _value_present(old_val, actual_answer) for old_val in superseded_values
-    )
+    mentions_old = any(_value_present(old_val, actual_answer) for old_val in superseded_values)
 
     if has_update_language and mentions_old:
         return 1.0  # Full awareness: mentions both old and new with update language
@@ -215,11 +240,7 @@ def score_forgetting_scenario(
     stale = score_stale_data_penalty(superseded_values, actual_answer)
     awareness = score_update_awareness(superseded_values, expected_current_value, actual_answer)
 
-    overall = (
-        accuracy * weight_accuracy
-        + stale * weight_stale
-        + awareness * weight_awareness
-    )
+    overall = accuracy * weight_accuracy + stale * weight_stale + awareness * weight_awareness
 
     details = (
         f"Accuracy: {accuracy:.2f} (expected '{expected_current_value}'), "

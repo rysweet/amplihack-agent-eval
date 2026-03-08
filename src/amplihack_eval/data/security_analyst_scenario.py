@@ -760,9 +760,7 @@ def _make_incident_turn(incident: dict[str, Any], turn_number: int) -> Turn:
 
 def _make_cve_turn(cve: dict[str, Any], turn_number: int) -> Turn:
     """Generate a turn about a CVE advisory."""
-    patch_lines = "\n".join(
-        f"  {server}: {status}" for server, status in cve["patch_status"].items()
-    )
+    patch_lines = "\n".join(f"  {server}: {status}" for server, status in cve["patch_status"].items())
     content = (
         f"CVE Advisory: {cve['id']}\n"
         f"Title: {cve['title']}\n"
@@ -924,8 +922,7 @@ def _make_audit_log_turn(entries: list[dict[str, Any]], turn_number: int) -> Tur
 def _make_scan_turn(scan: dict[str, Any], turn_number: int) -> Turn:
     """Generate a turn about vulnerability scan results."""
     findings_str = "\n".join(
-        f"  [{f['severity'].upper()}] {f['server']}: {f['finding']} (status: {f['status']})"
-        for f in scan["findings"]
+        f"  [{f['severity'].upper()}] {f['server']}: {f['finding']} (status: {f['status']})" for f in scan["findings"]
     )
     content = (
         f"Vulnerability Scan Report\n"
@@ -956,9 +953,7 @@ def _make_deployment_turn(deploy: dict[str, Any], turn_number: int) -> Turn:
     """Generate a turn about a deployment."""
     changes_str = "\n".join(f"  - {c}" for c in deploy["changes"])
     content = (
-        f"Deployment Record: {deploy['server']} {deploy['version']}\n"
-        f"Date: {deploy['date']}\n"
-        f"Changes:\n{changes_str}"
+        f"Deployment Record: {deploy['server']} {deploy['version']}\nDate: {deploy['date']}\nChanges:\n{changes_str}"
     )
     facts = [
         {
@@ -1088,8 +1083,7 @@ def _make_novel_api_turn(turn_number: int) -> Turn:
 def _make_network_turn(turn_number: int) -> Turn:
     """Generate a turn about network topology."""
     subnets_str = "\n".join(
-        f"  {name}: {info['cidr']} — {info['purpose']}"
-        for name, info in NETWORK_TOPOLOGY["subnets"].items()
+        f"  {name}: {info['cidr']} — {info['purpose']}" for name, info in NETWORK_TOPOLOGY["subnets"].items()
     )
     lb_str = "\n".join(
         f"  {lb['name']} ({lb['type']}): {lb['ip']} → {', '.join(lb['targets'])} port {lb['port']}"
@@ -1777,18 +1771,18 @@ def _get_l11_questions(ground_truth: GroundTruth) -> list[Question]:
             ),
             expected_answer=(
                 "monitors:\n"
-                "  - name: \"prod-db-01-cpu\"\n"
-                "    metric: \"system.cpu.percent\"\n"
+                '  - name: "prod-db-01-cpu"\n'
+                '    metric: "system.cpu.percent"\n'
                 "    threshold: 80\n"
-                "    duration: \"5m\"\n"
-                "    severity: \"warning\"\n"
-                "    notify: [\"slack:#ops-alerts\"]\n"
-                "  - name: \"prod-db-01-disk\"\n"
-                "    metric: \"system.disk.used_percent\"\n"
+                '    duration: "5m"\n'
+                '    severity: "warning"\n'
+                '    notify: ["slack:#ops-alerts"]\n'
+                '  - name: "prod-db-01-disk"\n'
+                '    metric: "system.disk.used_percent"\n'
                 "    threshold: 90\n"
-                "    duration: \"10m\"\n"
-                "    severity: \"critical\"\n"
-                "    notify: [\"pagerduty:security-oncall\"]"
+                '    duration: "10m"\n'
+                '    severity: "critical"\n'
+                '    notify: ["pagerduty:security-oncall"]'
             ),
             category="L11_novel_skill",
             relevant_turns=[],
@@ -1875,9 +1869,7 @@ _LEVEL_GENERATORS = {
 }
 
 
-def generate_questions(
-    ground_truth: GroundTruth, num_questions: int = 50
-) -> list[Question]:
+def generate_questions(ground_truth: GroundTruth, num_questions: int = 50) -> list[Question]:
     """Generate L1-L12 questions from the security analyst scenario.
 
     Distributes questions across levels according to LEVEL_DISTRIBUTION,

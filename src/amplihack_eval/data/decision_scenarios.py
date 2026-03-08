@@ -11,7 +11,7 @@ decisions, not just retrieving or explaining it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -753,9 +753,21 @@ SCENARIO_D15 = DecisionScenario(
 
 
 ALL_DECISION_SCENARIOS = [
-    SCENARIO_D01, SCENARIO_D02, SCENARIO_D03, SCENARIO_D04, SCENARIO_D05,
-    SCENARIO_D06, SCENARIO_D07, SCENARIO_D08, SCENARIO_D09, SCENARIO_D10,
-    SCENARIO_D11, SCENARIO_D12, SCENARIO_D13, SCENARIO_D14, SCENARIO_D15,
+    SCENARIO_D01,
+    SCENARIO_D02,
+    SCENARIO_D03,
+    SCENARIO_D04,
+    SCENARIO_D05,
+    SCENARIO_D06,
+    SCENARIO_D07,
+    SCENARIO_D08,
+    SCENARIO_D09,
+    SCENARIO_D10,
+    SCENARIO_D11,
+    SCENARIO_D12,
+    SCENARIO_D13,
+    SCENARIO_D14,
+    SCENARIO_D15,
 ]
 
 

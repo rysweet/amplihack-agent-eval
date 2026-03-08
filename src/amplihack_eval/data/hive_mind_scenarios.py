@@ -29,7 +29,7 @@ Public API:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -1312,10 +1312,7 @@ def get_scenarios_by_difficulty(difficulty: str) -> list[HiveMindScenario]:
 
     Returns scenarios that have at least one question matching the difficulty.
     """
-    return [
-        s for s in ALL_HIVE_MIND_SCENARIOS
-        if any(q.difficulty == difficulty for q in s.questions)
-    ]
+    return [s for s in ALL_HIVE_MIND_SCENARIOS if any(q.difficulty == difficulty for q in s.questions)]
 
 
 def get_questions_by_difficulty(

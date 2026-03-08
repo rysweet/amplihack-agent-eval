@@ -20,6 +20,9 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+# Maximum number of grading votes to prevent excessive API calls
+MAX_GRADER_VOTES = 9
+
 
 @dataclass
 class GradeResult:
@@ -231,7 +234,7 @@ def grade_answer(
     prompt = _build_grading_prompt(question, expected, actual, level)
 
     # Clamp num_votes to valid range
-    num_votes = max(1, min(num_votes, 9))
+    num_votes = max(1, min(num_votes, MAX_GRADER_VOTES))
 
     if num_votes == 1:
         return _single_grade_call(client, grader_model, prompt)

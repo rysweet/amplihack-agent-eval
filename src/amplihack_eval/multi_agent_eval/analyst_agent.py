@@ -27,10 +27,10 @@ import logging
 import os
 import re
 import statistics
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
-from ..core.runner import EvalReport, EvalResult
+from ..core.runner import EvalReport
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +126,7 @@ class ComparisonReport:
             "run_labels": self.run_labels,
             "overall_scores": {k: round(v, 4) for k, v in self.overall_scores.items()},
             "category_trends": {
-                cat: {k: round(v, 4) for k, v in scores.items()}
-                for cat, scores in self.category_trends.items()
+                cat: {k: round(v, 4) for k, v in scores.items()} for cat, scores in self.category_trends.items()
             },
             "num_regressions": len(self.regressions),
             "num_improvements": len(self.improvements),
@@ -138,7 +137,11 @@ class ComparisonReport:
 
 
 def _extract_json(text: str) -> dict:
-    """Extract a JSON object from LLM response text."""
+    """Extract a JSON object from LLM response text.
+
+    Raises:
+        json.JSONDecodeError: If no valid JSON object can be extracted.
+    """
     stripped = text.strip()
     try:
         return json.loads(stripped)
@@ -159,7 +162,11 @@ def _extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    return {}
+    raise json.JSONDecodeError(
+        f"No valid JSON found in response: {stripped[:200]}",
+        stripped,
+        0,
+    )
 
 
 class AnalystAgent:
@@ -197,10 +204,7 @@ class AnalystAgent:
             AnalysisReport with patterns, bottleneck, and improvements
         """
         # Step 1: Compute category scores
-        category_scores = {
-            cb.category: cb.avg_score
-            for cb in report.category_breakdown
-        }
+        category_scores = {cb.category: cb.avg_score for cb in report.category_breakdown}
 
         # Step 2: Identify failure patterns (statistical)
         failure_patterns = self._identify_failure_patterns(report)
@@ -209,9 +213,7 @@ class AnalystAgent:
         bottleneck, bottleneck_reason = self._identify_bottleneck(report, failure_patterns)
 
         # Step 4: Generate improvement suggestions
-        improvements = self._suggest_improvements_statistical(
-            report, failure_patterns, bottleneck
-        )
+        improvements = self._suggest_improvements_statistical(report, failure_patterns, bottleneck)
 
         # Step 5: Optionally enrich with LLM analysis
         raw_analysis = ""
@@ -260,10 +262,7 @@ class AnalystAgent:
             labels = [f"run_{i}" for i in range(len(reports))]
 
         # Overall scores per run
-        overall_scores = {
-            label: report.overall_score
-            for label, report in zip(labels, reports)
-        }
+        overall_scores = {label: report.overall_score for label, report in zip(labels, reports)}
 
         # Category trends
         all_categories: set[str] = set()
@@ -294,23 +293,27 @@ class AnalystAgent:
                 delta = curr_score - prev_score
 
                 if delta < -0.05:  # 5pp regression threshold
-                    regressions.append({
-                        "category": cat,
-                        "from_run": prev_label,
-                        "to_run": curr_label,
-                        "from_score": round(prev_score, 4),
-                        "to_score": round(curr_score, 4),
-                        "delta": round(delta, 4),
-                    })
+                    regressions.append(
+                        {
+                            "category": cat,
+                            "from_run": prev_label,
+                            "to_run": curr_label,
+                            "from_score": round(prev_score, 4),
+                            "to_score": round(curr_score, 4),
+                            "delta": round(delta, 4),
+                        }
+                    )
                 elif delta > 0.05:  # 5pp improvement threshold
-                    improvements_list.append({
-                        "category": cat,
-                        "from_run": prev_label,
-                        "to_run": curr_label,
-                        "from_score": round(prev_score, 4),
-                        "to_score": round(curr_score, 4),
-                        "delta": round(delta, 4),
-                    })
+                    improvements_list.append(
+                        {
+                            "category": cat,
+                            "from_run": prev_label,
+                            "to_run": curr_label,
+                            "from_score": round(prev_score, 4),
+                            "to_score": round(curr_score, 4),
+                            "delta": round(delta, 4),
+                        }
+                    )
 
         # Build summary
         overall_trend = ""
@@ -326,13 +329,9 @@ class AnalystAgent:
 
         summary_parts = [overall_trend]
         if regressions:
-            summary_parts.append(
-                f"{len(regressions)} category regression(s) detected (>5pp drop)."
-            )
+            summary_parts.append(f"{len(regressions)} category regression(s) detected (>5pp drop).")
         if improvements_list:
-            summary_parts.append(
-                f"{len(improvements_list)} category improvement(s) detected (>5pp gain)."
-            )
+            summary_parts.append(f"{len(improvements_list)} category improvement(s) detected (>5pp gain).")
 
         return ComparisonReport(
             run_labels=labels,
@@ -373,60 +372,61 @@ class AnalystAgent:
         for cb in report.category_breakdown:
             if cb.avg_score < 0.5:
                 affected_ids = [
-                    r.question_id for r in report.results
-                    if r.category == cb.category and r.overall_score < 0.5
+                    r.question_id for r in report.results if r.category == cb.category and r.overall_score < 0.5
                 ]
                 example = next(
-                    (r for r in report.results
-                     if r.category == cb.category and r.overall_score < 0.5),
+                    (r for r in report.results if r.category == cb.category and r.overall_score < 0.5),
                     None,
                 )
-                patterns.append(FailurePattern(
-                    pattern_name=f"weak_{cb.category}",
-                    description=f"Category '{cb.category}' scores below 50% on average",
-                    affected_categories=[cb.category],
-                    affected_question_ids=affected_ids,
-                    frequency=len(affected_ids) / max(1, cb.num_questions),
-                    severity=cb.avg_score,
-                    example_question=example.question_text if example else "",
-                    example_expected=example.expected_answer if example else "",
-                    example_actual=example.actual_answer if example else "",
-                ))
+                patterns.append(
+                    FailurePattern(
+                        pattern_name=f"weak_{cb.category}",
+                        description=f"Category '{cb.category}' scores below 50% on average",
+                        affected_categories=[cb.category],
+                        affected_question_ids=affected_ids,
+                        frequency=len(affected_ids) / max(1, cb.num_questions),
+                        severity=cb.avg_score,
+                        example_question=example.question_text if example else "",
+                        example_expected=example.expected_answer if example else "",
+                        example_actual=example.actual_answer if example else "",
+                    )
+                )
 
         # Pattern 2: High-variance categories (inconsistent performance)
         for cb in report.category_breakdown:
             if cb.max_score - cb.min_score > 0.5 and cb.num_questions >= 3:
-                affected_ids = [
-                    r.question_id for r in report.results
-                    if r.category == cb.category
-                ]
-                patterns.append(FailurePattern(
-                    pattern_name=f"inconsistent_{cb.category}",
-                    description=(
-                        f"Category '{cb.category}' has high variance "
-                        f"(min={cb.min_score:.2f}, max={cb.max_score:.2f})"
-                    ),
-                    affected_categories=[cb.category],
-                    affected_question_ids=affected_ids,
-                    frequency=1.0,
-                    severity=cb.avg_score,
-                ))
+                affected_ids = [r.question_id for r in report.results if r.category == cb.category]
+                patterns.append(
+                    FailurePattern(
+                        pattern_name=f"inconsistent_{cb.category}",
+                        description=(
+                            f"Category '{cb.category}' has high variance "
+                            f"(min={cb.min_score:.2f}, max={cb.max_score:.2f})"
+                        ),
+                        affected_categories=[cb.category],
+                        affected_question_ids=affected_ids,
+                        frequency=1.0,
+                        severity=cb.avg_score,
+                    )
+                )
 
         # Pattern 3: Zero-score questions
         zero_results = [r for r in report.results if r.overall_score == 0.0]
         if zero_results:
             cats = list({r.category for r in zero_results})
-            patterns.append(FailurePattern(
-                pattern_name="total_failure",
-                description=f"{len(zero_results)} questions scored 0.0 (complete failure)",
-                affected_categories=cats,
-                affected_question_ids=[r.question_id for r in zero_results],
-                frequency=len(zero_results) / max(1, len(report.results)),
-                severity=0.0,
-                example_question=zero_results[0].question_text if zero_results else "",
-                example_expected=zero_results[0].expected_answer if zero_results else "",
-                example_actual=zero_results[0].actual_answer if zero_results else "",
-            ))
+            patterns.append(
+                FailurePattern(
+                    pattern_name="total_failure",
+                    description=f"{len(zero_results)} questions scored 0.0 (complete failure)",
+                    affected_categories=cats,
+                    affected_question_ids=[r.question_id for r in zero_results],
+                    frequency=len(zero_results) / max(1, len(report.results)),
+                    severity=0.0,
+                    example_question=zero_results[0].question_text if zero_results else "",
+                    example_expected=zero_results[0].expected_answer if zero_results else "",
+                    example_actual=zero_results[0].actual_answer if zero_results else "",
+                )
+            )
 
         return patterns
 
@@ -447,10 +447,7 @@ class AnalystAgent:
                 dim_scores.setdefault(dim, []).append(avg)
 
         if dim_scores:
-            dim_averages = {
-                dim: statistics.mean(scores)
-                for dim, scores in dim_scores.items()
-            }
+            dim_averages = {dim: statistics.mean(scores) for dim, scores in dim_scores.items()}
             worst_dim = min(dim_averages, key=lambda d: dim_averages[d])
             worst_score = dim_averages[worst_dim]
 
@@ -488,44 +485,50 @@ class AnalystAgent:
         # Improvement for each failure pattern
         for fp in patterns:
             if fp.pattern_name.startswith("weak_"):
-                improvements.append(Improvement(
-                    title=f"Improve {fp.affected_categories[0]} performance",
-                    description=(
-                        f"Category scores {fp.severity:.0%} on average. "
-                        f"Focus on {len(fp.affected_question_ids)} underperforming questions."
-                    ),
-                    target_component=bottleneck,
-                    expected_impact=min(0.3, (0.7 - fp.severity)),
-                    confidence=0.6,
-                    effort="medium",
-                    addresses_patterns=[fp.pattern_name],
-                ))
+                improvements.append(
+                    Improvement(
+                        title=f"Improve {fp.affected_categories[0]} performance",
+                        description=(
+                            f"Category scores {fp.severity:.0%} on average. "
+                            f"Focus on {len(fp.affected_question_ids)} underperforming questions."
+                        ),
+                        target_component=bottleneck,
+                        expected_impact=min(0.3, (0.7 - fp.severity)),
+                        confidence=0.6,
+                        effort="medium",
+                        addresses_patterns=[fp.pattern_name],
+                    )
+                )
             elif fp.pattern_name.startswith("inconsistent_"):
-                improvements.append(Improvement(
-                    title=f"Stabilize {fp.affected_categories[0]} performance",
-                    description=(
-                        f"High variance in this category. Consider adding more "
-                        f"deterministic grading rules or improving retrieval consistency."
-                    ),
-                    target_component="retrieval",
-                    expected_impact=0.1,
-                    confidence=0.5,
-                    effort="low",
-                    addresses_patterns=[fp.pattern_name],
-                ))
+                improvements.append(
+                    Improvement(
+                        title=f"Stabilize {fp.affected_categories[0]} performance",
+                        description=(
+                            "High variance in this category. Consider adding more "
+                            "deterministic grading rules or improving retrieval consistency."
+                        ),
+                        target_component="retrieval",
+                        expected_impact=0.1,
+                        confidence=0.5,
+                        effort="low",
+                        addresses_patterns=[fp.pattern_name],
+                    )
+                )
             elif fp.pattern_name == "total_failure":
-                improvements.append(Improvement(
-                    title="Fix zero-score questions",
-                    description=(
-                        f"{len(fp.affected_question_ids)} questions scoring 0.0 "
-                        f"suggest fundamental issues with retrieval or understanding."
-                    ),
-                    target_component="retrieval",
-                    expected_impact=0.2,
-                    confidence=0.7,
-                    effort="high",
-                    addresses_patterns=["total_failure"],
-                ))
+                improvements.append(
+                    Improvement(
+                        title="Fix zero-score questions",
+                        description=(
+                            f"{len(fp.affected_question_ids)} questions scoring 0.0 "
+                            f"suggest fundamental issues with retrieval or understanding."
+                        ),
+                        target_component="retrieval",
+                        expected_impact=0.2,
+                        confidence=0.7,
+                        effort="high",
+                        addresses_patterns=["total_failure"],
+                    )
+                )
 
         return improvements
 
@@ -545,8 +548,7 @@ class AnalystAgent:
 
         # Build context for the LLM
         pattern_text = "\n".join(
-            f"- {fp.pattern_name}: {fp.description} (severity={fp.severity:.2f})"
-            for fp in patterns
+            f"- {fp.pattern_name}: {fp.description} (severity={fp.severity:.2f})" for fp in patterns
         )
 
         cat_text = "\n".join(

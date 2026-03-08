@@ -28,7 +28,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..adapters.base import AgentResponse
-from ..data.hive_mind_scenarios import HiveMindQuestion, HiveMindScenario
+from ..data.hive_mind_scenarios import HiveMindScenario
 
 logger = logging.getLogger(__name__)
 
@@ -122,9 +122,7 @@ class HiveMindEvalReport:
             "overall_score": round(self.overall_score, 4),
             "hive_vs_baseline_delta": round(self.hive_vs_baseline_delta, 4),
             "dimensions": [d.to_dict() for d in self.dimensions],
-            "per_difficulty_scores": {
-                k: round(v, 4) for k, v in self.per_difficulty_scores.items()
-            },
+            "per_difficulty_scores": {k: round(v, 4) for k, v in self.per_difficulty_scores.items()},
             "num_questions": len(self.question_results),
             "question_results": [qr.to_dict() for qr in self.question_results],
         }
@@ -158,10 +156,7 @@ def _score_cross_domain_accuracy(
     question_results: list[HiveMindQuestionResult],
 ) -> HiveMindDimensionScore:
     """Score cross-domain accuracy: can agents answer questions requiring other agents' knowledge?"""
-    cross_domain_results = [
-        qr for qr in question_results
-        if qr.difficulty in ("cross_domain", "synthesis")
-    ]
+    cross_domain_results = [qr for qr in question_results if qr.difficulty in ("cross_domain", "synthesis")]
 
     if not cross_domain_results:
         return HiveMindDimensionScore(
@@ -175,10 +170,7 @@ def _score_cross_domain_accuracy(
     return HiveMindDimensionScore(
         dimension="cross_domain_accuracy",
         score=avg_score,
-        details=(
-            f"Average score on {len(cross_domain_results)} cross-domain/synthesis questions: "
-            f"{avg_score:.2%}"
-        ),
+        details=(f"Average score on {len(cross_domain_results)} cross-domain/synthesis questions: {avg_score:.2%}"),
     )
 
 
@@ -202,19 +194,13 @@ def _score_knowledge_coverage(
             details="No per-agent coverage data.",
         )
 
-    coverages = [
-        agent_stats.get("coverage_pct", 0.0) / 100.0
-        for agent_stats in per_agent.values()
-    ]
+    coverages = [agent_stats.get("coverage_pct", 0.0) / 100.0 for agent_stats in per_agent.values()]
     avg_coverage = sum(coverages) / len(coverages) if coverages else 0.0
 
     return HiveMindDimensionScore(
         dimension="knowledge_coverage",
         score=avg_coverage,
-        details=(
-            f"Average agent coverage: {avg_coverage:.2%} across "
-            f"{len(coverages)} agents."
-        ),
+        details=(f"Average agent coverage: {avg_coverage:.2%} across {len(coverages)} agents."),
     )
 
 
@@ -272,10 +258,7 @@ def _score_adversarial_resilience(
 
     # For adversarial scenarios, check if synthesis questions (which
     # explicitly mention contradictions) score well
-    synthesis_results = [
-        qr for qr in question_results
-        if qr.difficulty == "synthesis"
-    ]
+    synthesis_results = [qr for qr in question_results if qr.difficulty == "synthesis"]
 
     if not synthesis_results:
         return HiveMindDimensionScore(
@@ -290,8 +273,7 @@ def _score_adversarial_resilience(
         dimension="adversarial_resilience",
         score=avg_score,
         details=(
-            f"Average score on {len(synthesis_results)} synthesis questions "
-            f"with adversarial data: {avg_score:.2%}"
+            f"Average score on {len(synthesis_results)} synthesis questions with adversarial data: {avg_score:.2%}"
         ),
     )
 
@@ -304,10 +286,7 @@ def _score_no_regression(
     Compares hive_score vs baseline_score for single-domain questions.
     Hive should not degrade performance on questions within an agent's own domain.
     """
-    single_domain = [
-        qr for qr in question_results
-        if qr.difficulty == "single_domain"
-    ]
+    single_domain = [qr for qr in question_results if qr.difficulty == "single_domain"]
 
     if not single_domain:
         return HiveMindDimensionScore(
@@ -364,7 +343,7 @@ def score_hive_mind_scenario(
     question_results: list[HiveMindQuestionResult] = []
 
     # Build a question lookup for fast access
-    questions_by_id = {q.question_id: q for q in scenario.questions}
+    {q.question_id: q for q in scenario.questions}
 
     # Total facts in the scenario
     total_facts = sum(len(facts) for facts in scenario.agent_domains.values())
@@ -400,18 +379,20 @@ def score_hive_mind_scenario(
         found = [kw for kw in question.expected_keywords if kw.lower() in answer_lower]
         missing = [kw for kw in question.expected_keywords if kw.lower() not in answer_lower]
 
-        question_results.append(HiveMindQuestionResult(
-            question_id=question.question_id,
-            question_text=question.text,
-            difficulty=question.difficulty,
-            required_domains=question.required_domains,
-            hive_answer=best_hive_answer,
-            baseline_answer=best_baseline_answer,
-            hive_score=best_hive_score,
-            baseline_score=best_baseline_score,
-            keywords_found=found,
-            keywords_missing=missing,
-        ))
+        question_results.append(
+            HiveMindQuestionResult(
+                question_id=question.question_id,
+                question_text=question.text,
+                difficulty=question.difficulty,
+                required_domains=question.required_domains,
+                hive_answer=best_hive_answer,
+                baseline_answer=best_baseline_answer,
+                hive_score=best_hive_score,
+                baseline_score=best_baseline_score,
+                keywords_found=found,
+                keywords_missing=missing,
+            )
+        )
 
     # Score all dimensions
     cross_domain = _score_cross_domain_accuracy(question_results)
@@ -436,19 +417,12 @@ def score_hive_mind_scenario(
         "adversarial_resilience": 0.15,
         "no_regression": 0.20,
     }
-    overall = sum(
-        d.score * weights.get(d.dimension, 0.2)
-        for d in dimensions
-    )
+    overall = sum(d.score * weights.get(d.dimension, 0.2) for d in dimensions)
 
     # Hive vs baseline delta
-    hive_avg = (
-        sum(qr.hive_score for qr in question_results) / len(question_results)
-        if question_results else 0.0
-    )
+    hive_avg = sum(qr.hive_score for qr in question_results) / len(question_results) if question_results else 0.0
     baseline_avg = (
-        sum(qr.baseline_score for qr in question_results) / len(question_results)
-        if question_results else 0.0
+        sum(qr.baseline_score for qr in question_results) / len(question_results) if question_results else 0.0
     )
     delta = hive_avg - baseline_avg
 
@@ -457,9 +431,7 @@ def score_hive_mind_scenario(
     for difficulty in ("single_domain", "cross_domain", "synthesis"):
         diff_results = [qr for qr in question_results if qr.difficulty == difficulty]
         if diff_results:
-            per_difficulty[difficulty] = (
-                sum(qr.hive_score for qr in diff_results) / len(diff_results)
-            )
+            per_difficulty[difficulty] = sum(qr.hive_score for qr in diff_results) / len(diff_results)
 
     return HiveMindEvalReport(
         scenario_id=scenario.scenario_id,

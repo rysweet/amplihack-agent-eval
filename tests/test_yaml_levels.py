@@ -217,8 +217,18 @@ class TestYAMLLoading:
     """Test that all 12 YAML files load correctly."""
 
     EXPECTED_LEVELS = [
-        "L01", "L02", "L03", "L04", "L05", "L06",
-        "L07", "L08", "L09", "L10", "L11", "L12",
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
     ]
 
     def test_load_all_levels(self):
@@ -229,10 +239,23 @@ class TestYAMLLoading:
         for expected_id in self.EXPECTED_LEVELS:
             assert expected_id in ids, f"Missing level {expected_id}"
 
-    @pytest.mark.parametrize("level_id", [
-        "L01", "L02", "L03", "L04", "L05", "L06",
-        "L07", "L08", "L09", "L10", "L11", "L12",
-    ])
+    @pytest.mark.parametrize(
+        "level_id",
+        [
+            "L01",
+            "L02",
+            "L03",
+            "L04",
+            "L05",
+            "L06",
+            "L07",
+            "L08",
+            "L09",
+            "L10",
+            "L11",
+            "L12",
+        ],
+    )
     def test_load_individual_level(self, level_id):
         """Each level loads individually by ID."""
         level = load_level(level_id)
@@ -241,10 +264,23 @@ class TestYAMLLoading:
         assert level.description != ""
         assert len(level.questions) > 0
 
-    @pytest.mark.parametrize("level_id", [
-        "L01", "L02", "L03", "L04", "L05", "L06",
-        "L07", "L08", "L09", "L10", "L11", "L12",
-    ])
+    @pytest.mark.parametrize(
+        "level_id",
+        [
+            "L01",
+            "L02",
+            "L03",
+            "L04",
+            "L05",
+            "L06",
+            "L07",
+            "L08",
+            "L09",
+            "L10",
+            "L11",
+            "L12",
+        ],
+    )
     def test_all_levels_validate(self, level_id):
         """Each loaded level passes validation."""
         level = load_level(level_id)
@@ -330,12 +366,8 @@ class TestYAMLContent:
         levels = load_all_levels()
         for level in levels:
             for q in level.questions:
-                assert q.expected_answer is not None, (
-                    f"{level.id}/{q.id} has no expected_answer"
-                )
-                assert len(q.expected_answer) > 0, (
-                    f"{level.id}/{q.id} has empty expected_answer"
-                )
+                assert q.expected_answer is not None, f"{level.id}/{q.id} has no expected_answer"
+                assert len(q.expected_answer) > 0, f"{level.id}/{q.id} has empty expected_answer"
 
 
 # ---------------------------------------------------------------------------
@@ -441,9 +473,7 @@ class TestPrerequisites:
         all_ids = {lv.id for lv in levels}
         for level in levels:
             for prereq in level.prerequisites:
-                assert prereq in all_ids, (
-                    f"{level.id} has prerequisite '{prereq}' which doesn't exist"
-                )
+                assert prereq in all_ids, f"{level.id} has prerequisite '{prereq}' which doesn't exist"
 
 
 # ---------------------------------------------------------------------------
@@ -471,9 +501,7 @@ class TestScoringApplication:
         """All levels have positive grader_votes."""
         levels = load_all_levels()
         for level in levels:
-            assert level.scoring.grader_votes >= 1, (
-                f"{level.id} has grader_votes={level.scoring.grader_votes}"
-            )
+            assert level.scoring.grader_votes >= 1, f"{level.id} has grader_votes={level.scoring.grader_votes}"
 
     def test_pass_thresholds_in_range(self):
         """All pass thresholds are 0.0-1.0."""
@@ -498,11 +526,9 @@ class TestLevelRunner:
     def _mock_grade(self, *args, **kwargs):
         """Return a fixed score for all dimensions."""
         from amplihack_eval.core.runner import DimensionScore
+
         dimensions = args[2] if len(args) > 2 else kwargs.get("dimensions", ["factual_accuracy"])
-        return [
-            DimensionScore(dimension=d, score=0.8, reasoning="mock")
-            for d in dimensions
-        ]
+        return [DimensionScore(dimension=d, score=0.8, reasoning="mock") for d in dimensions]
 
     @patch("amplihack_eval.core.runner._grade_multi_vote")
     def test_run_single_level(self, mock_vote):
@@ -585,10 +611,7 @@ class TestLevelRunner:
             call_count[0] += 1
             dims = args[2] if len(args) > 2 else kwargs.get("dimensions", ["factual_accuracy"])
             # Always return 0.1 so L01 fails (threshold 0.7)
-            return [
-                DimensionScore(dimension=d, score=0.1, reasoning="mock low")
-                for d in dims
-            ]
+            return [DimensionScore(dimension=d, score=0.1, reasoning="mock low") for d in dims]
 
         mock_vote.side_effect = low_then_high
         agent = EchoAgent()
@@ -640,6 +663,7 @@ class TestImports:
             QuestionTemplate,
             ScoringConfig,
         )
+
         assert LevelDefinition is not None
         assert QuestionTemplate is not None
         assert ScoringConfig is not None
@@ -650,6 +674,7 @@ class TestImports:
             load_level,
             validate_level,
         )
+
         assert callable(load_level)
         assert callable(load_all_levels)
         assert callable(validate_level)
@@ -658,18 +683,16 @@ class TestImports:
         """Can import everything from levels package."""
         from amplihack_eval.levels import (
             LevelDefinition,
-            QuestionTemplate,
-            ScoringConfig,
-            load_all_levels,
             load_level,
-            validate_level,
         )
+
         assert LevelDefinition is not None
         assert callable(load_level)
 
     def test_top_level_runner_imports(self):
         """run_level and run_suite available from top-level."""
         from amplihack_eval import LevelResult, SuiteResult, run_level, run_suite
+
         assert callable(run_level)
         assert callable(run_suite)
         assert LevelResult is not None

@@ -37,7 +37,8 @@ jobs:
       - name: Run tests
         run: python -m pytest tests/ -q --tb=short
       - name: Check imports
-        run: python -c "import amplihack_eval; print(f'Version: {amplihack_eval.__version__}')"
+        run: |
+          python -c "import amplihack_eval; print('Version:', amplihack_eval.__version__)"
 
   # Only run integration tests on main with API key available
   integration-test:

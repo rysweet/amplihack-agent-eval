@@ -314,15 +314,9 @@ Respond with JSON:
     # Determine if concerns were adequately addressed
     total_challenges = len(challenge_arguments)
     addressed_count = len(acknowledged) + len(refuted)
-    concerns_addressed = (
-        addressed_count >= (total_challenges * 0.5) if total_challenges > 0 else True
-    )
+    concerns_addressed = addressed_count >= (total_challenges * 0.5) if total_challenges > 0 else True
 
-    remaining = [
-        a
-        for a in challenge_arguments
-        if a not in refuted and not any(ack in a for ack in acknowledged)
-    ]
+    remaining = [a for a in challenge_arguments if a not in refuted and not any(ack in a for ack in acknowledged)]
 
     return ChallengeResponse(
         challenge_arguments=challenge_arguments,

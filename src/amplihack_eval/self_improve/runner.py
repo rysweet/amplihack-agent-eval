@@ -177,8 +177,7 @@ def _diagnose_bottleneck(
         ),
         "source_attribution": (
             "retrieval:source_tracking",
-            "Improve source label propagation: ensure source_label is included "
-            "in retrieval results.",
+            "Improve source label propagation: ensure source_label is included in retrieval results.",
         ),
         "temporal_evolution": (
             "retrieval:temporal_ordering",
@@ -187,18 +186,15 @@ def _diagnose_bottleneck(
         ),
         "cross_reference": (
             "retrieval:graph_traversal",
-            "Improve graph traversal: expand hop depth to connect facts across "
-            "different information blocks.",
+            "Improve graph traversal: expand hop depth to connect facts across different information blocks.",
         ),
         "numerical_precision": (
             "synthesis:arithmetic",
-            "Improve arithmetic validation: ensure calculate tool is used "
-            "for all mathematical operations.",
+            "Improve arithmetic validation: ensure calculate tool is used for all mathematical operations.",
         ),
         "distractor_resistance": (
             "retrieval:confidence_weighting",
-            "Improve confidence weighting: distractor blocks should have lower "
-            "confidence and be deprioritized.",
+            "Improve confidence weighting: distractor blocks should have lower confidence and be deprioritized.",
         ),
     }
 
@@ -539,9 +535,7 @@ def run_self_improve(
     summary = {
         "config": result.config,
         "score_progression": result.score_progression,
-        "category_progression": {
-            k: [round(v, 4) for v in vals] for k, vals in result.category_progression.items()
-        },
+        "category_progression": {k: [round(v, 4) for v in vals] for k, vals in result.category_progression.items()},
         "total_duration_seconds": round(total_duration, 2),
         "iterations_run": len(iterations),
         "patches_applied": len(patch_history.applied_patches),

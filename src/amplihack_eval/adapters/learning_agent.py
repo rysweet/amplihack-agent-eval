@@ -56,8 +56,7 @@ class LearningAgentAdapter(AgentAdapter):
             )
         except ImportError as e:
             raise ImportError(
-                "amplihack package is required for LearningAgentAdapter. "
-                "Install it with: pip install amplihack"
+                "amplihack package is required for LearningAgentAdapter. Install it with: pip install amplihack"
             ) from e
 
         import os
@@ -80,14 +79,22 @@ class LearningAgentAdapter(AgentAdapter):
         )
 
     def learn(self, content: str) -> None:
-        """Feed content to the LearningAgent."""
+        """Feed content to the LearningAgent.
+
+        Raises:
+            RuntimeError: If the underlying agent fails to learn.
+        """
         try:
             self._agent.learn_from_content(content)
         except Exception as e:
-            logger.warning("Failed to learn content: %s", e)
+            raise RuntimeError(f"LearningAgent failed to learn content: {e}") from e
 
     def answer(self, question: str) -> AgentResponse:
-        """Ask the LearningAgent a question."""
+        """Ask the LearningAgent a question.
+
+        Raises:
+            RuntimeError: If the underlying agent fails to answer.
+        """
         try:
             result = self._agent.answer_question(question)
             answer_text = result
@@ -98,8 +105,7 @@ class LearningAgentAdapter(AgentAdapter):
                 metadata={"model": self._model},
             )
         except Exception as e:
-            logger.warning("Failed to answer question: %s", e)
-            return AgentResponse(answer=f"Error: {e}")
+            raise RuntimeError(f"LearningAgent failed to answer question: {e}") from e
 
     def reset(self) -> None:
         """Reset the agent (close and recreate)."""
@@ -111,11 +117,15 @@ class LearningAgentAdapter(AgentAdapter):
             self._agent.close()
 
     def get_memory_stats(self) -> dict[str, Any]:
-        """Get memory statistics from the underlying agent."""
+        """Get memory statistics from the underlying agent.
+
+        Raises:
+            RuntimeError: If memory stats cannot be retrieved.
+        """
         try:
             return self._agent.get_memory_stats()
-        except Exception:
-            return {}
+        except Exception as e:
+            raise RuntimeError(f"Failed to get memory stats: {e}") from e
 
     @property
     def name(self) -> str:

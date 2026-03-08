@@ -28,10 +28,7 @@ from amplihack_eval.data.long_horizon import (
 
 def _mock_grade_with_llm(question, actual_answer, dimensions, grader_model=""):
     """Mock LLM grading that returns deterministic scores without calling Anthropic."""
-    return [
-        DimensionScore(dimension=d, score=0.5, reasoning="mock LLM score")
-        for d in dimensions
-    ]
+    return [DimensionScore(dimension=d, score=0.5, reasoning="mock LLM score") for d in dimensions]
 
 
 # ---------------------------------------------------------------------------
@@ -108,9 +105,7 @@ class FailingMockAgent(AgentAdapter):
 class TestParallelSequentialEquivalence:
     """Verify parallel and sequential modes produce identical results."""
 
-    def _make_runner_and_questions(
-        self, parallel_workers: int
-    ) -> tuple[EvalRunner, list[Question]]:
+    def _make_runner_and_questions(self, parallel_workers: int) -> tuple[EvalRunner, list[Question]]:
         runner = EvalRunner(
             num_turns=20,
             num_questions=5,

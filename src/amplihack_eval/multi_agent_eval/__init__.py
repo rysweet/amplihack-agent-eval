@@ -14,8 +14,8 @@ Public API:
 
 from __future__ import annotations
 
-from .analyst_agent import AnalystAgent, AnalysisReport, ComparisonReport, Improvement
 from .adversary_agent import AdversaryAgent
+from .analyst_agent import AnalysisReport, AnalystAgent, ComparisonReport, Improvement
 from .coordinator import EvalCoordinator
 from .grader_agent import AggregateGrade, GraderAgent, PerspectiveGrade
 from .pipeline import MultiAgentEvalPipeline

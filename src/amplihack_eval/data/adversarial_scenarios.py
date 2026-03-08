@@ -16,7 +16,7 @@ A strong agent is one that refuses to answer rather than hallucinate.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -336,10 +336,26 @@ SCENARIO_A21 = AdversarialScenario(
 
 
 ALL_ADVERSARIAL_SCENARIOS = [
-    SCENARIO_A01, SCENARIO_A02, SCENARIO_A03, SCENARIO_A04, SCENARIO_A05,
-    SCENARIO_A06, SCENARIO_A07, SCENARIO_A08, SCENARIO_A09, SCENARIO_A10,
-    SCENARIO_A11, SCENARIO_A12, SCENARIO_A13, SCENARIO_A14, SCENARIO_A15,
-    SCENARIO_A16, SCENARIO_A17, SCENARIO_A18, SCENARIO_A19, SCENARIO_A20,
+    SCENARIO_A01,
+    SCENARIO_A02,
+    SCENARIO_A03,
+    SCENARIO_A04,
+    SCENARIO_A05,
+    SCENARIO_A06,
+    SCENARIO_A07,
+    SCENARIO_A08,
+    SCENARIO_A09,
+    SCENARIO_A10,
+    SCENARIO_A11,
+    SCENARIO_A12,
+    SCENARIO_A13,
+    SCENARIO_A14,
+    SCENARIO_A15,
+    SCENARIO_A16,
+    SCENARIO_A17,
+    SCENARIO_A18,
+    SCENARIO_A19,
+    SCENARIO_A20,
     SCENARIO_A21,
 ]
 

@@ -24,13 +24,9 @@ from amplihack_eval.adapters.hive_mind_adapter import (
 )
 from amplihack_eval.data.hive_mind_scenarios import (
     ALL_HIVE_MIND_SCENARIOS,
-    HiveMindQuestion,
-    HiveMindScenario,
     SCENARIO_ADVERSARIAL,
-    SCENARIO_ARCH,
-    SCENARIO_INCIDENT,
     SCENARIO_INFRA,
-    SCENARIO_RESEARCH,
+    HiveMindScenario,
     get_questions_by_difficulty,
     get_scenario_by_id,
     get_scenarios_by_difficulty,
@@ -42,7 +38,6 @@ from amplihack_eval.levels.hive_mind_scoring import (
     score_hive_mind_scenario,
     score_single_response,
 )
-
 
 # --- Test helpers ---
 
@@ -125,17 +120,13 @@ class TestScenarioDataGeneration:
         """Each scenario has exactly 5 agent domains."""
         for scenario in ALL_HIVE_MIND_SCENARIOS:
             assert scenario.num_agents == 5, f"{scenario.scenario_id} has {scenario.num_agents} agents"
-            assert len(scenario.agent_domains) == 5, (
-                f"{scenario.scenario_id} has {len(scenario.agent_domains)} domains"
-            )
+            assert len(scenario.agent_domains) == 5, f"{scenario.scenario_id} has {len(scenario.agent_domains)} domains"
 
     def test_each_agent_has_20_facts(self):
         """Each agent domain has exactly 20 facts."""
         for scenario in ALL_HIVE_MIND_SCENARIOS:
             for domain, facts in scenario.agent_domains.items():
-                assert len(facts) == 20, (
-                    f"{scenario.scenario_id}/{domain} has {len(facts)} facts (expected 20)"
-                )
+                assert len(facts) == 20, f"{scenario.scenario_id}/{domain} has {len(facts)} facts (expected 20)"
 
     def test_each_scenario_has_15_questions(self):
         """Each scenario has exactly 15 questions."""
@@ -165,30 +156,22 @@ class TestScenarioDataGeneration:
         """All question IDs are unique within each scenario."""
         for scenario in ALL_HIVE_MIND_SCENARIOS:
             ids = [q.question_id for q in scenario.questions]
-            assert len(ids) == len(set(ids)), (
-                f"{scenario.scenario_id} has duplicate question IDs"
-            )
+            assert len(ids) == len(set(ids)), f"{scenario.scenario_id} has duplicate question IDs"
 
     def test_questions_have_expected_keywords(self):
         """Every question has at least one expected keyword."""
         for scenario in ALL_HIVE_MIND_SCENARIOS:
             for question in scenario.questions:
-                assert len(question.expected_keywords) >= 1, (
-                    f"{question.question_id} has no expected keywords"
-                )
+                assert len(question.expected_keywords) >= 1, f"{question.question_id} has no expected keywords"
 
     def test_questions_have_required_domains(self):
         """Every question references valid agent domains."""
         for scenario in ALL_HIVE_MIND_SCENARIOS:
             valid_domains = set(scenario.agent_domains.keys())
             for question in scenario.questions:
-                assert len(question.required_domains) >= 1, (
-                    f"{question.question_id} has no required domains"
-                )
+                assert len(question.required_domains) >= 1, f"{question.question_id} has no required domains"
                 for domain in question.required_domains:
-                    assert domain in valid_domains, (
-                        f"{question.question_id} references invalid domain '{domain}'"
-                    )
+                    assert domain in valid_domains, f"{question.question_id} references invalid domain '{domain}'"
 
     def test_adversarial_scenario_has_misleading_agent(self):
         """The adversarial scenario has a 'misleading' agent domain."""
@@ -204,12 +187,8 @@ class TestScenarioDataGeneration:
         for scenario in ALL_HIVE_MIND_SCENARIOS:
             for domain, facts in scenario.agent_domains.items():
                 for i, fact in enumerate(facts):
-                    assert isinstance(fact, str), (
-                        f"{scenario.scenario_id}/{domain}[{i}] is not a string"
-                    )
-                    assert len(fact.strip()) > 0, (
-                        f"{scenario.scenario_id}/{domain}[{i}] is empty"
-                    )
+                    assert isinstance(fact, str), f"{scenario.scenario_id}/{domain}[{i}] is not a string"
+                    assert len(fact.strip()) > 0, f"{scenario.scenario_id}/{domain}[{i}] is empty"
 
 
 # ====================================================================
@@ -384,10 +363,12 @@ class TestHiveMindGroupAdapter:
         agents = _make_mock_agents(2)
         hive = HiveMindGroupAdapter(agents=agents)
 
-        facts_learned = hive.learn_distributed({
-            "agent_0": ["Fact A1", "Fact A2"],
-            "agent_1": ["Fact B1", "Fact B2", "Fact B3"],
-        })
+        facts_learned = hive.learn_distributed(
+            {
+                "agent_0": ["Fact A1", "Fact A2"],
+                "agent_1": ["Fact B1", "Fact B2", "Fact B3"],
+            }
+        )
 
         assert facts_learned["agent_0"] == 2
         assert facts_learned["agent_1"] == 3
@@ -426,11 +407,13 @@ class TestHiveMindGroupAdapter:
         """ask_all returns responses from all agents."""
         agents = _make_mock_agents(3)
         hive = HiveMindGroupAdapter(agents=agents)
-        hive.learn_distributed({
-            "agent_0": ["Fact 0"],
-            "agent_1": ["Fact 1"],
-            "agent_2": ["Fact 2"],
-        })
+        hive.learn_distributed(
+            {
+                "agent_0": ["Fact 0"],
+                "agent_1": ["Fact 1"],
+                "agent_2": ["Fact 2"],
+            }
+        )
 
         responses = hive.ask_all("What do you know?")
         assert len(responses) == 3
@@ -440,10 +423,12 @@ class TestHiveMindGroupAdapter:
         """propagate_knowledge spreads facts to all agents."""
         agents = _make_mock_agents(2)
         hive = HiveMindGroupAdapter(agents=agents, propagation_rounds=3)
-        hive.learn_distributed({
-            "agent_0": ["Unique fact from agent 0"],
-            "agent_1": ["Unique fact from agent 1"],
-        })
+        hive.learn_distributed(
+            {
+                "agent_0": ["Unique fact from agent 0"],
+                "agent_1": ["Unique fact from agent 1"],
+            }
+        )
 
         result = hive.propagate_knowledge()
         assert isinstance(result, PropagationResult)
@@ -454,10 +439,12 @@ class TestHiveMindGroupAdapter:
         """reset clears all agent state and shared store."""
         agents = _make_mock_agents(2)
         hive = HiveMindGroupAdapter(agents=agents)
-        hive.learn_distributed({
-            "agent_0": ["Fact A"],
-            "agent_1": ["Fact B"],
-        })
+        hive.learn_distributed(
+            {
+                "agent_0": ["Fact A"],
+                "agent_1": ["Fact B"],
+            }
+        )
 
         hive.reset()
         assert len(hive.shared_store.get_all_facts()) == 0
@@ -475,10 +462,12 @@ class TestHiveMindGroupAdapter:
         """get_coverage_stats returns valid coverage data."""
         agents = _make_mock_agents(2)
         hive = HiveMindGroupAdapter(agents=agents)
-        hive.learn_distributed({
-            "agent_0": ["Fact A1", "Fact A2"],
-            "agent_1": ["Fact B1"],
-        })
+        hive.learn_distributed(
+            {
+                "agent_0": ["Fact A1", "Fact A2"],
+                "agent_1": ["Fact B1"],
+            }
+        )
 
         stats = hive.get_coverage_stats()
         assert stats["total_facts_in_hive"] == 3
@@ -602,17 +591,9 @@ class TestImports:
         """All scenario exports are importable."""
         from amplihack_eval.data.hive_mind_scenarios import (
             ALL_HIVE_MIND_SCENARIOS,
-            HiveMindQuestion,
             HiveMindScenario,
-            SCENARIO_ADVERSARIAL,
-            SCENARIO_ARCH,
-            SCENARIO_INCIDENT,
-            SCENARIO_INFRA,
-            SCENARIO_RESEARCH,
-            get_questions_by_difficulty,
-            get_scenario_by_id,
-            get_scenarios_by_difficulty,
         )
+
         assert HiveMindScenario is not None
         assert len(ALL_HIVE_MIND_SCENARIOS) == 5
 
@@ -621,20 +602,17 @@ class TestImports:
         from amplihack_eval.adapters.hive_mind_adapter import (
             HiveMindGroupAdapter,
             InMemorySharedStore,
-            PropagationResult,
-            SharedMemoryStore,
         )
+
         assert HiveMindGroupAdapter is not None
         assert InMemorySharedStore is not None
 
     def test_scoring_imports(self):
         """All scoring exports are importable."""
         from amplihack_eval.levels.hive_mind_scoring import (
-            HiveMindDimensionScore,
-            HiveMindEvalReport,
-            HiveMindQuestionResult,
             score_hive_mind_scenario,
             score_single_response,
         )
+
         assert score_hive_mind_scenario is not None
         assert score_single_response is not None
