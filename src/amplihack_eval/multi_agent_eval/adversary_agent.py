@@ -159,11 +159,7 @@ class AdversaryAgent:
                 wrong_answers.append(result)
 
         # Compute per-category averages
-        cat_averages = {
-            cat: sum(scores) / len(scores)
-            for cat, scores in category_scores.items()
-            if scores
-        }
+        cat_averages = {cat: sum(scores) / len(scores) for cat, scores in category_scores.items() if scores}
 
         # Build the facts summary from ground truth
         facts_summary = self._summarize_ground_truth(ground_truth)
@@ -172,12 +168,8 @@ class AdversaryAgent:
         targeting_info = {
             "category_averages": {k: round(v, 3) for k, v in cat_averages.items()},
             "num_wrong_answers": len(wrong_answers),
-            "strongest_categories": sorted(
-                cat_averages, key=lambda c: cat_averages[c], reverse=True
-            )[:3],
-            "weakest_categories": sorted(
-                cat_averages, key=lambda c: cat_averages[c]
-            )[:3],
+            "strongest_categories": sorted(cat_averages, key=lambda c: cat_averages[c], reverse=True)[:3],
+            "weakest_categories": sorted(cat_averages, key=lambda c: cat_averages[c])[:3],
         }
 
         questions = self._generate_via_llm(
@@ -215,11 +207,13 @@ class AdversaryAgent:
         early_facts: list[dict[str, Any]] = []
         for turn in ground_truth.turns[:early_cutoff]:
             for fact in turn.facts:
-                early_facts.append({
-                    "turn": turn.turn_number,
-                    "block": turn.block_name,
-                    "fact": fact,
-                })
+                early_facts.append(
+                    {
+                        "turn": turn.turn_number,
+                        "block": turn.block_name,
+                        "fact": fact,
+                    }
+                )
 
         if not early_facts:
             return []
@@ -229,11 +223,13 @@ class AdversaryAgent:
         if hasattr(ground_truth, "superseded_values") and ground_truth.superseded_values:
             for entity, old_vals in ground_truth.superseded_values.items():
                 for key, values in old_vals.items() if isinstance(old_vals, dict) else []:
-                    superseded_facts.append({
-                        "entity": entity,
-                        "key": key,
-                        "old_values": values,
-                    })
+                    superseded_facts.append(
+                        {
+                            "entity": entity,
+                            "key": key,
+                            "old_values": values,
+                        }
+                    )
 
         return self._generate_forgetting_via_llm(
             early_facts=early_facts[:20],
@@ -294,9 +290,9 @@ KNOWN FACTS (from the agent's training dialogue):
 {facts_summary}
 
 AGENT PERFORMANCE:
-- Strongest categories: {targeting_info.get('strongest_categories', [])}
-- Weakest categories: {targeting_info.get('weakest_categories', [])}
-- Category averages: {targeting_info.get('category_averages', {{}})}
+- Strongest categories: {targeting_info.get("strongest_categories", [])}
+- Weakest categories: {targeting_info.get("weakest_categories", [])}
+- Category averages: {targeting_info.get("category_averages", {{}})}
 {wrong_answers_text}
 
 Generate questions using these adversarial strategies:
@@ -360,9 +356,7 @@ Return ONLY the JSON array, no other text."""
 
         client = anthropic.Anthropic(api_key=api_key)
 
-        facts_text = "\n".join(
-            f"  Turn {f['turn']} ({f['block']}): {f['fact']}" for f in early_facts
-        )
+        facts_text = "\n".join(f"  Turn {f['turn']} ({f['block']}): {f['fact']}" for f in early_facts)
 
         superseded_text = ""
         if superseded_facts:

@@ -83,14 +83,10 @@ class SubprocessAdapter(AgentAdapter):
                 env=env,
             )
             if result.returncode != 0:
-                raise subprocess.CalledProcessError(
-                    result.returncode, full_cmd, result.stdout, result.stderr
-                )
+                raise subprocess.CalledProcessError(result.returncode, full_cmd, result.stdout, result.stderr)
             return result.stdout.strip()
         except subprocess.TimeoutExpired as e:
-            raise TimeoutError(
-                f"Subprocess timed out after {self._timeout:.1f}s: {full_cmd}"
-            ) from e
+            raise TimeoutError(f"Subprocess timed out after {self._timeout:.1f}s: {full_cmd}") from e
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Command not found: {full_cmd}") from e
 
@@ -123,9 +119,7 @@ class SubprocessAdapter(AgentAdapter):
                     metadata={"elapsed_s": elapsed},
                 )
             except (json.JSONDecodeError, KeyError) as e:
-                raise ValueError(
-                    f"Failed to parse JSON output from subprocess: {output[:200]}"
-                ) from e
+                raise ValueError(f"Failed to parse JSON output from subprocess: {output[:200]}") from e
 
         return AgentResponse(
             answer=output,

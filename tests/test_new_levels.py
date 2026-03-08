@@ -9,17 +9,12 @@ Tests cover:
 
 from __future__ import annotations
 
-import pytest
-
 # ══════════════════════════════════════════════════════════════════════
 # L13: Tool Use Selection
 # ══════════════════════════════════════════════════════════════════════
-
 from amplihack_eval.data.tool_use_scenarios import (
     ALL_TOOL_USE_SCENARIOS,
     ALL_TOOLS,
-    ToolDefinition,
-    ToolUseScenario,
     get_scenario_by_id,
     get_scenarios_by_difficulty,
     get_scenarios_by_domain,
@@ -58,8 +53,7 @@ class TestL13Data:
             assert len(s.available_tools) > 0
             assert len(s.expected_tool_sequence) > 0
             assert len(s.incorrect_alternatives) > 0
-            assert s.domain in ("memory_search", "fact_storage", "explanation",
-                                "gap_finding", "verification")
+            assert s.domain in ("memory_search", "fact_storage", "explanation", "gap_finding", "verification")
             assert s.difficulty in ("single", "chain", "complex_chain")
             assert s.rationale != ""
 
@@ -96,9 +90,7 @@ class TestL13Data:
         """Incorrect alternatives differ from expected sequence."""
         for s in ALL_TOOL_USE_SCENARIOS:
             for alt in s.incorrect_alternatives:
-                assert alt != s.expected_tool_sequence, (
-                    f"Scenario {s.scenario_id}: alternative matches expected"
-                )
+                assert alt != s.expected_tool_sequence, f"Scenario {s.scenario_id}: alternative matches expected"
 
 
 class TestL13Scoring:
@@ -231,8 +223,6 @@ class TestL13Scoring:
 
 from amplihack_eval.data.forgetting_scenarios import (
     ALL_FORGETTING_SCENARIOS,
-    FactUpdate,
-    ForgettingScenario,
     get_forgetting_scenario_by_id,
     get_forgetting_scenarios_by_domain,
 )
@@ -415,8 +405,6 @@ class TestL14Scoring:
 from amplihack_eval.data.adversarial_scenarios import (
     ALL_ADVERSARIAL_SCENARIOS,
     COMMON_KB,
-    AdversarialScenario,
-    KnowledgeBaseFact,
     get_adversarial_scenario_by_id,
     get_adversarial_scenarios_by_category,
     get_adversarial_scenarios_by_difficulty,
@@ -443,8 +431,10 @@ class TestL15Data:
         for s in ALL_ADVERSARIAL_SCENARIOS:
             assert s.scenario_id != ""
             assert s.category in (
-                "never_mentioned", "nonexistent_entity",
-                "mixed_fabrication", "plausible_inference",
+                "never_mentioned",
+                "nonexistent_entity",
+                "mixed_fabrication",
+                "plausible_inference",
             )
             assert len(s.kb_facts) > 0
             assert s.adversarial_question != ""
@@ -576,8 +566,6 @@ class TestL15Scoring:
 
 from amplihack_eval.data.decision_scenarios import (
     ALL_DECISION_SCENARIOS,
-    ContextFact,
-    DecisionScenario,
     get_decision_scenario_by_id,
     get_decision_scenarios_by_difficulty,
     get_decision_scenarios_by_domain,
@@ -604,8 +592,11 @@ class TestL16Data:
         for s in ALL_DECISION_SCENARIOS:
             assert s.scenario_id != ""
             assert s.domain in (
-                "security", "project_management", "infrastructure",
-                "hiring", "resource_allocation",
+                "security",
+                "project_management",
+                "infrastructure",
+                "hiring",
+                "resource_allocation",
             )
             assert len(s.context_facts) >= 2
             assert s.decision_question != ""
@@ -764,6 +755,7 @@ class TestCrossLevelImports:
             ALL_FORGETTING_SCENARIOS,
             ALL_TOOL_USE_SCENARIOS,
         )
+
         assert len(ALL_TOOL_USE_SCENARIOS) >= 20
         assert len(ALL_FORGETTING_SCENARIOS) >= 15
         assert len(ALL_ADVERSARIAL_SCENARIOS) >= 20
@@ -775,17 +767,9 @@ class TestCrossLevelImports:
             AdversarialRecallScore,
             DecisionScore,
             ForgettingResult,
-            ToolSelectionScore,
             ToolTrajectory,
-            aggregate_adversarial_scores,
-            aggregate_decision_scores,
-            aggregate_forgetting_scores,
-            aggregate_tool_scores,
-            score_adversarial_scenario,
-            score_decision_scenario,
-            score_forgetting_scenario,
-            score_tool_scenario,
         )
+
         assert ToolTrajectory is not None
         assert ForgettingResult is not None
         assert AdversarialRecallScore is not None

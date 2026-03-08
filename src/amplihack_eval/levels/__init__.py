@@ -25,6 +25,10 @@ from .hive_mind_scoring import (
     score_hive_mind_scenario,
     score_single_response,
 )
+from .L13_tool_selection import ToolTrajectory
+from .L14_selective_forgetting import ForgettingResult
+from .L15_adversarial_recall import AdversarialRecallScore
+from .L16_decision_from_memory import DecisionScore
 from .loader import load_all_levels, load_level, validate_level
 from .schema import LevelDefinition, QuestionTemplate, ScoringConfig
 
@@ -47,6 +51,11 @@ __all__ = [
     "load_level",
     "load_all_levels",
     "validate_level",
+    # New level scoring types
+    "ToolTrajectory",
+    "ForgettingResult",
+    "AdversarialRecallScore",
+    "DecisionScore",
     # Hive mind scoring
     "HiveMindDimensionScore",
     "HiveMindEvalReport",

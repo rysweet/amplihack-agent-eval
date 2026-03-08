@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import json
 import tarfile
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -119,7 +118,8 @@ class TestCLIIntegration:
 
         result = subprocess.run(
             ["amplihack-eval", "list-datasets", "--help"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode == 0
         assert "local-only" in result.stdout
@@ -130,7 +130,8 @@ class TestCLIIntegration:
 
         result = subprocess.run(
             ["amplihack-eval", "download-dataset", "--help"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode == 0
         assert "dataset_name" in result.stdout
@@ -141,7 +142,8 @@ class TestCLIIntegration:
 
         result = subprocess.run(
             ["amplihack-eval", "run", "--help"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode == 0
         assert "--skip-learning" in result.stdout
@@ -153,7 +155,8 @@ class TestCLIIntegration:
 
         result = subprocess.run(
             ["amplihack-eval", "run", "--skip-learning"],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode == 1
         assert "--load-db" in result.stderr

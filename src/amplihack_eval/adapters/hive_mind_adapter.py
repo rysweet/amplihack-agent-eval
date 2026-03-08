@@ -20,7 +20,7 @@ Public API:
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Protocol, runtime_checkable
 
 from .base import AgentAdapter, AgentResponse
@@ -237,9 +237,7 @@ class HiveMindGroupAdapter:
 
         for agent_id, facts in agent_knowledge.items():
             if agent_id not in self.agents:
-                raise ValueError(
-                    f"Agent '{agent_id}' not found in hive. Available: {list(self.agents.keys())}"
-                )
+                raise ValueError(f"Agent '{agent_id}' not found in hive. Available: {list(self.agents.keys())}")
 
             agent = self.agents[agent_id]
             count = 0
@@ -323,9 +321,7 @@ class HiveMindGroupAdapter:
             ValueError: If agent_id not found in the hive
         """
         if agent_id not in self.agents:
-            raise ValueError(
-                f"Agent '{agent_id}' not found in hive. Available: {list(self.agents.keys())}"
-            )
+            raise ValueError(f"Agent '{agent_id}' not found in hive. Available: {list(self.agents.keys())}")
 
         # Query shared store for relevant context
         shared_context = self.shared_store.query(question, requesting_agent=agent_id)
@@ -365,12 +361,8 @@ class HiveMindGroupAdapter:
                 errors[agent_id] = e
 
         if errors:
-            error_details = "; ".join(
-                f"{aid}: {type(e).__name__}: {e}" for aid, e in errors.items()
-            )
-            raise RuntimeError(
-                f"{len(errors)}/{len(self.agents)} agents failed to answer: {error_details}"
-            )
+            error_details = "; ".join(f"{aid}: {type(e).__name__}: {e}" for aid, e in errors.items())
+            raise RuntimeError(f"{len(errors)}/{len(self.agents)} agents failed to answer: {error_details}")
 
         return responses
 

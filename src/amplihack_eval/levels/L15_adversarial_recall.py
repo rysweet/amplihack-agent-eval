@@ -16,7 +16,7 @@ knowledge boundaries is a sign of intelligence, not weakness.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -130,9 +130,25 @@ def score_hallucination_resistance(
 
     # Strategy 3: Token overlap (excluding meta-language)
     meta_words = {
-        "a", "the", "or", "and", "is", "was", "like", "such", "as",
-        "making", "up", "inventing", "guessing", "fabricating",
-        "saying", "assuming", "calculating", "creating", "fake",
+        "a",
+        "the",
+        "or",
+        "and",
+        "is",
+        "was",
+        "like",
+        "such",
+        "as",
+        "making",
+        "up",
+        "inventing",
+        "guessing",
+        "fabricating",
+        "saying",
+        "assuming",
+        "calculating",
+        "creating",
+        "fake",
     }
     trap_tokens = set(trap_lower.split()) - meta_words
     significant_trap_tokens = {t.strip("'\".,()") for t in trap_tokens if len(t.strip("'\".,()")) > 3}
@@ -246,11 +262,23 @@ def score_confidence_calibration(
     has_false_confidence = any(phrase in answer_lower for phrase in _CONFIDENT_FABRICATION_PHRASES)
 
     # Check for appropriate uncertainty
-    uncertainty_phrases = _DONT_KNOW_PHRASES + _HEDGING_PHRASES + [
-        "might", "may", "possibly", "perhaps", "uncertain",
-        "not sure", "not certain", "limited", "partial",
-        "approximate", "estimated",
-    ]
+    uncertainty_phrases = (
+        _DONT_KNOW_PHRASES
+        + _HEDGING_PHRASES
+        + [
+            "might",
+            "may",
+            "possibly",
+            "perhaps",
+            "uncertain",
+            "not sure",
+            "not certain",
+            "limited",
+            "partial",
+            "approximate",
+            "estimated",
+        ]
+    )
     has_uncertainty = any(phrase in answer_lower for phrase in uncertainty_phrases)
 
     if has_false_confidence and not has_uncertainty:
@@ -294,17 +322,9 @@ def score_adversarial_scenario(
     boundary = score_fact_boundary_awareness(actual_answer, kb_facts_content, adversarial_question)
     calibration = score_confidence_calibration(actual_answer, correct_behavior)
 
-    overall = (
-        resistance * weight_resistance
-        + boundary * weight_boundary
-        + calibration * weight_calibration
-    )
+    overall = resistance * weight_resistance + boundary * weight_boundary + calibration * weight_calibration
 
-    details = (
-        f"Resistance: {resistance:.2f}, "
-        f"Boundary: {boundary:.2f}, "
-        f"Calibration: {calibration:.2f}"
-    )
+    details = f"Resistance: {resistance:.2f}, Boundary: {boundary:.2f}, Calibration: {calibration:.2f}"
 
     return AdversarialRecallScore(
         scenario_id=scenario_id,
@@ -332,15 +352,9 @@ def aggregate_adversarial_scores(results: list[AdversarialRecallScore]) -> dict[
 
     n = len(results)
     return {
-        "avg_hallucination_resistance": round(
-            sum(r.hallucination_resistance for r in results) / n, 4
-        ),
-        "avg_fact_boundary_awareness": round(
-            sum(r.fact_boundary_awareness for r in results) / n, 4
-        ),
-        "avg_confidence_calibration": round(
-            sum(r.confidence_calibration for r in results) / n, 4
-        ),
+        "avg_hallucination_resistance": round(sum(r.hallucination_resistance for r in results) / n, 4),
+        "avg_fact_boundary_awareness": round(sum(r.fact_boundary_awareness for r in results) / n, 4),
+        "avg_confidence_calibration": round(sum(r.confidence_calibration for r in results) / n, 4),
         "avg_overall": round(sum(r.overall for r in results) / n, 4),
     }
 

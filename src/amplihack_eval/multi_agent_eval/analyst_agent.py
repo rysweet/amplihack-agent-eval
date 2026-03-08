@@ -27,10 +27,10 @@ import logging
 import os
 import re
 import statistics
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
-from ..core.runner import EvalReport, EvalResult
+from ..core.runner import EvalReport
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +126,7 @@ class ComparisonReport:
             "run_labels": self.run_labels,
             "overall_scores": {k: round(v, 4) for k, v in self.overall_scores.items()},
             "category_trends": {
-                cat: {k: round(v, 4) for k, v in scores.items()}
-                for cat, scores in self.category_trends.items()
+                cat: {k: round(v, 4) for k, v in scores.items()} for cat, scores in self.category_trends.items()
             },
             "num_regressions": len(self.regressions),
             "num_improvements": len(self.improvements),
@@ -332,9 +331,7 @@ class AnalystAgent:
         if regressions:
             summary_parts.append(f"{len(regressions)} category regression(s) detected (>5pp drop).")
         if improvements_list:
-            summary_parts.append(
-                f"{len(improvements_list)} category improvement(s) detected (>5pp gain)."
-            )
+            summary_parts.append(f"{len(improvements_list)} category improvement(s) detected (>5pp gain).")
 
         return ComparisonReport(
             run_labels=labels,
@@ -375,16 +372,10 @@ class AnalystAgent:
         for cb in report.category_breakdown:
             if cb.avg_score < 0.5:
                 affected_ids = [
-                    r.question_id
-                    for r in report.results
-                    if r.category == cb.category and r.overall_score < 0.5
+                    r.question_id for r in report.results if r.category == cb.category and r.overall_score < 0.5
                 ]
                 example = next(
-                    (
-                        r
-                        for r in report.results
-                        if r.category == cb.category and r.overall_score < 0.5
-                    ),
+                    (r for r in report.results if r.category == cb.category and r.overall_score < 0.5),
                     None,
                 )
                 patterns.append(
@@ -513,8 +504,8 @@ class AnalystAgent:
                     Improvement(
                         title=f"Stabilize {fp.affected_categories[0]} performance",
                         description=(
-                            f"High variance in this category. Consider adding more "
-                            f"deterministic grading rules or improving retrieval consistency."
+                            "High variance in this category. Consider adding more "
+                            "deterministic grading rules or improving retrieval consistency."
                         ),
                         target_component="retrieval",
                         expected_impact=0.1,

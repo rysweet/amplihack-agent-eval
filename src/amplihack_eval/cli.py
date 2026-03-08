@@ -99,9 +99,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
 
         if skip_learning:
             # Skip learning phase, go straight to evaluation
-            report = runner.run_skip_learning(
-                adapter, load_db_path=load_db, grader_model=args.grader_model
-            )
+            report = runner.run_skip_learning(adapter, load_db_path=load_db, grader_model=args.grader_model)
         else:
             report = runner.run(adapter, grader_model=args.grader_model)
 
@@ -229,8 +227,8 @@ def _cmd_download_dataset(args: argparse.Namespace) -> int:
     try:
         path = download_dataset(name, output_dir=output_dir, force=force)
         print(f"Dataset downloaded to: {path}")
-        print(f"\nTo use it:")
-        print(f"  amplihack-eval run --adapter learning-agent --skip-learning \\")
+        print("\nTo use it:")
+        print("  amplihack-eval run --adapter learning-agent --skip-learning \\")
         print(f"    --load-db {path}/memory_db --turns 5000 --questions 100")
         return 0
     except Exception as e:
@@ -358,13 +356,9 @@ def main() -> None:
     # --- run ---
     run_parser = subparsers.add_parser("run", help="Run a long-horizon memory evaluation")
     run_parser.add_argument("--turns", type=int, default=100, help="Dialogue turns (default: 100)")
-    run_parser.add_argument(
-        "--questions", type=int, default=20, help="Quiz questions (default: 20)"
-    )
+    run_parser.add_argument("--questions", type=int, default=20, help="Quiz questions (default: 20)")
     run_parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    run_parser.add_argument(
-        "--grader-votes", type=int, default=3, help="Grading votes per question"
-    )
+    run_parser.add_argument("--grader-votes", type=int, default=3, help="Grading votes per question")
     run_parser.add_argument("--grader-model", default="", help="Model for grading")
     run_parser.add_argument("--model", default="", help="Agent model")
     run_parser.add_argument("--output-dir", default="/tmp/amplihack-eval", help="Output directory")
@@ -442,9 +436,7 @@ def main() -> None:
     si_parser.add_argument("--seed", type=int, default=42, help="Random seed")
     si_parser.add_argument("--iterations", type=int, default=3, help="Max iterations")
     si_parser.add_argument("--threshold", type=float, default=0.7, help="Failure threshold")
-    si_parser.add_argument(
-        "--regression-threshold", type=float, default=5.0, help="Regression threshold (pp)"
-    )
+    si_parser.add_argument("--regression-threshold", type=float, default=5.0, help="Regression threshold (pp)")
     si_parser.add_argument("--grader-model", default="", help="Grader model")
     si_parser.add_argument("--model", default="", help="Agent model")
     si_parser.add_argument("--output-dir", default="/tmp/amplihack-eval-improve", help="Output dir")
@@ -468,22 +460,14 @@ def main() -> None:
     rpt_parser.add_argument("report_file", help="Path to report JSON file")
 
     # --- download-dataset ---
-    dl_parser = subparsers.add_parser(
-        "download-dataset", help="Download a pre-built learning DB dataset"
-    )
+    dl_parser = subparsers.add_parser("download-dataset", help="Download a pre-built learning DB dataset")
     dl_parser.add_argument("dataset_name", help="Dataset name (e.g., 5000t-seed42-v1.0)")
-    dl_parser.add_argument(
-        "--output-dir", default="", help="Output directory (default: datasets/ in repo root)"
-    )
-    dl_parser.add_argument(
-        "--force", action="store_true", help="Re-download even if already exists"
-    )
+    dl_parser.add_argument("--output-dir", default="", help="Output directory (default: datasets/ in repo root)")
+    dl_parser.add_argument("--force", action="store_true", help="Re-download even if already exists")
 
     # --- list-datasets ---
     ls_parser = subparsers.add_parser("list-datasets", help="List available datasets")
-    ls_parser.add_argument(
-        "--local-only", action="store_true", help="Only show locally available datasets"
-    )
+    ls_parser.add_argument("--local-only", action="store_true", help="Only show locally available datasets")
 
     # --- continuous ---
     cont_parser = subparsers.add_parser(

@@ -13,8 +13,8 @@ uses the right tools in the right order is demonstrating genuine planning.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
 
 @dataclass
@@ -165,11 +165,7 @@ def score_scenario(
     efficiency = score_tool_efficiency(expected_sequence, actual_trajectory)
     chain = score_tool_chain(expected_sequence, actual_trajectory)
 
-    overall = (
-        selection * weight_selection
-        + efficiency * weight_efficiency
-        + chain * weight_chain
-    )
+    overall = selection * weight_selection + efficiency * weight_efficiency + chain * weight_chain
 
     details_parts = [
         f"Selection: {selection:.2f} (expected {set(expected_sequence)}, got {set(actual_trajectory.tool_calls)})",

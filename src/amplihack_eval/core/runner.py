@@ -119,9 +119,7 @@ class EvalReport:
                     "avg_score": round(cb.avg_score, 4),
                     "min_score": round(cb.min_score, 4),
                     "max_score": round(cb.max_score, 4),
-                    "dimension_averages": {
-                        k: round(v, 4) for k, v in cb.dimension_averages.items()
-                    },
+                    "dimension_averages": {k: round(v, 4) for k, v in cb.dimension_averages.items()},
                 }
                 for cb in self.category_breakdown
             ],
@@ -190,9 +188,7 @@ def _deterministic_grade(
 
         # Check incorrect patterns first -- instant 0
         if rubric.incorrect_patterns:
-            found_incorrect = any(
-                re.search(re.escape(pat.lower()), answer_lower) for pat in rubric.incorrect_patterns
-            )
+            found_incorrect = any(re.search(re.escape(pat.lower()), answer_lower) for pat in rubric.incorrect_patterns)
             if found_incorrect:
                 scores[dim] = DimensionScore(
                     dimension=dim,
@@ -204,11 +200,7 @@ def _deterministic_grade(
         # Keyword matching
         matched = 0
         if rubric.required_keywords:
-            matched = sum(
-                1
-                for kw in rubric.required_keywords
-                if re.search(re.escape(kw.lower()), answer_lower)
-            )
+            matched = sum(1 for kw in rubric.required_keywords if re.search(re.escape(kw.lower()), answer_lower))
             ratio = matched / len(rubric.required_keywords)
         else:
             ratio = 0.5  # No keywords = neutral
@@ -217,17 +209,13 @@ def _deterministic_grade(
         paraphrase_hits = 0
         if rubric.acceptable_paraphrases:
             paraphrase_hits = sum(
-                1
-                for p in rubric.acceptable_paraphrases
-                if re.search(re.escape(p.lower()), answer_lower)
+                1 for p in rubric.acceptable_paraphrases if re.search(re.escape(p.lower()), answer_lower)
             )
             ratio = min(1.0, ratio + paraphrase_hits * 0.1)
 
         reasoning_parts = []
         if rubric.required_keywords:
-            reasoning_parts.append(
-                f"Matched {matched}/{len(rubric.required_keywords)} required keywords"
-            )
+            reasoning_parts.append(f"Matched {matched}/{len(rubric.required_keywords)} required keywords")
         if rubric.acceptable_paraphrases and paraphrase_hits:
             reasoning_parts.append(f"+{paraphrase_hits} paraphrase bonus")
 
@@ -387,9 +375,7 @@ def _grade_with_llm(
         "confidence_calibration": "Does the answer express appropriate confidence/uncertainty?",
     }
 
-    dims_text = "\n".join(
-        f"- {d}: {dimension_descriptions.get(d, 'General quality')}" for d in dimensions
-    )
+    dims_text = "\n".join(f"- {d}: {dimension_descriptions.get(d, 'General quality')}" for d in dimensions)
 
     prompt = f"""Grade this answer on the following dimensions (0.0 to 1.0 each):
 
@@ -668,9 +654,7 @@ class EvalRunner:
         mem_stats: dict[str, Any] = {}
 
         # Count facts delivered
-        total_facts = sum(
-            len(t.facts) for t in (self.ground_truth.turns if self.ground_truth else [])
-        )
+        total_facts = sum(len(t.facts) for t in (self.ground_truth.turns if self.ground_truth else []))
 
         overall_score = sum(r.overall_score for r in results) / len(results) if results else 0.0
 
@@ -792,9 +776,7 @@ class EvalRunner:
         # Grade the answer (hybrid deterministic + LLM, with multi-vote)
         grade_start = time.time()
         dimensions = q.scoring_dimensions or ["factual_accuracy"]
-        dim_scores = _grade_multi_vote(
-            q, answer, dimensions, grader_model, num_votes=self.grader_votes
-        )
+        dim_scores = _grade_multi_vote(q, answer, dimensions, grader_model, num_votes=self.grader_votes)
         grade_time = time.time() - grade_start
 
         # Compute overall score as average of dimension scores
@@ -923,10 +905,7 @@ def print_report(report: EvalReport) -> None:
     print(f"{'Category':<25} {'Avg':>8} {'Min':>8} {'Max':>8} {'Count':>6}")
     print("-" * 70)
     for cb in report.category_breakdown:
-        print(
-            f"{cb.category:<25} {cb.avg_score:>7.2%} {cb.min_score:>7.2%} "
-            f"{cb.max_score:>7.2%} {cb.num_questions:>6}"
-        )
+        print(f"{cb.category:<25} {cb.avg_score:>7.2%} {cb.min_score:>7.2%} {cb.max_score:>7.2%} {cb.num_questions:>6}")
     print("-" * 70)
 
     print("\nDIMENSION AVERAGES BY CATEGORY:")
@@ -1160,9 +1139,7 @@ def run_suite(
         if result.passed:
             passed_ids.add(level_id)
 
-    overall = (
-        sum(r.overall_score for r in level_results) / len(level_results) if level_results else 0.0
-    )
+    overall = sum(r.overall_score for r in level_results) / len(level_results) if level_results else 0.0
 
     return SuiteResult(
         level_results=level_results,

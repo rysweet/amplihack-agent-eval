@@ -70,13 +70,15 @@ def list_datasets(include_remote: bool = True) -> list[dict[str, Any]]:
                 continue
             name = tag.removeprefix("dataset-")
             if name not in local_names:
-                datasets.append({
-                    "name": name,
-                    "local": False,
-                    "tag": tag,
-                    "url": release.get("html_url", ""),
-                    "published": release.get("published_at", ""),
-                })
+                datasets.append(
+                    {
+                        "name": name,
+                        "local": False,
+                        "tag": tag,
+                        "url": release.get("html_url", ""),
+                        "published": release.get("published_at", ""),
+                    }
+                )
     except Exception as e:
         logger.warning("Could not fetch remote datasets: %s", e)
 
@@ -128,11 +130,10 @@ def _download_with_gh(tag: str, name: str, dest_dir: Path) -> bool:
         tmp_path = Path(tmp)
         try:
             result = subprocess.run(
-                ["gh", "release", "download", tag,
-                 "--repo", GITHUB_REPO,
-                 "--pattern", tarball,
-                 "--dir", str(tmp_path)],
-                capture_output=True, text=True, timeout=120,
+                ["gh", "release", "download", tag, "--repo", GITHUB_REPO, "--pattern", tarball, "--dir", str(tmp_path)],
+                capture_output=True,
+                text=True,
+                timeout=120,
             )
             if result.returncode != 0:
                 logger.debug("gh download failed: %s", result.stderr)

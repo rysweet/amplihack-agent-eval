@@ -15,7 +15,7 @@ genuine understanding.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -38,14 +38,67 @@ def _normalize(text: str) -> str:
 def _extract_key_phrases(text: str) -> set[str]:
     """Extract significant phrases (3+ chars, not stop words) from text."""
     stop_words = {
-        "the", "and", "for", "are", "but", "not", "you", "all", "can",
-        "had", "her", "was", "one", "our", "out", "has", "his", "how",
-        "its", "may", "new", "now", "old", "see", "way", "who", "did",
-        "get", "let", "say", "she", "too", "use", "with", "from",
-        "that", "this", "will", "than", "them", "then", "they", "been",
-        "have", "each", "make", "like", "into", "over", "such", "should",
-        "would", "could", "about", "which", "their", "there", "these",
-        "those", "being", "other",
+        "the",
+        "and",
+        "for",
+        "are",
+        "but",
+        "not",
+        "you",
+        "all",
+        "can",
+        "had",
+        "her",
+        "was",
+        "one",
+        "our",
+        "out",
+        "has",
+        "his",
+        "how",
+        "its",
+        "may",
+        "new",
+        "now",
+        "old",
+        "see",
+        "way",
+        "who",
+        "did",
+        "get",
+        "let",
+        "say",
+        "she",
+        "too",
+        "use",
+        "with",
+        "from",
+        "that",
+        "this",
+        "will",
+        "than",
+        "them",
+        "then",
+        "they",
+        "been",
+        "have",
+        "each",
+        "make",
+        "like",
+        "into",
+        "over",
+        "such",
+        "should",
+        "would",
+        "could",
+        "about",
+        "which",
+        "their",
+        "there",
+        "these",
+        "those",
+        "being",
+        "other",
     }
     words = set(_normalize(text).split())
     return {w for w in words if len(w) > 2 and w not in stop_words}
@@ -72,7 +125,7 @@ def score_decision_quality(
     if not actual_answer or not actual_answer.strip():
         return 0.0
 
-    answer_lower = _normalize(actual_answer)
+    _normalize(actual_answer)
     answer_phrases = _extract_key_phrases(actual_answer)
 
     # Check alignment with expected decision
@@ -147,10 +200,25 @@ def score_reasoning_quality(
 
     # Check for reasoning structure (numbered steps, causal language, etc.)
     reasoning_indicators = [
-        "because", "therefore", "since", "given that", "as a result",
-        "this means", "which means", "so", "thus", "consequently",
-        "first", "second", "then", "finally", "additionally",
-        "1.", "2.", "3.", "step",
+        "because",
+        "therefore",
+        "since",
+        "given that",
+        "as a result",
+        "this means",
+        "which means",
+        "so",
+        "thus",
+        "consequently",
+        "first",
+        "second",
+        "then",
+        "finally",
+        "additionally",
+        "1.",
+        "2.",
+        "3.",
+        "step",
     ]
     has_structure = any(indicator in answer_lower for indicator in reasoning_indicators)
 
@@ -186,7 +254,7 @@ def score_fact_usage(
     if not required_facts:
         return 1.0  # No required facts = automatic full marks
 
-    answer_lower = _normalize(actual_answer)
+    _normalize(actual_answer)
     answer_phrases = _extract_key_phrases(actual_answer)
 
     facts_referenced = 0
@@ -236,11 +304,7 @@ def score_decision_scenario(
     reasoning = score_reasoning_quality(reasoning_chain, actual_answer)
     facts = score_fact_usage(required_facts, actual_answer)
 
-    overall = (
-        decision * weight_decision
-        + reasoning * weight_reasoning
-        + facts * weight_facts
-    )
+    overall = decision * weight_decision + reasoning * weight_reasoning + facts * weight_facts
 
     details = (
         f"Decision: {decision:.2f}, "

@@ -13,7 +13,7 @@ Tests cover:
 from __future__ import annotations
 
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -27,15 +27,12 @@ from amplihack_eval.core.runner import (
 from amplihack_eval.data.long_horizon import GradingRubric, GroundTruth, Question, Turn
 from amplihack_eval.multi_agent_eval.adversary_agent import AdversaryAgent
 from amplihack_eval.multi_agent_eval.analyst_agent import (
-    AnalystAgent,
     AnalysisReport,
+    AnalystAgent,
     ComparisonReport,
-    FailurePattern,
-    Improvement,
 )
 from amplihack_eval.multi_agent_eval.coordinator import EvalConfig, EvalCoordinator
 from amplihack_eval.multi_agent_eval.grader_agent import (
-    AggregateGrade,
     GraderAgent,
     PerspectiveGrade,
     _deterministic_grade,
@@ -47,7 +44,6 @@ from amplihack_eval.multi_agent_eval.pipeline import (
     PipelineReport,
     RoundResult,
 )
-
 
 # --- Test helpers ---
 
@@ -428,7 +424,7 @@ class TestAdversaryAgent:
 
     def test_targeting_strong_categories(self):
         """Adversary targets agent's strongest categories."""
-        agent = AdversaryAgent()
+        AdversaryAgent()
 
         # Agent does well on cat_a, poorly on cat_b
         results = [
@@ -773,7 +769,10 @@ class TestPipelineConfig:
 
     def test_custom(self):
         """PipelineConfig accepts custom values."""
-        factory = lambda: MockAgent()
+
+        def factory():
+            return MockAgent()
+
         config = PipelineConfig(
             adversarial_rounds=3,
             agent_factory=factory,
@@ -913,15 +912,10 @@ class TestImports:
         """All public types importable from multi_agent_eval."""
         from amplihack_eval.multi_agent_eval import (
             AdversaryAgent,
-            AggregateGrade,
-            AnalysisReport,
             AnalystAgent,
-            ComparisonReport,
             EvalCoordinator,
             GraderAgent,
-            Improvement,
             MultiAgentEvalPipeline,
-            PerspectiveGrade,
         )
 
         assert GraderAgent is not None

@@ -27,7 +27,7 @@ import logging
 import os
 import re
 import statistics
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from ..data.long_horizon import GradingRubric, Question
@@ -170,20 +170,14 @@ def _deterministic_grade(rubric: GradingRubric, actual_answer: str) -> float | N
 
     # Keyword matching
     if rubric.required_keywords:
-        matched = sum(
-            1 for kw in rubric.required_keywords if re.search(re.escape(kw.lower()), answer_lower)
-        )
+        matched = sum(1 for kw in rubric.required_keywords if re.search(re.escape(kw.lower()), answer_lower))
         ratio = matched / len(rubric.required_keywords)
     else:
         ratio = 0.5
 
     # Paraphrase bonus
     if rubric.acceptable_paraphrases:
-        hits = sum(
-            1
-            for p in rubric.acceptable_paraphrases
-            if re.search(re.escape(p.lower()), answer_lower)
-        )
+        hits = sum(1 for p in rubric.acceptable_paraphrases if re.search(re.escape(p.lower()), answer_lower))
         ratio = min(1.0, ratio + hits * 0.1)
 
     return round(ratio, 4)
@@ -251,7 +245,7 @@ class GraderAgent:
                 return PerspectiveGrade(
                     perspective=self.perspective,
                     score=det_score,
-                    reasoning=f"Deterministic grade from rubric keywords",
+                    reasoning="Deterministic grade from rubric keywords",
                     question_id=question.question_id,
                 )
 

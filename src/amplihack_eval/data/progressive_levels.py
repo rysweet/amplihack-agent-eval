@@ -892,9 +892,7 @@ TRANSFER_LEVELS = [LEVEL_12]
 
 def get_level_by_id(level_id: str) -> TestLevel | None:
     """Get a test level by its ID."""
-    all_lvls = (
-        ALL_LEVELS + TEACHER_STUDENT_LEVELS + ADVANCED_LEVELS + NOVEL_SKILL_LEVELS + TRANSFER_LEVELS
-    )
+    all_lvls = ALL_LEVELS + TEACHER_STUDENT_LEVELS + ADVANCED_LEVELS + NOVEL_SKILL_LEVELS + TRANSFER_LEVELS
     for level in all_lvls:
         if level.level_id == level_id:
             return level

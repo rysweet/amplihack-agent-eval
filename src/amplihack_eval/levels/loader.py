@@ -86,9 +86,7 @@ def load_level(level_id: str, levels_dir: Path | None = None) -> LevelDefinition
     # Find YAML file matching level_id (e.g. L01_simple_recall.yaml)
     candidates = list(search_dir.glob(f"*{level_id}*.yaml"))
     if not candidates:
-        raise FileNotFoundError(
-            f"No YAML file found for level '{level_id}' in {search_dir}"
-        )
+        raise FileNotFoundError(f"No YAML file found for level '{level_id}' in {search_dir}")
     yaml_path = candidates[0]
     logger.debug("Loading level %s from %s", level_id, yaml_path)
 
@@ -104,7 +102,9 @@ def load_level(level_id: str, levels_dir: Path | None = None) -> LevelDefinition
     if level.id != level_id:
         logger.warning(
             "Requested level %s but YAML contains id=%s in %s",
-            level_id, level.id, yaml_path,
+            level_id,
+            level.id,
+            yaml_path,
         )
 
     return level

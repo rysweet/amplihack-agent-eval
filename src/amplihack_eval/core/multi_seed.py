@@ -22,7 +22,7 @@ import math
 import statistics
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from ..adapters.base import AgentAdapter
@@ -258,7 +258,9 @@ def run_multi_seed_eval(
                     repeat_reports.append(report)
                     logger.info(
                         "Seed %d repeat %d: overall=%.2f%%",
-                        seed, rep + 1, report.overall_score * 100,
+                        seed,
+                        rep + 1,
+                        report.overall_score * 100,
                     )
                 finally:
                     agent.close()
@@ -299,9 +301,7 @@ def run_multi_seed_eval(
     overall_ci_lower, overall_ci_upper, overall_moe = _ci_95(overall_mean, overall_stddev, n_seeds)
 
     # Compute mean intra-seed stddev
-    intra_seed_stddev = (
-        sum(intra_seed_stddevs) / len(intra_seed_stddevs) if intra_seed_stddevs else 0.0
-    )
+    intra_seed_stddev = sum(intra_seed_stddevs) / len(intra_seed_stddevs) if intra_seed_stddevs else 0.0
 
     # Compute per-category stats
     all_categories: set[str] = set()
@@ -414,10 +414,7 @@ def print_multi_seed_report(report: MultiSeedReport) -> None:
         moe_pp = report.overall_margin_of_error * 100
         lo_pct = report.overall_ci_95_lower * 100
         hi_pct = report.overall_ci_95_upper * 100
-        print(
-            f"\nOVERALL: {report.overall_mean:.2%} "
-            f"+/- {moe_pp:.1f}pp (95% CI: {lo_pct:.1f}% -- {hi_pct:.1f}%)"
-        )
+        print(f"\nOVERALL: {report.overall_mean:.2%} +/- {moe_pp:.1f}pp (95% CI: {lo_pct:.1f}% -- {hi_pct:.1f}%)")
     else:
         print(f"\nOVERALL: {report.overall_mean:.2%} +/- {report.overall_stddev:.2%}")
 
@@ -430,10 +427,7 @@ def print_multi_seed_report(report: MultiSeedReport) -> None:
     print(f"{'Category':<25} {'Mean':>8} {'StdDev':>8} {'Min':>8} {'Max':>8}")
     print("-" * 70)
     for cs in report.category_stats:
-        print(
-            f"{cs.category:<25} {cs.mean_score:>7.2%} {cs.stddev:>7.2%} "
-            f"{cs.min_score:>7.2%} {cs.max_score:>7.2%}"
-        )
+        print(f"{cs.category:<25} {cs.mean_score:>7.2%} {cs.stddev:>7.2%} {cs.min_score:>7.2%} {cs.max_score:>7.2%}")
     print("-" * 70)
 
     if report.noisy_questions:

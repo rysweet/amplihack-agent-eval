@@ -49,7 +49,7 @@ where = ["src"]
 amplihack_eval = ["py.typed"]
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
@@ -57,15 +57,15 @@ select = ["E", "F", "I", "W", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
 # Data files contain long string literals that cannot be reasonably wrapped
-"src/amplihack_eval/data/long_horizon.py" = ["E501"]
-"src/amplihack_eval/data/progressive_levels.py" = ["E501"]
-# Grader and runner contain long prompt strings
-"src/amplihack_eval/core/grader.py" = ["E501"]
-"src/amplihack_eval/core/runner.py" = ["E501"]
+"src/amplihack_eval/data/*.py" = ["E501"]
+# Level definitions contain long prompt strings
+"src/amplihack_eval/levels/*.py" = ["E501"]
 # Self-improve modules contain long prompt strings
-"src/amplihack_eval/self_improve/patch_proposer.py" = ["E501"]
-"src/amplihack_eval/self_improve/reviewer_voting.py" = ["E501"]
-"src/amplihack_eval/self_improve/runner.py" = ["E501"]
+"src/amplihack_eval/self_improve/*.py" = ["E501"]
+# Multi-agent eval modules contain long prompt strings
+"src/amplihack_eval/multi_agent_eval/*.py" = ["E501"]
+# Test files with long assertion messages, fixtures, and sectioned imports
+"tests/*.py" = ["E501", "E402"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

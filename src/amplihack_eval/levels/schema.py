@@ -107,17 +107,13 @@ class LevelDefinition:
         if not self.description:
             errors.append("description is required")
         if self.category not in ("memory", "tool_use", "planning", "reasoning"):
-            errors.append(
-                f"category must be one of memory/tool_use/planning/reasoning, got '{self.category}'"
-            )
+            errors.append(f"category must be one of memory/tool_use/planning/reasoning, got '{self.category}'")
         if not 1 <= self.difficulty <= 5:
             errors.append(f"difficulty must be 1-5, got {self.difficulty}")
         if not self.questions:
             errors.append("at least one question is required")
         if self.grading_mode not in ("deterministic", "llm", "hybrid"):
-            errors.append(
-                f"grading_mode must be deterministic/llm/hybrid, got '{self.grading_mode}'"
-            )
+            errors.append(f"grading_mode must be deterministic/llm/hybrid, got '{self.grading_mode}'")
         if self.min_turns < 0:
             errors.append(f"min_turns must be >= 0, got {self.min_turns}")
         errors.extend(self.scoring.validate())

@@ -56,8 +56,7 @@ class LearningAgentAdapter(AgentAdapter):
             )
         except ImportError as e:
             raise ImportError(
-                "amplihack package is required for LearningAgentAdapter. "
-                "Install it with: pip install amplihack"
+                "amplihack package is required for LearningAgentAdapter. Install it with: pip install amplihack"
             ) from e
 
         import os
