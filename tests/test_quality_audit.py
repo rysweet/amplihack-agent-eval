@@ -149,6 +149,7 @@ class TestGradeWithLlmNoSilentFallback:
     """_grade_with_llm must raise when API key is missing."""
 
     def test_missing_api_key_raises(self):
+        pytest.importorskip("anthropic")
         from amplihack_eval.core.runner import _grade_with_llm
         from amplihack_eval.data.long_horizon import Question
 
