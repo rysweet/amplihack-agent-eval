@@ -1,6 +1,7 @@
 # amplihack-agent-eval
 
-Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use, planning, and reasoning across progressive difficulty levels (L1-L12).
+Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use,
+planning, and reasoning across progressive difficulty levels (L1-L12).
 
 ## Key Features
 
@@ -10,6 +11,26 @@ Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use, 
 - **Agent-agnostic** -- Works with any agent through the `AgentAdapter` interface
 - **Self-improvement loop** -- Automated EVAL -> ANALYZE -> PROPOSE -> CHALLENGE -> VOTE -> APPLY -> RE-EVAL cycle
 - **Multi-seed holdout** -- Run across multiple random seeds to measure inter-seed variance
+- **Hive mind evaluation** -- Multi-agent topology comparison (flat, distributed DHT, federated)
+
+## Running Evals
+
+| Guide | What It Covers |
+|-------|---------------|
+| **[Running Evals Quick Start](running-evals.md)** | All eval types on one page -- single-agent, 20-agent, and distributed |
+| [Long-Horizon Memory Eval](LONG_HORIZON_EVAL.md) | Single-agent eval: 15 question categories, grading system, dataset details |
+| [Hive Mind Eval Strategy](hive-mind-eval.md) | Multi-agent topologies, scoring methodology, four-layer architecture |
+| [Distributed Eval on Azure](azure-hive-qa-eval.md) | Deploy agents to Azure, feed content, run eval, cleanup |
+
+## Framework Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Architecture](architecture.md) | Package layout, core concepts, and design principles |
+| [Evaluation Levels](levels.md) | Complete guide to all 12 progressive difficulty levels (L1-L12) |
+| [Writing Adapters](adapters.md) | How to write custom `AgentAdapter` implementations |
+| [Self-Improvement Loop](self-improvement.md) | Automated improvement cycle with safety gates |
+| [Multi-Agent Eval](multi-agent-eval.md) | Multi-agent evaluation scenarios |
 
 ## Installation
 
@@ -84,16 +105,6 @@ amplihack-eval compare --seeds 42,123,456,789 --turns 100
 # Self-improvement loop
 amplihack-eval self-improve --iterations 5 --turns 100
 ```
-
-## Documentation
-
-| Guide | Description |
-|-------|-------------|
-| [Architecture](architecture.md) | Package layout, core concepts, and design principles |
-| [Evaluation Levels](levels.md) | Complete guide to all 12 progressive difficulty levels (L1-L12) |
-| [Writing Adapters](adapters.md) | How to write custom `AgentAdapter` implementations |
-| [Self-Improvement Loop](self-improvement.md) | Automated improvement cycle with safety gates |
-| [Multi-Agent Eval](multi-agent-eval.md) | Planned multi-agent evaluation scenarios |
 
 ## Environment Variables
 

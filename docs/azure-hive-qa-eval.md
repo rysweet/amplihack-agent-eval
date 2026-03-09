@@ -1,219 +1,190 @@
-# Azure Hive Q&A Eval Tutorial
+# Running Distributed Eval on Azure
 
-This tutorial explains how to run a Q&A evaluation against the **live Azure
-Hive Mind** — 20 agents deployed as Azure Container Apps, sharing knowledge
-via a distributed hash table (DHT) over Azure Service Bus.
+This guide covers how to deploy a distributed hive mind to Azure, feed it
+content, and run a Q&A evaluation against the live agents.
 
-## What This Eval Does
+## Architecture Overview
 
-`query_hive.py` sends a `network_graph.search_query` event to the live hive
-via the Service Bus topic `hive-graph`. Each running agent receives the query,
-searches its local knowledge shard, and publishes a `network_graph.search_response`
-back. The eval script collects these responses and scores them against expected
-keywords.
+The distributed eval deploys N agents as Azure Container Apps. Each agent holds
+a shard of the distributed knowledge graph (DistributedHiveGraph). Agents
+communicate via Azure Service Bus topics. The eval script sends questions as
+events and collects answers from Log Analytics.
 
 ```
-query_hive.py ──publishes──► hive-graph topic
-                                     │
-                    ┌────────────────┼────────────────┐
-                    ▼                ▼                ▼
-              agent-0 sub      agent-1 sub   …  agent-19 sub
-              (Container App)  (Container App)   (Container App)
-                    │                │                │
-                    └────────────────┼────────────────┘
-                                     ▼
-                          eval-query-agent sub
-                          (responses collected here)
+feed_content.py ──publishes──► Service Bus topic (hive-events)
+                                       │
+                      ┌────────────────┼────────────────┐
+                      ▼                ▼                ▼
+                agent-0 sub      agent-1 sub   …  agent-N sub
+                (Container App)  (Container App)   (Container App)
+                      │                │                │
+                      └────────────────┼────────────────┘
+                                       ▼
+                            query_hive.py collects
+                            answers from Log Analytics
 ```
 
 ## Prerequisites
 
-```bash
-# Install the azure-servicebus SDK
-pip install azure-servicebus
+- **Azure CLI** authenticated (`az login`)
+- **ANTHROPIC_API_KEY** set in your environment
+- **Docker** daemon running (for image build)
+- **amplihack** repo cloned with `.venv` activated
+- **azure-servicebus** Python package installed (`pip install azure-servicebus`)
 
-# Clone the amplihack repo on the feat/distributed-hive-mind branch
-git clone https://github.com/rysweet/amplihack5 /path/to/amplihack
-cd /path/to/amplihack
-git checkout feat/distributed-hive-mind
-```
-
-The live hive is already deployed in Azure resource group `hive-mind-rg`.
-No Azure credentials are required to query it — the connection string is
-embedded in `query_hive.py` as a default.
-
-To use your own hive, set:
+## Step 1: Deploy Agents
 
 ```bash
-export HIVE_CONNECTION_STRING="Endpoint=sb://YOUR-NS.servicebus.windows.net/;..."
-export HIVE_TOPIC="hive-graph"
-export HIVE_SUBSCRIPTION="eval-query-agent"
-export HIVE_TIMEOUT="10"
+export ANTHROPIC_API_KEY="$(cat ~/.msec-k)"  # or your key source
+
+HIVE_NAME=amplihive \
+HIVE_RESOURCE_GROUP=hive-mind-rg \
+HIVE_LOCATION=westus2 \
+HIVE_AGENT_COUNT=100 \
+HIVE_AGENTS_PER_APP=5 \
+HIVE_AGENT_MODEL=claude-sonnet-4-6 \
+bash deploy/azure_hive/deploy.sh
 ```
 
-## Running the Built-In Q&A Eval
+This provisions:
+
+- Resource group and Azure Container Registry (ACR)
+- Azure Service Bus namespace, topic, and per-agent subscriptions
+- Container Apps Environment
+- N Container Apps (`ceil(HIVE_AGENT_COUNT / HIVE_AGENTS_PER_APP)` apps)
+
+To check deployment status:
 
 ```bash
-cd /path/to/amplihack
-
-# Run all 15 questions, print results to stdout
-python experiments/hive_mind/query_hive.py --run-eval
-
-# Write results to JSON
-python experiments/hive_mind/query_hive.py --run-eval --output results.json
-
-# Adjust timeout if agents are slow to respond
-python experiments/hive_mind/query_hive.py --run-eval --timeout 15
+bash deploy/azure_hive/deploy.sh --status
 ```
 
-### Example Output
+## Step 2: Feed Content
 
-```
-======================================================================
-LIVE AZURE HIVE Q&A EVAL
-Hive: hive-sb / topic: hive-graph
-Questions: 15
-Timeout per query: 10s
-======================================================================
+Retrieve the Service Bus connection string and feed dialogue turns to the hive:
 
-Domain               Hit   Results  | Question
-----------------------------------------------------------------------
-  biology            HIT   7 results | What are cells made of?
-  biology            HIT   5 results | How does DNA store information?
-  biology            MISS  0 results | What do enzymes do?
-  chemistry          HIT   8 results | What is the structure of water?
-  ...
+```bash
+SB_CONN=$(az servicebus namespace authorization-rule keys list \
+  -g hive-mind-rg \
+  --namespace-name <YOUR-SB-NAMESPACE> \
+  --name RootManageSharedAccessKey \
+  --query primaryConnectionString -o tsv)
 
-======================================================================
-RESULTS
-======================================================================
-  Overall:   11/15 (73.3%)
-
-  By domain:
-    biology             : 2/3 (67%)
-    chemistry           : 3/3 (100%)
-    computer_science    : 2/3 (67%)
-    mathematics         : 2/3 (67%)
-    physics             : 2/3 (67%)
-
-  Total time: 38.42s
-======================================================================
+AMPLIHACK_MEMORY_CONNECTION_STRING="$SB_CONN" \
+AMPLIHACK_TOPIC_NAME="hive-events" \
+python deploy/azure_hive/feed_content.py --turns 5000
 ```
 
-## Running a Single Query
+Replace `<YOUR-SB-NAMESPACE>` with the Service Bus namespace created by the
+deploy script (visible in `--status` output).
+
+## Step 3: Wait for Processing
+
+Poll Log Analytics to confirm agents are processing content:
+
+```bash
+LA_ID=$(az monitor log-analytics workspace list \
+  -g hive-mind-rg \
+  --query "[0].customerId" -o tsv)
+
+az monitor log-analytics query -w "$LA_ID" \
+  --analytics-query "ContainerAppConsoleLogs_CL | where TimeGenerated > ago(2m) | where Log_s has 'Completed Call' | count"
+```
+
+Wait until the count stops increasing, indicating agents have finished
+processing all turns.
+
+## Step 4: Run Eval
 
 ```bash
 python experiments/hive_mind/query_hive.py \
-    --query "What is Newton's second law?" \
-    --timeout 10
-
-# Output:
-# Querying live hive: "What is Newton's second law?"
-# Results (3):
-#   1. [0.97] F equals ma is Newton's second law
-#        concept: mechanics
-#        source:  agent-7
+  --ooda-eval \
+  --repeats 1 \
+  --connection-string "$SB_CONN" \
+  --workspace-id "$LA_ID" \
+  --topic hive-events \
+  --answer-wait 600 \
+  --output results.json
 ```
 
-## Q&A Eval Dataset
+### Alternative: Run the keyword-match eval
 
-The built-in eval covers 15 questions across 5 domains (3 per domain):
-
-| Domain | Questions |
-|---|---|
-| biology | cells, DNA, enzymes |
-| chemistry | water structure, covalent bonds, pH |
-| physics | Newton's 2nd law, speed of light, E=mc² |
-| mathematics | Pythagorean theorem, derivatives, Pi |
-| computer_science | binary search complexity, ACID, CAP theorem |
-
-Each question is scored by keyword matching: a hit requires **all expected
-keywords** to appear in at least one result from the hive.
-
-## Scoring
-
-The eval uses a binary keyword-match scoring scheme:
-
-- **Hit**: at least one returned fact contains all expected keywords
-- **Miss**: no returned fact contains all expected keywords
-
-Overall accuracy = `hits / total_questions`.
-
-## Understanding the Results
-
-### Why Do MISS Results Occur?
-
-1. **Agent asleep**: Azure Container Apps scale to zero after inactivity. The
-   Container App runtime needs time to wake up (cold start ~30s).
-2. **Shard miss**: The query hit the wrong shard owners (DHT routing is based
-   on keyword hashing, not semantic similarity).
-3. **Knowledge gap**: The specific fact was not promoted to the shared hive
-   (it may be in local Kuzu memory only).
-4. **Timeout too short**: Increase `--timeout` if agents need more time.
-
-### Waking Up Agents
-
-If agents are cold-started (zero instances), send a warmup query first:
+For a faster sanity check using keyword matching instead of LLM grading:
 
 ```bash
-# Warmup query — agents will start responding within 30s
-python experiments/hive_mind/query_hive.py --query "warmup" --timeout 30
-
-# Then run the eval
-python experiments/hive_mind/query_hive.py --run-eval --timeout 15
+python experiments/hive_mind/query_hive.py \
+  --seed --run-eval \
+  --connection-string "$SB_CONN" \
+  --topic hive-events \
+  --output results.json
 ```
 
-## Adding Custom Questions
+### Run eval multiple times for statistical stability
 
-Edit `QA_EVAL_DATASET` in `query_hive.py`:
-
-```python
-QA_EVAL_DATASET = [
-    # (domain, question, expected_keywords)
-    ("my_domain", "What is X?", ["keyword1", "keyword2"]),
-    ...
-]
+```bash
+python experiments/hive_mind/query_hive.py \
+  --ooda-eval \
+  --repeats 3 \
+  --connection-string "$SB_CONN" \
+  --workspace-id "$LA_ID" \
+  --topic hive-events \
+  --answer-wait 600 \
+  --output results.json
 ```
 
-Or pass a custom dataset programmatically:
+## Step 5: Cleanup
 
-```python
-from experiments.hive_mind.query_hive import HiveQueryClient, _score_response
+Remove all Azure resources when done:
 
-client = HiveQueryClient(timeout=10)
-results = client.query("What is Newton's second law?")
-hit = _score_response(results, ["F", "ma"])
-client.close()
+```bash
+bash deploy/azure_hive/deploy.sh --cleanup
 ```
 
-## Architecture Reference
+Or delete the resource group directly:
 
-| Component | Value |
-|---|---|
-| Azure resource group | `hive-mind-rg` |
-| Service Bus namespace | See `HIVE_CONNECTION_STRING` env var |
-| Topic | `hive-graph` |
-| Eval subscription | `eval-query-agent` |
-| Agent subscriptions | `agent-0` … `agent-19` |
-| Agent containers | `amplihive-app-0` … `amplihive-app-19` |
-| Knowledge shard backend | In-memory DHT (DistributedHiveGraph) |
-| Query protocol | `network_graph.search_query` / `network_graph.search_response` |
+```bash
+az group delete -n hive-mind-rg --yes
+```
 
-## Related Documentation
+## Key Environment Variables
 
-- `docs/hive-mind-eval.md` — Hive Mind eval strategy and full topology guide
-- `experiments/hive_mind/query_hive.py` — The query/eval script
-- `experiments/hive_mind/deploy_azure_hive.sh` — Azure deployment script
-- `src/amplihack/memory/network_store.py` — NetworkGraphStore protocol
-- `src/amplihack/agents/goal_seeking/hive_mind/event_bus.py` — Event bus
-- `docs/distributed_hive_mind.md` — Distributed hive architecture
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HIVE_NAME` | Hive deployment name | `amplihive` |
+| `HIVE_RESOURCE_GROUP` | Azure resource group | `hive-mind-rg` |
+| `HIVE_LOCATION` | Azure region | `westus2` |
+| `HIVE_AGENT_COUNT` | Total number of agents | `5` |
+| `HIVE_AGENTS_PER_APP` | Agents per Container App | `5` |
+| `HIVE_AGENT_MODEL` | LLM model for agents | `claude-sonnet-4-6` |
+| `HIVE_TRANSPORT` | Transport type | `azure_service_bus` |
+| `AMPLIHACK_TOPIC_NAME` | Service Bus topic name | `hive-events` |
+| `AMPLIHACK_MEMORY_CONNECTION_STRING` | Service Bus connection string | -- |
+| `LOG_ANALYTICS_WORKSPACE_ID` | Log Analytics workspace GUID | -- |
+| `OODA_ANSWER_WAIT` | Eval answer timeout in seconds | `600` |
 
 ## Troubleshooting
 
 | Symptom | Fix |
-|---|---|
-| `0 results` on all queries | Agents are cold-started — send warmup first |
-| `ImportError: azure-servicebus` | `pip install azure-servicebus` |
-| Timeout errors in JSON output | Increase `--timeout` to 15-30s |
-| Subscription not found | Re-run `az servicebus topic subscription create ...` |
-| All MISS, even warmup | Check `az containerapp revision list --name amplihive-app-0 --resource-group hive-mind-rg` |
+|---------|-----|
+| Rate limits (429 errors) | Agents retry with exponential backoff (2-32s). If persistent, reduce `HIVE_AGENT_COUNT` or use a smaller model (e.g., Sonnet instead of Opus). |
+| Service Bus auth errors | Ensure topic name matches agent config (`hive-events`). Verify connection string has `Send` and `Listen` claims. |
+| Missing answers in eval | Check Log Analytics for ANSWER entries. Increase `--answer-wait` beyond 600s for large deployments. |
+| `0 results` on all queries | Agents may be cold-started (Azure Container Apps scale to zero). Send a warmup query first or check `az containerapp revision list`. |
+| Subscription not found | Verify the eval subscription exists: `az servicebus topic subscription list --resource-group hive-mind-rg --namespace-name <ns> --topic-name hive-events` |
+| Deploy script fails | Ensure Docker daemon is running and `az login` is current. Check `deploy.sh --status` for partial deployments. |
+
+## Deploy Script Options
+
+```bash
+bash deploy/azure_hive/deploy.sh                 # Deploy everything
+bash deploy/azure_hive/deploy.sh --build-only    # Build + push image only
+bash deploy/azure_hive/deploy.sh --infra-only    # Provision infra only
+bash deploy/azure_hive/deploy.sh --cleanup       # Tear down resource group
+bash deploy/azure_hive/deploy.sh --status        # Show deployment status
+```
+
+## Related Documentation
+
+- [Hive Mind Eval Strategy](hive-mind-eval.md) -- Topology comparison and scoring methodology
+- [Running Evals Quick Start](running-evals.md) -- All eval types in one page
+- [Long-Horizon Memory Eval](LONG_HORIZON_EVAL.md) -- Single-agent eval details

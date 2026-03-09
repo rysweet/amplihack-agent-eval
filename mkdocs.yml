@@ -47,8 +47,14 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Architecture: architecture.md
-  - Evaluation Levels: levels.md
-  - Writing Adapters: adapters.md
-  - Self-Improvement Loop: self-improvement.md
-  - Multi-Agent Eval: multi-agent-eval.md
+  - Running Evals: running-evals.md
+  - Eval Guides:
+    - Long-Horizon Memory: LONG_HORIZON_EVAL.md
+    - Hive Mind Strategy: hive-mind-eval.md
+    - Distributed Eval on Azure: azure-hive-qa-eval.md
+  - Framework:
+    - Architecture: architecture.md
+    - Evaluation Levels: levels.md
+    - Writing Adapters: adapters.md
+    - Self-Improvement Loop: self-improvement.md
+    - Multi-Agent Eval: multi-agent-eval.md
