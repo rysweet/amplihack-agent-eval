@@ -13,6 +13,10 @@
         <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/LONG_HORIZON_EVAL/">
       
       
+        <link rel="prev" href="../running-evals/">
+      
+      
+        <link rel="next" href="../hive-mind-eval/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>Long-Horizon Memory Evaluation - amplihack-agent-eval</title>
+        <title>Long-Horizon Memory - amplihack-agent-eval</title>
       
     
     
@@ -110,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Long-Horizon Memory Evaluation
+              Long-Horizon Memory
             
           </span>
         </div>
@@ -283,14 +287,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../running-evals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Architecture
+    Running Evals
   
 
     
@@ -307,122 +311,108 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../levels/" class="md-nav__link">
+  
+    
+    
+    
+    
+      
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Evaluation Levels
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../adapters/" class="md-nav__link">
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Writing Adapters
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
       
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../self-improvement/" class="md-nav__link">
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Self-Improvement Loop
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../multi-agent-eval/" class="md-nav__link">
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Multi-Agent Eval
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
-                </div>
-              </div>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eval Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Eval Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long-Horizon Memory
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long-Horizon Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
 
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
@@ -445,6 +435,45 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-single-agent-eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Single-Agent Eval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -654,10 +683,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#13-15-additional-categories-generated-from-blocks" class="md-nav__link">
+  <a href="#13-15-additional-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        13-15. Additional Categories (generated from blocks)
+        13-15. Additional Categories
       
     </span>
   </a>
@@ -697,17 +726,6 @@
     <span class="md-ellipsis">
       
         Multi-Vote Stability
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dimension-weights" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dimension Weights
       
     </span>
   </a>
@@ -758,17 +776,6 @@
     <span class="md-ellipsis">
       
         Reading the Category Breakdown
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dimension-averages" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dimension Averages
       
     </span>
   </a>
@@ -854,10 +861,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#skip-the-4-hour-learning-phase" class="md-nav__link">
+  <a href="#skip-the-learning-phase" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Skip the 4+ Hour Learning Phase
+        Skip the Learning Phase
       
     </span>
   </a>
@@ -865,10 +872,802 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#available-datasets" class="md-nav__link">
+  <a href="#download-and-use" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Datasets
+        Download and Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#programmatic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programmatic Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataset-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataset Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cli-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#programmatic-usage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Programmatic Usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hive-mind-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Mind Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../azure-hive-qa-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Eval on Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation Levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-improvement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-Improvement Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Agent Eval
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-it-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What It Tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-single-agent-eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Single-Agent Eval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-dialogue-generation-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Dialogue Generation Works
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How Dialogue Generation Works">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministic-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic Generation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-12-information-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 12 Information Blocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#block-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Block Details
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ground-truth-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ground Truth Tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-15-question-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 15 Question Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The 15 Question Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-needle_in_haystack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. needle_in_haystack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-temporal_evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. temporal_evolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-numerical_precision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. numerical_precision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-source_attribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. source_attribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-cross_reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. cross_reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-distractor_resistance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. distractor_resistance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-meta_memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. meta_memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-security_log_analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. security_log_analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-incident_tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. incident_tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-infrastructure_knowledge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. infrastructure_knowledge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-problem_solving" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. problem_solving
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-multi_hop_reasoning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. multi_hop_reasoning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-15-additional-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13-15. Additional Categories
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-grading-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Grading System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Grading System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hybrid-deterministic-llm-grading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hybrid Deterministic + LLM Grading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-vote-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Vote Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scoring-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scoring Scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-interpret-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Interpret Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to Interpret Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-evalreport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The EvalReport
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-the-category-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the Category Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-worst-5-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Worst 5 Questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Characteristics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Characteristics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grading-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grading Costs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-built-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-built Datasets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-built Datasets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#skip-the-learning-phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skip the Learning Phase
       
     </span>
   </a>
@@ -957,163 +1756,202 @@
 
 <h1 id="long-horizon-memory-evaluation">Long-Horizon Memory Evaluation<a class="headerlink" href="#long-horizon-memory-evaluation" title="Permanent link">&para;</a></h1>
 <h2 id="what-it-tests">What It Tests<a class="headerlink" href="#what-it-tests" title="Permanent link">&para;</a></h2>
-<p>The long-horizon memory evaluation is a stress test for AI agent memory systems. It generates a structured dialogue of up to 5000 turns, feeds each turn to the agent's <code>learn()</code> method, then quizzes the agent on details from various points in the conversation. The goal is to measure how well an agent retains, organizes, and retrieves information at scale -- far beyond what fits in a single context window.</p>
-<p>Key capabilities tested:
-- <strong>Needle-in-haystack retrieval</strong>: Finding specific facts buried among thousands of turns
-- <strong>Temporal evolution tracking</strong>: Understanding how values change over time
-- <strong>Numerical precision</strong>: Exact recall of numbers, percentages, and metrics
-- <strong>Source attribution</strong>: Correctly attributing facts to their original sources
-- <strong>Cross-referencing</strong>: Connecting facts across different information blocks
-- <strong>Distractor resistance</strong>: Ignoring irrelevant information when answering
-- <strong>Meta-memory</strong>: Reasoning about what the agent knows (and does not know)
-- <strong>Security log analysis</strong>: Detecting patterns and anomalies in structured logs
-- <strong>Incident tracking</strong>: Following evolving incident timelines
-- <strong>Infrastructure knowledge</strong>: Recalling configuration details
-- <strong>Problem solving</strong>: Applying stored knowledge to solve new problems
-- <strong>Multi-hop reasoning</strong>: Chaining multiple facts to answer complex questions</p>
+<p>The long-horizon memory evaluation is a stress test for AI agent memory systems.
+It generates a structured dialogue of up to 5000 turns, feeds each turn to the
+agent's <code>learn()</code> method, then quizzes the agent on details from various points
+in the conversation. The goal is to measure how well an agent retains, organizes,
+and retrieves information at scale -- far beyond what fits in a single context
+window.</p>
+<p>Key capabilities tested:</p>
+<ul>
+<li><strong>Needle-in-haystack retrieval</strong>: Finding specific facts buried among thousands of turns</li>
+<li><strong>Temporal evolution tracking</strong>: Understanding how values change over time</li>
+<li><strong>Numerical precision</strong>: Exact recall of numbers, percentages, and metrics</li>
+<li><strong>Source attribution</strong>: Correctly attributing facts to their original sources</li>
+<li><strong>Cross-referencing</strong>: Connecting facts across different information blocks</li>
+<li><strong>Distractor resistance</strong>: Ignoring irrelevant information when answering</li>
+<li><strong>Meta-memory</strong>: Reasoning about what the agent knows (and does not know)</li>
+<li><strong>Security log analysis</strong>: Detecting patterns and anomalies in structured logs</li>
+<li><strong>Incident tracking</strong>: Following evolving incident timelines</li>
+<li><strong>Infrastructure knowledge</strong>: Recalling configuration details</li>
+<li><strong>Problem solving</strong>: Applying stored knowledge to solve new problems</li>
+<li><strong>Multi-hop reasoning</strong>: Chaining multiple facts to answer complex questions</li>
+</ul>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="run-single-agent-eval">Run Single-Agent Eval<a class="headerlink" href="#run-single-agent-eval" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">300</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>--model<span class="w"> </span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--grader-model<span class="w"> </span>claude-haiku-4-5-20251001<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>/tmp/eval-results
+</code></pre></div>
+<h3 id="common-options">Common Options<a class="headerlink" href="#common-options" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Small smoke test</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Large-scale stress test</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">200</span><span class="w"> </span>--grader-votes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Large-scale with subprocess segmentation (prevents OOM on 5000+ turns)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--segment-size<span class="w"> </span><span class="m">100</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Parallel workers for faster learning phase</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">100</span><span class="w"> </span>--parallel-workers<span class="w"> </span><span class="m">10</span>
+</code></pre></div>
 <h2 id="how-dialogue-generation-works">How Dialogue Generation Works<a class="headerlink" href="#how-dialogue-generation-works" title="Permanent link">&para;</a></h2>
 <h3 id="deterministic-generation">Deterministic Generation<a class="headerlink" href="#deterministic-generation" title="Permanent link">&para;</a></h3>
-<p>All dialogue content is template-based. No LLM is needed for data generation. The same seed always produces identical output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval.data.long_horizon</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_dialogue</span><span class="p">,</span> <span class="n">generate_questions</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">gt</span> <span class="o">=</span> <span class="n">generate_dialogue</span><span class="p">(</span><span class="n">num_turns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>   <span class="c1"># Deterministic</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">questions</span> <span class="o">=</span> <span class="n">generate_questions</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">num_questions</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<p>All dialogue content is template-based. No LLM is needed for data generation.
+The same seed always produces identical output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval.data.long_horizon</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_dialogue</span><span class="p">,</span> <span class="n">generate_questions</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">gt</span> <span class="o">=</span> <span class="n">generate_dialogue</span><span class="p">(</span><span class="n">num_turns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>   <span class="c1"># Deterministic</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">questions</span> <span class="o">=</span> <span class="n">generate_questions</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">num_questions</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="the-12-information-blocks">The 12 Information Blocks<a class="headerlink" href="#the-12-information-blocks" title="Permanent link">&para;</a></h3>
-<p>The dialogue is divided into 12 thematic blocks, each allocated a proportional range of the total turns. For a 5000-turn dialogue:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Block  1: People              (turns    1-  250,  5%)  -- personal details, preferences
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Block  2: Projects            (turns  251-  750, 10%)  -- project updates with changes
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Block  3: Technical           (turns  751- 1250, 10%)  -- technical facts across 9 domains
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Block  4: Evolving Story      (turns 1251- 2000, 15%)  -- story with corrections/updates
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Block  5: Numerical           (turns 2001- 2500, 10%)  -- precise metrics and KPIs
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Block  6: Contradictory       (turns 2501- 2900,  8%)  -- conflicting reports from sources
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Block  7: Callbacks           (turns 2901- 3200,  6%)  -- references back to earlier blocks
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>Block  8: Distractors         (turns 3201- 3500,  6%)  -- irrelevant fun facts
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>Block  9: Security Logs       (turns 3501- 4000, 10%)  -- structured security events
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>Block 10: Incidents           (turns 4001- 4400,  8%)  -- incident reports with status updates
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>Block 11: Infrastructure      (turns 4401- 4750,  7%)  -- server/network inventory
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>Block 12: Problem Solving     (turns 4751- 5000,  5%)  -- problem descriptions with solutions
+<p>The dialogue is divided into 12 thematic blocks, each allocated a proportional
+range of the total turns. For a 5000-turn dialogue:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Block  1: People              (turns    1-  250,  5%)  -- personal details, preferences
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Block  2: Projects            (turns  251-  750, 10%)  -- project updates with changes
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Block  3: Technical           (turns  751- 1250, 10%)  -- technical facts across 9 domains
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Block  4: Evolving Story      (turns 1251- 2000, 15%)  -- story with corrections/updates
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Block  5: Numerical           (turns 2001- 2500, 10%)  -- precise metrics and KPIs
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Block  6: Contradictory       (turns 2501- 2900,  8%)  -- conflicting reports from sources
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>Block  7: Callbacks           (turns 2901- 3200,  6%)  -- references back to earlier blocks
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>Block  8: Distractors         (turns 3201- 3500,  6%)  -- irrelevant fun facts
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>Block  9: Security Logs       (turns 3501- 4000, 10%)  -- structured security events
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>Block 10: Incidents           (turns 4001- 4400,  8%)  -- incident reports with status updates
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>Block 11: Infrastructure      (turns 4401- 4750,  7%)  -- server/network inventory
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>Block 12: Problem Solving     (turns 4751- 5000,  5%)  -- problem descriptions with solutions
 </code></pre></div>
 <p>Turn counts scale linearly. A 100-turn dialogue uses 1/50th of each range.</p>
 <h3 id="block-details">Block Details<a class="headerlink" href="#block-details" title="Permanent link">&para;</a></h3>
-<p><strong>Block 1: People</strong> -- 10 team members with detailed personal profiles (name, birthday, allergy, hobby, role, team, pet, hometown, favorite food, degree). Each person's facts are delivered across multiple turns with natural-language context.</p>
-<p><strong>Block 2: Projects</strong> -- 5 projects (Atlas, Beacon, Cascade, Delta, Echo) each with initial descriptions and a series of updates that change deadlines, budgets, team sizes, and project leads at specific turn offsets. This tests temporal evolution tracking.</p>
-<p><strong>Block 3: Technical</strong> -- Facts from 9 technical domains: programming, security, databases, cloud, ML/AI, DevOps, architecture, frontend. Each fact is a standalone technical statement (e.g., "PostgreSQL 16 improved parallel query performance by 40%").</p>
-<p><strong>Block 4: Evolving Story</strong> -- A multi-chapter narrative about a startup's journey with deliberate corrections and updates. Tests the agent's ability to track the most current version of facts.</p>
-<p><strong>Block 5: Numerical</strong> -- 30 precise metrics (Q1 revenue, server uptime, test coverage, API response times, etc.) with specific values and context details. Tests numerical precision.</p>
-<p><strong>Block 6: Contradictory</strong> -- 8 topics where 2-3 different sources provide conflicting claims (e.g., Q3 revenue: Finance says $5.2M, Auditor says $4.8M, Board says $5.0M). Tests the agent's ability to acknowledge and reason about contradictions.</p>
-<p><strong>Block 7: Callbacks</strong> -- References back to facts from earlier blocks, creating cross-references that require connecting information across different topics.</p>
-<p><strong>Block 8: Distractors</strong> -- 30 irrelevant fun facts (e.g., "Octopuses have three hearts and blue blood") designed to test whether the agent can filter relevant from irrelevant information.</p>
-<p><strong>Block 9: Security Logs</strong> -- Structured security events with timestamps, source IPs, event types, users, and severity levels. Includes attack patterns (brute force SSH, SQL injection, data exfiltration, C2 communication) that require pattern recognition.</p>
-<p><strong>Block 10: Incidents</strong> -- Incident reports with evolving status updates (open -&gt; investigating -&gt; identified -&gt; resolved). Each incident has a timeline of events that tests temporal tracking.</p>
-<p><strong>Block 11: Infrastructure</strong> -- Server and network inventory with detailed specifications (CPU, RAM, storage, OS, location, uptime).</p>
-<p><strong>Block 12: Problem Solving</strong> -- Problem descriptions paired with solutions, testing the agent's ability to recall and apply stored problem-solving knowledge.</p>
+<p><strong>Block 1: People</strong> -- 10 team members with detailed personal profiles (name,
+birthday, allergy, hobby, role, team, pet, hometown, favorite food, degree). Each
+person's facts are delivered across multiple turns with natural-language context.</p>
+<p><strong>Block 2: Projects</strong> -- 5 projects (Atlas, Beacon, Cascade, Delta, Echo) each
+with initial descriptions and a series of updates that change deadlines, budgets,
+team sizes, and project leads at specific turn offsets. This tests temporal
+evolution tracking.</p>
+<p><strong>Block 3: Technical</strong> -- Facts from 9 technical domains: programming, security,
+databases, cloud, ML/AI, DevOps, architecture, frontend. Each fact is a standalone
+technical statement.</p>
+<p><strong>Block 4: Evolving Story</strong> -- A multi-chapter narrative about a startup's journey
+with deliberate corrections and updates. Tests the agent's ability to track the
+most current version of facts.</p>
+<p><strong>Block 5: Numerical</strong> -- 30 precise metrics (Q1 revenue, server uptime, test
+coverage, API response times, etc.) with specific values and context details.
+Tests numerical precision.</p>
+<p><strong>Block 6: Contradictory</strong> -- 8 topics where 2-3 different sources provide
+conflicting claims. Tests the agent's ability to acknowledge and reason about
+contradictions.</p>
+<p><strong>Block 7: Callbacks</strong> -- References back to facts from earlier blocks, creating
+cross-references that require connecting information across different topics.</p>
+<p><strong>Block 8: Distractors</strong> -- 30 irrelevant fun facts designed to test whether the
+agent can filter relevant from irrelevant information.</p>
+<p><strong>Block 9: Security Logs</strong> -- Structured security events with timestamps, source
+IPs, event types, users, and severity levels. Includes attack patterns that
+require pattern recognition.</p>
+<p><strong>Block 10: Incidents</strong> -- Incident reports with evolving status updates
+(open -&gt; investigating -&gt; identified -&gt; resolved). Each incident has a timeline
+of events that tests temporal tracking.</p>
+<p><strong>Block 11: Infrastructure</strong> -- Server and network inventory with detailed
+specifications (CPU, RAM, storage, OS, location, uptime).</p>
+<p><strong>Block 12: Problem Solving</strong> -- Problem descriptions paired with solutions,
+testing the agent's ability to recall and apply stored problem-solving knowledge.</p>
 <h3 id="ground-truth-tracking">Ground Truth Tracking<a class="headerlink" href="#ground-truth-tracking" title="Permanent link">&para;</a></h3>
 <p>Every fact delivered to the agent is tracked in a <code>GroundTruth</code> structure:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">GroundTruth</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">turns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Turn</span><span class="p">]</span>                           <span class="c1"># All dialogue turns</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">facts_by_entity</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span>      <span class="c1"># Facts indexed by entity name</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">current_values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>              <span class="c1"># Latest value for each entity</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">superseded_values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span>    <span class="c1"># Historical values with timestamps</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">GroundTruth</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">turns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Turn</span><span class="p">]</span>                           <span class="c1"># All dialogue turns</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">facts_by_entity</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span>      <span class="c1"># Facts indexed by entity name</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">current_values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>              <span class="c1"># Latest value for each entity</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">superseded_values</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span>    <span class="c1"># Historical values with timestamps</span>
 </code></pre></div>
-<p>Each <code>Turn</code> records:
-- <code>turn_number</code> -- position in the dialogue
-- <code>content</code> -- the text delivered to the agent
-- <code>block</code> -- which block (1-12) this turn belongs to
-- <code>block_name</code> -- human-readable block name
-- <code>facts</code> -- list of ground truth facts delivered in this turn</p>
+<p>Each <code>Turn</code> records:</p>
+<ul>
+<li><code>turn_number</code> -- position in the dialogue</li>
+<li><code>content</code> -- the text delivered to the agent</li>
+<li><code>block</code> -- which block (1-12) this turn belongs to</li>
+<li><code>block_name</code> -- human-readable block name</li>
+<li><code>facts</code> -- list of ground truth facts delivered in this turn</li>
+</ul>
 <h2 id="the-15-question-categories">The 15 Question Categories<a class="headerlink" href="#the-15-question-categories" title="Permanent link">&para;</a></h2>
-<p>Questions are generated from the ground truth data. Each question has an expected answer, relevant turn numbers, scoring dimensions, and an optional deterministic grading rubric.</p>
+<p>Questions are generated from the ground truth data. Each question has an expected
+answer, relevant turn numbers, scoring dimensions, and an optional deterministic
+grading rubric.</p>
 <h3 id="1-needle_in_haystack">1. <code>needle_in_haystack</code><a class="headerlink" href="#1-needle_in_haystack" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Direct recall of specific facts from a single source among many turns.</p>
 <p><strong>Example</strong>: "What is Sarah Chen's allergy?" (Expected: "shellfish")</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: The most fundamental memory capability. If an agent cannot find a specific fact in its memory, nothing else works.</p>
 <h3 id="2-temporal_evolution">2. <code>temporal_evolution</code><a class="headerlink" href="#2-temporal_evolution" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Tracking how values change over time, including computing differences.</p>
-<p><strong>Example</strong>: "What is the current deadline for Project Atlas, and how many times has it changed?" (Expected: "September 20, changed twice: June 15 -&gt; August 3 -&gt; September 20")</p>
+<p><strong>Example</strong>: "What is the current deadline for Project Atlas, and how many times has it changed?"</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>temporal_awareness</code></p>
-<p><strong>Why it matters</strong>: Real-world information evolves constantly. Agents must track the current state while being aware of historical changes.</p>
 <h3 id="3-numerical_precision">3. <code>numerical_precision</code><a class="headerlink" href="#3-numerical_precision" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Exact recall of numbers, percentages, and metrics.</p>
-<p><strong>Example</strong>: "What is the Q1 revenue and how does it compare to the forecast?" (Expected: "$4.7M, 12% above forecast of $4.2M")</p>
+<p><strong>Example</strong>: "What is the Q1 revenue and how does it compare to the forecast?"</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: Approximate recall is insufficient for financial data, metrics, and technical specifications.</p>
 <h3 id="4-source_attribution">4. <code>source_attribution</code><a class="headerlink" href="#4-source_attribution" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Correctly attributing claims to their original sources, especially when multiple sources discuss the same topic.</p>
-<p><strong>Example</strong>: "According to the Finance Department, what is Q3 revenue?" (Expected: "$5.2M, includes deferred revenue")</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>source_attribution</code></p>
-<p><strong>Why it matters</strong>: In environments with multiple information sources, knowing who said what is as important as knowing the facts themselves.</p>
 <h3 id="5-cross_reference">5. <code>cross_reference</code><a class="headerlink" href="#5-cross_reference" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Connecting facts across different information blocks.</p>
-<p><strong>Example</strong>: "Sarah Chen leads Project Atlas. What is her educational background?" (requires connecting Block 2 project data with Block 1 people data)</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: Real-world knowledge is interconnected. Agents must link related facts across different contexts.</p>
 <h3 id="6-distractor_resistance">6. <code>distractor_resistance</code><a class="headerlink" href="#6-distractor_resistance" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Answering questions accurately while ignoring irrelevant information.</p>
-<p><strong>Example</strong>: "What is the company's Q1 revenue? Note: do not confuse with the fact that honey never spoils." (Expected: "$4.7M")</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>confidence_calibration</code></p>
-<p><strong>Why it matters</strong>: Memory systems that retrieve by similarity can be fooled by distractors. This tests precision of retrieval.</p>
 <h3 id="7-meta_memory">7. <code>meta_memory</code><a class="headerlink" href="#7-meta_memory" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: The agent's awareness of what it knows and does not know.</p>
-<p><strong>Example</strong>: "How many distinct people have you been told about?" (Expected: count of people from Block 1)</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>confidence_calibration</code></p>
-<p><strong>Why it matters</strong>: Agents that can reason about their own knowledge are more reliable and trustworthy.</p>
 <h3 id="8-security_log_analysis">8. <code>security_log_analysis</code><a class="headerlink" href="#8-security_log_analysis" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Pattern recognition in structured security event data.</p>
-<p><strong>Example</strong>: "What IP address was involved in the brute force SSH attack?" (Expected: "192.168.1.45")</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: Security analysis requires precise recall of structured data including IPs, timestamps, and event sequences.</p>
 <h3 id="9-incident_tracking">9. <code>incident_tracking</code><a class="headerlink" href="#9-incident_tracking" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Following incident timelines and status evolution.</p>
-<p><strong>Example</strong>: "What is the current status of Incident INC-001, and when was the root cause identified?"</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>temporal_awareness</code></p>
-<p><strong>Why it matters</strong>: Incident management requires tracking evolving states across multiple updates.</p>
 <h3 id="10-infrastructure_knowledge">10. <code>infrastructure_knowledge</code><a class="headerlink" href="#10-infrastructure_knowledge" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Recall of technical infrastructure details.</p>
-<p><strong>Example</strong>: "What is the CPU specification of server web-prod-01?" (Expected: specific CPU model and specs)</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: Infrastructure queries require exact recall of configuration details.</p>
 <h3 id="11-problem_solving">11. <code>problem_solving</code><a class="headerlink" href="#11-problem_solving" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Recalling stored problem-solution pairs and applying them.</p>
-<p><strong>Example</strong>: "A user reports their application is running slowly after a deployment. What was the recommended diagnostic approach?"</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: The ultimate purpose of stored knowledge is application to solve problems.</p>
 <h3 id="12-multi_hop_reasoning">12. <code>multi_hop_reasoning</code><a class="headerlink" href="#12-multi_hop_reasoning" title="Permanent link">&para;</a></h3>
 <p><strong>What it tests</strong>: Chaining multiple facts to answer a question that requires 2+ retrieval steps.</p>
-<p><strong>Example</strong>: "The lead of Project Echo was recently changed. What team is the new lead originally from?" (requires: Echo's new lead -&gt; that person's team)</p>
 <p><strong>Scoring dimensions</strong>: <code>factual_accuracy</code>, <code>specificity</code></p>
-<p><strong>Why it matters</strong>: Complex questions rarely have answers in a single fact. Multi-hop reasoning tests the agent's ability to compose knowledge.</p>
-<h3 id="13-15-additional-categories-generated-from-blocks">13-15. Additional Categories (generated from blocks)<a class="headerlink" href="#13-15-additional-categories-generated-from-blocks" title="Permanent link">&para;</a></h3>
-<p>The question generator also produces additional questions that combine categories -- for example, temporal + numerical ("What was the budget change for Project Atlas and when did it happen?") or cross-reference + security ("Which team member from the Security team had events logged in the security block?").</p>
+<h3 id="13-15-additional-categories">13-15. Additional Categories<a class="headerlink" href="#13-15-additional-categories" title="Permanent link">&para;</a></h3>
+<p>The question generator also produces additional questions that combine categories
+-- for example, temporal + numerical or cross-reference + security.</p>
 <h2 id="the-grading-system">The Grading System<a class="headerlink" href="#the-grading-system" title="Permanent link">&para;</a></h2>
 <h3 id="hybrid-deterministic-llm-grading">Hybrid Deterministic + LLM Grading<a class="headerlink" href="#hybrid-deterministic-llm-grading" title="Permanent link">&para;</a></h3>
 <p>Each question is graded on multiple dimensions using a two-tier approach:</p>
-<p><strong>Tier 1 -- Deterministic grading</strong> (instant, free, reproducible):
-- Checks <code>required_keywords</code> against the answer (case-insensitive)
-- Awards bonus for <code>acceptable_paraphrases</code> found
-- Scores 0.0 if any <code>incorrect_patterns</code> match
-- Applies to <code>factual_accuracy</code> and <code>specificity</code> dimensions</p>
-<p><strong>Tier 2 -- LLM semantic grading</strong> (slower, costs API calls, nuanced):
-- Used for <code>temporal_awareness</code>, <code>source_attribution</code>, <code>confidence_calibration</code>
-- Also used when no deterministic rubric is available
-- Prompt includes scoring guide and dimension descriptions
-- Returns structured JSON with per-dimension scores and reasoning</p>
+<p><strong>Tier 1 -- Deterministic grading</strong> (instant, free, reproducible):</p>
+<ul>
+<li>Checks <code>required_keywords</code> against the answer (case-insensitive)</li>
+<li>Awards bonus for <code>acceptable_paraphrases</code> found</li>
+<li>Scores 0.0 if any <code>incorrect_patterns</code> match</li>
+<li>Applies to <code>factual_accuracy</code> and <code>specificity</code> dimensions</li>
+</ul>
+<p><strong>Tier 2 -- LLM semantic grading</strong> (slower, costs API calls, nuanced):</p>
+<ul>
+<li>Used for <code>temporal_awareness</code>, <code>source_attribution</code>, <code>confidence_calibration</code></li>
+<li>Also used when no deterministic rubric is available</li>
+<li>Prompt includes scoring guide and dimension descriptions</li>
+<li>Returns structured JSON with per-dimension scores and reasoning</li>
+</ul>
 <h3 id="multi-vote-stability">Multi-Vote Stability<a class="headerlink" href="#multi-vote-stability" title="Permanent link">&para;</a></h3>
-<p>To reduce LLM grading noise, each question is graded N times (configurable, default 3). For each dimension, the median score is taken as the final grade. The reasoning from the vote closest to the median is preserved.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Vote 1: factual_accuracy = 0.85
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Vote 2: factual_accuracy = 0.90    -&gt; Median: 0.85
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Vote 3: factual_accuracy = 0.80
+<p>To reduce LLM grading noise, each question is graded N times (configurable,
+default 3). For each dimension, the median score is taken as the final grade.
+The reasoning from the vote closest to the median is preserved.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Vote 1: factual_accuracy = 0.85
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Vote 2: factual_accuracy = 0.90    -&gt; Median: 0.85
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Vote 3: factual_accuracy = 0.80
 </code></pre></div>
-<p>For deterministic dimensions, multi-vote has zero overhead since the score is identical every time.</p>
-<h3 id="dimension-weights">Dimension Weights<a class="headerlink" href="#dimension-weights" title="Permanent link">&para;</a></h3>
-<p>Questions can specify custom dimension weights via their rubric:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">GradingRubric</span><span class="p">(</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">required_keywords</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Paris&quot;</span><span class="p">],</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">dimension_weights</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;factual_accuracy&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;specificity&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">)</span>
-</code></pre></div>
+<p>For deterministic dimensions, multi-vote has zero overhead since the score is
+identical every time.</p>
 <h3 id="scoring-scale">Scoring Scale<a class="headerlink" href="#scoring-scale" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1148,49 +1986,43 @@
 <h2 id="how-to-interpret-results">How to Interpret Results<a class="headerlink" href="#how-to-interpret-results" title="Permanent link">&para;</a></h2>
 <h3 id="the-evalreport">The EvalReport<a class="headerlink" href="#the-evalreport" title="Permanent link">&para;</a></h3>
 <p>A completed evaluation produces an <code>EvalReport</code> containing:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">EvalReport</span><span class="p">:</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">num_turns</span><span class="p">:</span> <span class="nb">int</span>                          <span class="c1"># Dialogue length</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">num_questions</span><span class="p">:</span> <span class="nb">int</span>                      <span class="c1"># Questions asked</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">total_facts_delivered</span><span class="p">:</span> <span class="nb">int</span>              <span class="c1"># Total facts in ground truth</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">learning_time_s</span><span class="p">:</span> <span class="nb">float</span>                  <span class="c1"># Time to feed all turns</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">questioning_time_s</span><span class="p">:</span> <span class="nb">float</span>               <span class="c1"># Time to ask + grade all questions</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">grading_time_s</span><span class="p">:</span> <span class="nb">float</span>                   <span class="c1"># Time spent on grading only</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">overall_score</span><span class="p">:</span> <span class="nb">float</span>                    <span class="c1"># Average of all question scores</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">category_breakdown</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CategoryBreakdown</span><span class="p">]</span>  <span class="c1"># Per-category averages</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EvalResult</span><span class="p">]</span>              <span class="c1"># Per-question details</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">memory_stats</span><span class="p">:</span> <span class="nb">dict</span>                     <span class="c1"># Agent-reported memory statistics</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">EvalReport</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">num_turns</span><span class="p">:</span> <span class="nb">int</span>                          <span class="c1"># Dialogue length</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">num_questions</span><span class="p">:</span> <span class="nb">int</span>                      <span class="c1"># Questions asked</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">total_facts_delivered</span><span class="p">:</span> <span class="nb">int</span>              <span class="c1"># Total facts in ground truth</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">learning_time_s</span><span class="p">:</span> <span class="nb">float</span>                  <span class="c1"># Time to feed all turns</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">questioning_time_s</span><span class="p">:</span> <span class="nb">float</span>               <span class="c1"># Time to ask + grade all questions</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">grading_time_s</span><span class="p">:</span> <span class="nb">float</span>                   <span class="c1"># Time spent on grading only</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">overall_score</span><span class="p">:</span> <span class="nb">float</span>                    <span class="c1"># Average of all question scores</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">category_breakdown</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CategoryBreakdown</span><span class="p">]</span>  <span class="c1"># Per-category averages</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EvalResult</span><span class="p">]</span>              <span class="c1"># Per-question details</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">memory_stats</span><span class="p">:</span> <span class="nb">dict</span>                     <span class="c1"># Agent-reported memory statistics</span>
 </code></pre></div>
 <h3 id="reading-the-category-breakdown">Reading the Category Breakdown<a class="headerlink" href="#reading-the-category-breakdown" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>CATEGORY BREAKDOWN:
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>-----------------------------------------------------------------------
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Category                     Avg      Min      Max   Count
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>-----------------------------------------------------------------------
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>cross_reference            85.00%   70.00%   95.00%      10
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>distractor_resistance      92.00%   80.00%  100.00%       8
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>meta_memory                78.00%   60.00%   90.00%       5
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>needle_in_haystack         88.00%   65.00%  100.00%      20
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>numerical_precision        82.00%   55.00%   95.00%      15
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>security_log_analysis      90.00%   80.00%  100.00%       8
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>source_attribution         75.00%   50.00%   90.00%      10
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>temporal_evolution          70.00%   40.00%   90.00%      15
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>CATEGORY BREAKDOWN:
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>-----------------------------------------------------------------------
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>Category                     Avg      Min      Max   Count
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>-----------------------------------------------------------------------
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>cross_reference            85.00%   70.00%   95.00%      10
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>distractor_resistance      92.00%   80.00%  100.00%       8
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>needle_in_haystack         88.00%   65.00%  100.00%      20
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>numerical_precision        82.00%   55.00%   95.00%      15
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>...
 </code></pre></div>
-<p><strong>Focus on the weakest categories.</strong> Categories below 70% indicate systematic weaknesses in the agent's memory system. The min score reveals worst-case performance.</p>
-<h3 id="dimension-averages">Dimension Averages<a class="headerlink" href="#dimension-averages" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>DIMENSION AVERAGES BY CATEGORY:
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  needle_in_haystack: factual_accuracy: 90%, specificity: 86%
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  temporal_evolution: factual_accuracy: 75%, temporal_awareness: 65%
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  source_attribution: factual_accuracy: 80%, source_attribution: 70%
-</code></pre></div>
-<p>If <code>factual_accuracy</code> is high but <code>temporal_awareness</code> is low, the agent can recall facts but struggles with temporal ordering. If <code>source_attribution</code> is low, the agent retrieves facts but loses track of their origins.</p>
+<p><strong>Focus on the weakest categories.</strong> Categories below 70% indicate systematic
+weaknesses in the agent's memory system. The min score reveals worst-case
+performance.</p>
 <h3 id="the-worst-5-questions">The Worst 5 Questions<a class="headerlink" href="#the-worst-5-questions" title="Permanent link">&para;</a></h3>
-<p>The report highlights the 5 lowest-scoring questions. These are the best starting points for debugging:</p>
+<p>The report highlights the 5 lowest-scoring questions. These are the best starting
+points for debugging:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>WORST 5 QUESTIONS:
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  [25.00%] What was the budget change for Project Atlas over time?
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    Expected: $2.1M -&gt; $2.5M (turn 45, additional cloud credits needed)
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    Got: The budget is $2.5M.
 </code></pre></div>
-<p>This example shows the agent knows the current value but lost the change history -- a temporal awareness issue.</p>
+<p>This example shows the agent knows the current value but lost the change history
+-- a temporal awareness issue.</p>
 <h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
 <h3 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h3>
 <table>
@@ -1234,42 +2066,22 @@
 </tr>
 </tbody>
 </table>
-<p>*Learning time depends entirely on the agent implementation -- a simple list-based agent will be much faster than one using LLM-powered ingestion.</p>
+<p>*Learning time depends entirely on the agent implementation -- a simple list-based
+agent will be much faster than one using LLM-powered ingestion.</p>
 <h3 id="grading-costs">Grading Costs<a class="headerlink" href="#grading-costs" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Deterministic grading</strong>: Free, instant (no API calls)</li>
 <li><strong>LLM grading</strong>: 1 API call per dimension per vote per question</li>
 <li><strong>Example</strong>: 100 questions * 3 LLM dimensions * 3 votes = 900 API calls</li>
-<li><strong>Typical cost</strong>: ~$0.50 for 100 questions with 3-vote grading (Sonnet model)</li>
 </ul>
 <h3 id="reproducibility">Reproducibility<a class="headerlink" href="#reproducibility" title="Permanent link">&para;</a></h3>
-<p>Same seed + same agent = same scores (within LLM grading variance). Multi-vote and multi-seed evaluation reduce this variance. For fully deterministic results, set all question rubrics and use <code>grading_mode="deterministic"</code>.</p>
+<p>Same seed + same agent = same scores (within LLM grading variance). Multi-vote
+and multi-seed evaluation reduce this variance. For fully deterministic results,
+set all question rubrics and use <code>grading_mode="deterministic"</code>.</p>
 <h2 id="pre-built-datasets">Pre-built Datasets<a class="headerlink" href="#pre-built-datasets" title="Permanent link">&para;</a></h2>
-<h3 id="skip-the-4-hour-learning-phase">Skip the 4+ Hour Learning Phase<a class="headerlink" href="#skip-the-4-hour-learning-phase" title="Permanent link">&para;</a></h3>
-<p>The 5000-turn learning phase takes 4+ hours and requires 10,000+ LLM API calls. Pre-built datasets let you skip this entirely and jump straight to evaluation.</p>
-<h3 id="available-datasets">Available Datasets<a class="headerlink" href="#available-datasets" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Turns</th>
-<th>Seed</th>
-<th>Facts</th>
-<th>Baseline Score</th>
-<th>Size</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>5000t-seed42-v1.0</code></td>
-<td>5,000</td>
-<td>42</td>
-<td>762</td>
-<td>90.47%</td>
-<td>1.3 MB</td>
-</tr>
-</tbody>
-</table>
+<h3 id="skip-the-learning-phase">Skip the Learning Phase<a class="headerlink" href="#skip-the-learning-phase" title="Permanent link">&para;</a></h3>
+<p>The 5000-turn learning phase takes hours and requires thousands of LLM API calls.
+Pre-built datasets let you skip this entirely and jump straight to evaluation.</p>
 <h3 id="download-and-use">Download and Use<a class="headerlink" href="#download-and-use" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># List available datasets</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>amplihack-eval<span class="w"> </span>list-datasets
@@ -1277,7 +2089,7 @@
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Download a pre-built dataset</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>amplihack-eval<span class="w"> </span>download-dataset<span class="w"> </span>5000t-seed42-v1.0
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Run evaluation using the pre-built DB (skip 4+ hour learning phase)</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Run evaluation using the pre-built DB (skip learning phase)</span>
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
@@ -1301,31 +2113,30 @@
 <a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="n">adapter</span> <span class="o">=</span> <span class="n">LearningAgentAdapter</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;memory_db&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="dataset-structure">Dataset Structure<a class="headerlink" href="#dataset-structure" title="Permanent link">&para;</a></h3>
-<p>Each dataset contains:
-- <code>metadata.json</code> -- Configuration and provenance (turns, seed, facts, baseline score, code version)
-- <code>baseline_results.json</code> -- Full evaluation scores at time of creation
-- <code>memory_db/</code> -- Kuzu graph database (the pre-built learning DB)</p>
-<p>Datasets are distributed via <a href="https://github.com/rysweet/amplihack-agent-eval/releases">GitHub Releases</a> to keep the repository lightweight.</p>
+<p>Each dataset contains:</p>
+<ul>
+<li><code>metadata.json</code> -- Configuration and provenance (turns, seed, facts, code version)</li>
+<li><code>baseline_results.json</code> -- Full evaluation scores at time of creation</li>
+<li><code>memory_db/</code> -- Kuzu graph database (the pre-built learning DB)</li>
+</ul>
+<p>Datasets are distributed via <a href="https://github.com/rysweet/amplihack-agent-eval/releases">GitHub Releases</a>
+to keep the repository lightweight.</p>
 <h2 id="cli-usage">CLI Usage<a class="headerlink" href="#cli-usage" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Basic evaluation (100 turns, 20 questions)</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span><span class="w"> </span>--adapter<span class="w"> </span>http<span class="w"> </span>--agent-url<span class="w"> </span>http://localhost:8000
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Large-scale stress test</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">200</span><span class="w"> </span>--grader-votes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># With LearningAgent</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--model<span class="w"> </span>claude-sonnet-4-6
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Skip learning with pre-built DB</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--skip-learning<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span>--load-db<span class="w"> </span>datasets/5000t-seed42-v1.0/memory_db<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">100</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="c1"># Multi-seed comparison</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Large-scale stress test</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">200</span><span class="w"> </span>--grader-votes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="c1"># Skip learning with pre-built DB</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--skip-learning<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">  </span>--load-db<span class="w"> </span>datasets/5000t-seed42-v1.0/memory_db<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">100</span>
 <a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="c1"># With LearningAgent</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--model<span class="w"> </span>claude-sonnet-4-5-20250929
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="c1"># Dataset management</span>
-<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>amplihack-eval<span class="w"> </span>list-datasets
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>amplihack-eval<span class="w"> </span>download-dataset<span class="w"> </span>5000t-seed42-v1.0
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="c1"># Multi-seed comparison</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
 </code></pre></div>
 <h2 id="programmatic-usage_1">Programmatic Usage<a class="headerlink" href="#programmatic-usage_1" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvalRunner</span>
@@ -1335,7 +2146,7 @@
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1"># Run evaluation</span>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">runner</span> <span class="o">=</span> <span class="n">EvalRunner</span><span class="p">(</span><span class="n">num_turns</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">num_questions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">grader_votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">report</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">grader_model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-5-20250929&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="n">report</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">grader_model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-6&quot;</span><span class="p">)</span>
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
 <a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1"># Inspect results</span>
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overall: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

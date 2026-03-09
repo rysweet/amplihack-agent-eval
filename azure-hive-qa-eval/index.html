@@ -13,6 +13,10 @@
         <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/azure-hive-qa-eval/">
       
       
+        <link rel="prev" href="../hive-mind-eval/">
+      
+      
+        <link rel="next" href="../architecture/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>Azure Hive Q&A Eval Tutorial - amplihack-agent-eval</title>
+        <title>Distributed Eval on Azure - amplihack-agent-eval</title>
       
     
     
@@ -74,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#azure-hive-qa-eval-tutorial" class="md-skip">
+        <a href="#running-distributed-eval-on-azure" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Azure Hive Q&amp;A Eval Tutorial
+              Distributed Eval on Azure
             
           </span>
         </div>
@@ -283,6 +287,428 @@
   
   
     <li class="md-nav__item">
+      <a href="../running-evals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running Evals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eval Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Eval Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LONG_HORIZON_EVAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long-Horizon Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hive-mind-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Mind Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Eval on Azure
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Eval on Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-deploy-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Deploy Agents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-feed-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Feed Content
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-wait-for-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Wait for Processing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-run-eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Run Eval
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Run Eval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alternative-run-the-keyword-match-eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative: Run the keyword-match eval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-eval-multiple-times-for-statistical-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run eval multiple times for statistical stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Environment Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-script-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy Script Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../architecture/" class="md-nav__link">
         
   
@@ -302,9 +728,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -329,9 +756,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -356,9 +784,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -383,9 +812,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -407,6 +837,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -438,10 +876,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-this-eval-does" class="md-nav__link">
+  <a href="#architecture-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What This Eval Does
+        Architecture Overview
       
     </span>
   </a>
@@ -460,22 +898,66 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-the-built-in-qa-eval" class="md-nav__link">
+  <a href="#step-1-deploy-agents" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running the Built-In Q&amp;A Eval
+        Step 1: Deploy Agents
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Running the Built-In Q&amp;A Eval">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-feed-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Feed Content
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-wait-for-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Wait for Processing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-run-eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Run Eval
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Run Eval">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example-output" class="md-nav__link">
+  <a href="#alternative-run-the-keyword-match-eval" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example Output
+        Alternative: Run the keyword-match eval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-eval-multiple-times-for-statistical-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run eval multiple times for statistical stability
       
     </span>
   </a>
@@ -488,10 +970,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-a-single-query" class="md-nav__link">
+  <a href="#step-5-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running a Single Query
+        Step 5: Cleanup
       
     </span>
   </a>
@@ -499,93 +981,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#qa-eval-dataset" class="md-nav__link">
+  <a href="#key-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Q&amp;A Eval Dataset
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scoring" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scoring
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#understanding-the-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Understanding the Results
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Understanding the Results">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#why-do-miss-results-occur" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why Do MISS Results Occur?
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#waking-up-agents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Waking Up Agents
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#adding-custom-questions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Adding Custom Questions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#architecture-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architecture Reference
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Documentation
+        Key Environment Variables
       
     </span>
   </a>
@@ -597,6 +996,28 @@
     <span class="md-ellipsis">
       
         Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-script-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deploy Script Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
       
     </span>
   </a>
@@ -623,229 +1044,182 @@
   
 
 
-<h1 id="azure-hive-qa-eval-tutorial">Azure Hive Q&amp;A Eval Tutorial<a class="headerlink" href="#azure-hive-qa-eval-tutorial" title="Permanent link">&para;</a></h1>
-<p>This tutorial explains how to run a Q&amp;A evaluation against the <strong>live Azure
-Hive Mind</strong> — 20 agents deployed as Azure Container Apps, sharing knowledge
-via a distributed hash table (DHT) over Azure Service Bus.</p>
-<h2 id="what-this-eval-does">What This Eval Does<a class="headerlink" href="#what-this-eval-does" title="Permanent link">&para;</a></h2>
-<p><code>query_hive.py</code> sends a <code>network_graph.search_query</code> event to the live hive
-via the Service Bus topic <code>hive-graph</code>. Each running agent receives the query,
-searches its local knowledge shard, and publishes a <code>network_graph.search_response</code>
-back. The eval script collects these responses and scores them against expected
-keywords.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>query_hive.py ──publishes──► hive-graph topic
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                                     │
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                    ┌────────────────┼────────────────┐
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                    ▼                ▼                ▼
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>              agent-0 sub      agent-1 sub   …  agent-19 sub
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>              (Container App)  (Container App)   (Container App)
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                    │                │                │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                    └────────────────┼────────────────┘
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                     ▼
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                          eval-query-agent sub
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                          (responses collected here)
+<h1 id="running-distributed-eval-on-azure">Running Distributed Eval on Azure<a class="headerlink" href="#running-distributed-eval-on-azure" title="Permanent link">&para;</a></h1>
+<p>This guide covers how to deploy a distributed hive mind to Azure, feed it
+content, and run a Q&amp;A evaluation against the live agents.</p>
+<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<p>The distributed eval deploys N agents as Azure Container Apps. Each agent holds
+a shard of the distributed knowledge graph (DistributedHiveGraph). Agents
+communicate via Azure Service Bus topics. The eval script sends questions as
+events and collects answers from Log Analytics.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>feed_content.py ──publishes──► Service Bus topic (hive-events)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                                       │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                      ┌────────────────┼────────────────┐
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                      ▼                ▼                ▼
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                agent-0 sub      agent-1 sub   …  agent-N sub
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                (Container App)  (Container App)   (Container App)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                      │                │                │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                      └────────────────┼────────────────┘
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                       ▼
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                            query_hive.py collects
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                            answers from Log Analytics
 </code></pre></div>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Install the azure-servicebus SDK</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>azure-servicebus
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Clone the amplihack repo on the feat/distributed-hive-mind branch</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rysweet/amplihack5<span class="w"> </span>/path/to/amplihack
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nb">cd</span><span class="w"> </span>/path/to/amplihack
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>git<span class="w"> </span>checkout<span class="w"> </span>feat/distributed-hive-mind
-</code></pre></div>
-<p>The live hive is already deployed in Azure resource group <code>hive-mind-rg</code>.
-No Azure credentials are required to query it — the connection string is
-embedded in <code>query_hive.py</code> as a default.</p>
-<p>To use your own hive, set:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HIVE_CONNECTION_STRING</span><span class="o">=</span><span class="s2">&quot;Endpoint=sb://YOUR-NS.servicebus.windows.net/;...&quot;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HIVE_TOPIC</span><span class="o">=</span><span class="s2">&quot;hive-graph&quot;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HIVE_SUBSCRIPTION</span><span class="o">=</span><span class="s2">&quot;eval-query-agent&quot;</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HIVE_TIMEOUT</span><span class="o">=</span><span class="s2">&quot;10&quot;</span>
-</code></pre></div>
-<h2 id="running-the-built-in-qa-eval">Running the Built-In Q&amp;A Eval<a class="headerlink" href="#running-the-built-in-qa-eval" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/amplihack
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Run all 15 questions, print results to stdout</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--run-eval
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Write results to JSON</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--run-eval<span class="w"> </span>--output<span class="w"> </span>results.json
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Adjust timeout if agents are slow to respond</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--run-eval<span class="w"> </span>--timeout<span class="w"> </span><span class="m">15</span>
-</code></pre></div>
-<h3 id="example-output">Example Output<a class="headerlink" href="#example-output" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>======================================================================
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>LIVE AZURE HIVE Q&amp;A EVAL
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Hive: hive-sb / topic: hive-graph
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Questions: 15
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Timeout per query: 10s
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>======================================================================
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>Domain               Hit   Results  | Question
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>----------------------------------------------------------------------
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>  biology            HIT   7 results | What are cells made of?
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  biology            HIT   5 results | How does DNA store information?
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  biology            MISS  0 results | What do enzymes do?
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>  chemistry          HIT   8 results | What is the structure of water?
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>  ...
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>======================================================================
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>RESULTS
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>======================================================================
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>  Overall:   11/15 (73.3%)
-<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
-<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>  By domain:
-<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>    biology             : 2/3 (67%)
-<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>    chemistry           : 3/3 (100%)
-<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>    computer_science    : 2/3 (67%)
-<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>    mathematics         : 2/3 (67%)
-<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>    physics             : 2/3 (67%)
-<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
-<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>  Total time: 38.42s
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>======================================================================
-</code></pre></div>
-<h2 id="running-a-single-query">Running a Single Query<a class="headerlink" href="#running-a-single-query" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--query<span class="w"> </span><span class="s2">&quot;What is Newton&#39;s second law?&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>--timeout<span class="w"> </span><span class="m">10</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Output:</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># Querying live hive: &quot;What is Newton&#39;s second law?&quot;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Results (3):</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1">#   1. [0.97] F equals ma is Newton&#39;s second law</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1">#        concept: mechanics</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1">#        source:  agent-7</span>
-</code></pre></div>
-<h2 id="qa-eval-dataset">Q&amp;A Eval Dataset<a class="headerlink" href="#qa-eval-dataset" title="Permanent link">&para;</a></h2>
-<p>The built-in eval covers 15 questions across 5 domains (3 per domain):</p>
-<table>
-<thead>
-<tr>
-<th>Domain</th>
-<th>Questions</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>biology</td>
-<td>cells, DNA, enzymes</td>
-</tr>
-<tr>
-<td>chemistry</td>
-<td>water structure, covalent bonds, pH</td>
-</tr>
-<tr>
-<td>physics</td>
-<td>Newton's 2nd law, speed of light, E=mc²</td>
-</tr>
-<tr>
-<td>mathematics</td>
-<td>Pythagorean theorem, derivatives, Pi</td>
-</tr>
-<tr>
-<td>computer_science</td>
-<td>binary search complexity, ACID, CAP theorem</td>
-</tr>
-</tbody>
-</table>
-<p>Each question is scored by keyword matching: a hit requires <strong>all expected
-keywords</strong> to appear in at least one result from the hive.</p>
-<h2 id="scoring">Scoring<a class="headerlink" href="#scoring" title="Permanent link">&para;</a></h2>
-<p>The eval uses a binary keyword-match scoring scheme:</p>
 <ul>
-<li><strong>Hit</strong>: at least one returned fact contains all expected keywords</li>
-<li><strong>Miss</strong>: no returned fact contains all expected keywords</li>
+<li><strong>Azure CLI</strong> authenticated (<code>az login</code>)</li>
+<li><strong>ANTHROPIC_API_KEY</strong> set in your environment</li>
+<li><strong>Docker</strong> daemon running (for image build)</li>
+<li><strong>amplihack</strong> repo cloned with <code>.venv</code> activated</li>
+<li><strong>azure-servicebus</strong> Python package installed (<code>pip install azure-servicebus</code>)</li>
 </ul>
-<p>Overall accuracy = <code>hits / total_questions</code>.</p>
-<h2 id="understanding-the-results">Understanding the Results<a class="headerlink" href="#understanding-the-results" title="Permanent link">&para;</a></h2>
-<h3 id="why-do-miss-results-occur">Why Do MISS Results Occur?<a class="headerlink" href="#why-do-miss-results-occur" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Agent asleep</strong>: Azure Container Apps scale to zero after inactivity. The
-   Container App runtime needs time to wake up (cold start ~30s).</li>
-<li><strong>Shard miss</strong>: The query hit the wrong shard owners (DHT routing is based
-   on keyword hashing, not semantic similarity).</li>
-<li><strong>Knowledge gap</strong>: The specific fact was not promoted to the shared hive
-   (it may be in local Kuzu memory only).</li>
-<li><strong>Timeout too short</strong>: Increase <code>--timeout</code> if agents need more time.</li>
-</ol>
-<h3 id="waking-up-agents">Waking Up Agents<a class="headerlink" href="#waking-up-agents" title="Permanent link">&para;</a></h3>
-<p>If agents are cold-started (zero instances), send a warmup query first:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Warmup query — agents will start responding within 30s</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;warmup&quot;</span><span class="w"> </span>--timeout<span class="w"> </span><span class="m">30</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Then run the eval</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--run-eval<span class="w"> </span>--timeout<span class="w"> </span><span class="m">15</span>
+<h2 id="step-1-deploy-agents">Step 1: Deploy Agents<a class="headerlink" href="#step-1-deploy-agents" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>~/.msec-k<span class="k">)</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># or your key source</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nv">HIVE_RESOURCE_GROUP</span><span class="o">=</span>hive-mind-rg<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">HIVE_LOCATION</span><span class="o">=</span>westus2<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nv">HIVE_AGENT_COUNT</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="nv">HIVE_AGENTS_PER_APP</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nv">HIVE_AGENT_MODEL</span><span class="o">=</span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh
 </code></pre></div>
-<h2 id="adding-custom-questions">Adding Custom Questions<a class="headerlink" href="#adding-custom-questions" title="Permanent link">&para;</a></h2>
-<p>Edit <code>QA_EVAL_DATASET</code> in <code>query_hive.py</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">QA_EVAL_DATASET</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="c1"># (domain, question, expected_keywords)</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="p">(</span><span class="s2">&quot;my_domain&quot;</span><span class="p">,</span> <span class="s2">&quot;What is X?&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;keyword1&quot;</span><span class="p">,</span> <span class="s2">&quot;keyword2&quot;</span><span class="p">]),</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="o">...</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">]</span>
+<p>This provisions:</p>
+<ul>
+<li>Resource group and Azure Container Registry (ACR)</li>
+<li>Azure Service Bus namespace, topic, and per-agent subscriptions</li>
+<li>Container Apps Environment</li>
+<li>N Container Apps (<code>ceil(HIVE_AGENT_COUNT / HIVE_AGENTS_PER_APP)</code> apps)</li>
+</ul>
+<p>To check deployment status:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--status
 </code></pre></div>
-<p>Or pass a custom dataset programmatically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">experiments.hive_mind.query_hive</span><span class="w"> </span><span class="kn">import</span> <span class="n">HiveQueryClient</span><span class="p">,</span> <span class="n">_score_response</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">HiveQueryClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;What is Newton&#39;s second law?&quot;</span><span class="p">)</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">hit</span> <span class="o">=</span> <span class="n">_score_response</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;ma&quot;</span><span class="p">])</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<h2 id="step-2-feed-content">Step 2: Feed Content<a class="headerlink" href="#step-2-feed-content" title="Permanent link">&para;</a></h2>
+<p>Retrieve the Service Bus connection string and feed dialogue turns to the hive:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">SB_CONN</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>servicebus<span class="w"> </span>namespace<span class="w"> </span>authorization-rule<span class="w"> </span>keys<span class="w"> </span>list<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--namespace-name<span class="w"> </span>&lt;YOUR-SB-NAMESPACE&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--name<span class="w"> </span>RootManageSharedAccessKey<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span>--query<span class="w"> </span>primaryConnectionString<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="nv">AMPLIHACK_MEMORY_CONNECTION_STRING</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nv">AMPLIHACK_TOPIC_NAME</span><span class="o">=</span><span class="s2">&quot;hive-events&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>python<span class="w"> </span>deploy/azure_hive/feed_content.py<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span>
 </code></pre></div>
-<h2 id="architecture-reference">Architecture Reference<a class="headerlink" href="#architecture-reference" title="Permanent link">&para;</a></h2>
+<p>Replace <code>&lt;YOUR-SB-NAMESPACE&gt;</code> with the Service Bus namespace created by the
+deploy script (visible in <code>--status</code> output).</p>
+<h2 id="step-3-wait-for-processing">Step 3: Wait for Processing<a class="headerlink" href="#step-3-wait-for-processing" title="Permanent link">&para;</a></h2>
+<p>Poll Log Analytics to confirm agents are processing content:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">LA_ID</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>monitor<span class="w"> </span>log-analytics<span class="w"> </span>workspace<span class="w"> </span>list<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--query<span class="w"> </span><span class="s2">&quot;[0].customerId&quot;</span><span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>az<span class="w"> </span>monitor<span class="w"> </span>log-analytics<span class="w"> </span>query<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LA_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>--analytics-query<span class="w"> </span><span class="s2">&quot;ContainerAppConsoleLogs_CL | where TimeGenerated &gt; ago(2m) | where Log_s has &#39;Completed Call&#39; | count&quot;</span>
+</code></pre></div>
+<p>Wait until the count stops increasing, indicating agents have finished
+processing all turns.</p>
+<h2 id="step-4-run-eval">Step 4: Run Eval<a class="headerlink" href="#step-4-run-eval" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--ooda-eval<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--repeats<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>--workspace-id<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LA_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span>--topic<span class="w"> </span>hive-events<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span>--answer-wait<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span>--output<span class="w"> </span>results.json
+</code></pre></div>
+<h3 id="alternative-run-the-keyword-match-eval">Alternative: Run the keyword-match eval<a class="headerlink" href="#alternative-run-the-keyword-match-eval" title="Permanent link">&para;</a></h3>
+<p>For a faster sanity check using keyword matching instead of LLM grading:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>--seed<span class="w"> </span>--run-eval<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>--topic<span class="w"> </span>hive-events<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span>--output<span class="w"> </span>results.json
+</code></pre></div>
+<h3 id="run-eval-multiple-times-for-statistical-stability">Run eval multiple times for statistical stability<a class="headerlink" href="#run-eval-multiple-times-for-statistical-stability" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>--ooda-eval<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--repeats<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span>--workspace-id<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LA_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span>--topic<span class="w"> </span>hive-events<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span>--answer-wait<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span>--output<span class="w"> </span>results.json
+</code></pre></div>
+<h2 id="step-5-cleanup">Step 5: Cleanup<a class="headerlink" href="#step-5-cleanup" title="Permanent link">&para;</a></h2>
+<p>Remove all Azure resources when done:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup
+</code></pre></div>
+<p>Or delete the resource group directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>az<span class="w"> </span>group<span class="w"> </span>delete<span class="w"> </span>-n<span class="w"> </span>hive-mind-rg<span class="w"> </span>--yes
+</code></pre></div>
+<h2 id="key-environment-variables">Key Environment Variables<a class="headerlink" href="#key-environment-variables" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Component</th>
-<th>Value</th>
+<th>Variable</th>
+<th>Description</th>
+<th>Default</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><code>HIVE_NAME</code></td>
+<td>Hive deployment name</td>
+<td><code>amplihive</code></td>
+</tr>
+<tr>
+<td><code>HIVE_RESOURCE_GROUP</code></td>
 <td>Azure resource group</td>
 <td><code>hive-mind-rg</code></td>
 </tr>
 <tr>
-<td>Service Bus namespace</td>
-<td>See <code>HIVE_CONNECTION_STRING</code> env var</td>
+<td><code>HIVE_LOCATION</code></td>
+<td>Azure region</td>
+<td><code>westus2</code></td>
 </tr>
 <tr>
-<td>Topic</td>
-<td><code>hive-graph</code></td>
+<td><code>HIVE_AGENT_COUNT</code></td>
+<td>Total number of agents</td>
+<td><code>5</code></td>
 </tr>
 <tr>
-<td>Eval subscription</td>
-<td><code>eval-query-agent</code></td>
+<td><code>HIVE_AGENTS_PER_APP</code></td>
+<td>Agents per Container App</td>
+<td><code>5</code></td>
 </tr>
 <tr>
-<td>Agent subscriptions</td>
-<td><code>agent-0</code> … <code>agent-19</code></td>
+<td><code>HIVE_AGENT_MODEL</code></td>
+<td>LLM model for agents</td>
+<td><code>claude-sonnet-4-6</code></td>
 </tr>
 <tr>
-<td>Agent containers</td>
-<td><code>amplihive-app-0</code> … <code>amplihive-app-19</code></td>
+<td><code>HIVE_TRANSPORT</code></td>
+<td>Transport type</td>
+<td><code>azure_service_bus</code></td>
 </tr>
 <tr>
-<td>Knowledge shard backend</td>
-<td>In-memory DHT (DistributedHiveGraph)</td>
+<td><code>AMPLIHACK_TOPIC_NAME</code></td>
+<td>Service Bus topic name</td>
+<td><code>hive-events</code></td>
 </tr>
 <tr>
-<td>Query protocol</td>
-<td><code>network_graph.search_query</code> / <code>network_graph.search_response</code></td>
+<td><code>AMPLIHACK_MEMORY_CONNECTION_STRING</code></td>
+<td>Service Bus connection string</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>LOG_ANALYTICS_WORKSPACE_ID</code></td>
+<td>Log Analytics workspace GUID</td>
+<td>--</td>
+</tr>
+<tr>
+<td><code>OODA_ANSWER_WAIT</code></td>
+<td>Eval answer timeout in seconds</td>
+<td><code>600</code></td>
 </tr>
 </tbody>
 </table>
-<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>docs/hive-mind-eval.md</code> — Hive Mind eval strategy and full topology guide</li>
-<li><code>experiments/hive_mind/query_hive.py</code> — The query/eval script</li>
-<li><code>experiments/hive_mind/deploy_azure_hive.sh</code> — Azure deployment script</li>
-<li><code>src/amplihack/memory/network_store.py</code> — NetworkGraphStore protocol</li>
-<li><code>src/amplihack/agents/goal_seeking/hive_mind/event_bus.py</code> — Event bus</li>
-<li><code>docs/distributed_hive_mind.md</code> — Distributed hive architecture</li>
-</ul>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -856,27 +1230,44 @@ keywords</strong> to appear in at least one result from the hive.</p>
 </thead>
 <tbody>
 <tr>
+<td>Rate limits (429 errors)</td>
+<td>Agents retry with exponential backoff (2-32s). If persistent, reduce <code>HIVE_AGENT_COUNT</code> or use a smaller model (e.g., Sonnet instead of Opus).</td>
+</tr>
+<tr>
+<td>Service Bus auth errors</td>
+<td>Ensure topic name matches agent config (<code>hive-events</code>). Verify connection string has <code>Send</code> and <code>Listen</code> claims.</td>
+</tr>
+<tr>
+<td>Missing answers in eval</td>
+<td>Check Log Analytics for ANSWER entries. Increase <code>--answer-wait</code> beyond 600s for large deployments.</td>
+</tr>
+<tr>
 <td><code>0 results</code> on all queries</td>
-<td>Agents are cold-started — send warmup first</td>
-</tr>
-<tr>
-<td><code>ImportError: azure-servicebus</code></td>
-<td><code>pip install azure-servicebus</code></td>
-</tr>
-<tr>
-<td>Timeout errors in JSON output</td>
-<td>Increase <code>--timeout</code> to 15-30s</td>
+<td>Agents may be cold-started (Azure Container Apps scale to zero). Send a warmup query first or check <code>az containerapp revision list</code>.</td>
 </tr>
 <tr>
 <td>Subscription not found</td>
-<td>Re-run <code>az servicebus topic subscription create ...</code></td>
+<td>Verify the eval subscription exists: <code>az servicebus topic subscription list --resource-group hive-mind-rg --namespace-name &lt;ns&gt; --topic-name hive-events</code></td>
 </tr>
 <tr>
-<td>All MISS, even warmup</td>
-<td>Check <code>az containerapp revision list --name amplihive-app-0 --resource-group hive-mind-rg</code></td>
+<td>Deploy script fails</td>
+<td>Ensure Docker daemon is running and <code>az login</code> is current. Check <code>deploy.sh --status</code> for partial deployments.</td>
 </tr>
 </tbody>
 </table>
+<h2 id="deploy-script-options">Deploy Script Options<a class="headerlink" href="#deploy-script-options" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w">                 </span><span class="c1"># Deploy everything</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--build-only<span class="w">    </span><span class="c1"># Build + push image only</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--infra-only<span class="w">    </span><span class="c1"># Provision infra only</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup<span class="w">       </span><span class="c1"># Tear down resource group</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--status<span class="w">        </span><span class="c1"># Show deployment status</span>
+</code></pre></div>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../hive-mind-eval/">Hive Mind Eval Strategy</a> -- Topology comparison and scoring methodology</li>
+<li><a href="../running-evals/">Running Evals Quick Start</a> -- All eval types in one page</li>
+<li><a href="../LONG_HORIZON_EVAL/">Long-Horizon Memory Eval</a> -- Single-agent eval details</li>
+</ul>
 
 
 
