@@ -3,6 +3,107 @@
 This page covers all evaluation types in the amplihack-agent-eval framework.
 Choose the eval type that matches your scenario.
 
+## End-to-End Eval Pipeline
+
+All eval types follow the same four-stage pipeline: generate data, feed it to
+agents, ask questions, and grade the answers.
+
+```mermaid
+flowchart TB
+    subgraph "Stage 1: Data Generation"
+        GD[generate_dialogue<br/>N turns, seed=S] --> GT[GroundTruth<br/>turns + facts + blocks]
+        GT --> GQ[generate_questions<br/>M questions across 15 categories]
+        GQ --> QS[Questions<br/>with rubrics + expected answers]
+    end
+
+    subgraph "Stage 2: Learning"
+        direction TB
+        GT --> |content turns| LA
+
+        subgraph local ["Local Eval"]
+            LA[LearningAgent]
+            LA --> |LLM fact extraction| KG[Kuzu Graph DB]
+        end
+
+        subgraph distributed ["Distributed Eval (Azure)"]
+            FC[feed_content.py] --> |Service Bus| SB[hive-events topic]
+            SB --> A1[Agent 0..4<br/>Container App 0]
+            SB --> A2[Agent 5..9<br/>Container App 1]
+            SB --> AN[Agent N..N+4<br/>Container App K]
+            A1 --> KG1[Kuzu DB]
+            A2 --> KG2[Kuzu DB]
+            AN --> KGN[Kuzu DB]
+        end
+    end
+
+    subgraph "Stage 3: Question Answering"
+        QS --> |questions| QA
+
+        subgraph local_qa ["Local"]
+            QA[agent.answer_question] --> |LLM synthesis| ANS[Answers]
+        end
+
+        subgraph dist_qa ["Distributed"]
+            QH[query_hive.py<br/>--ooda-eval] --> |INPUT events via SB| AGENTS[Agents process<br/>via OODA loop]
+            AGENTS --> |stdout| LOGS[Log Analytics]
+            LOGS --> |poll for ANSWER lines| QH
+            QH --> DANS[Answers]
+        end
+    end
+
+    subgraph "Stage 4: Grading + Reporting"
+        ANS --> GRADE
+        DANS --> GRADE
+        GRADE[Hybrid Grader] --> |deterministic rubric<br/>keywords + patterns| DET[Deterministic Score]
+        GRADE --> |LLM semantic judgment<br/>multi-vote for stability| LLM_G[LLM Score]
+        DET --> MERGE[Weighted Merge]
+        LLM_G --> MERGE
+        MERGE --> RPT[JSON Report<br/>overall + per-category + per-question]
+    end
+
+    style local fill:#e8f5e9
+    style distributed fill:#e3f2fd
+    style local_qa fill:#e8f5e9
+    style dist_qa fill:#e3f2fd
+```
+
+### Pipeline Stages
+
+| Stage | What Happens | Key Tools |
+|-------|-------------|-----------|
+| **Data Generation** | Deterministic dialogue with embedded facts across 12 blocks | `generate_dialogue()`, `generate_questions()` |
+| **Learning** | Agents ingest content via LLM fact extraction (~3 LLM calls/turn) | `LearningAgent.learn_from_content()`, `feed_content.py` |
+| **Question Answering** | Agents retrieve facts and synthesize answers (~2 LLM calls/question) | `LearningAgent.answer_question()`, `query_hive.py --ooda-eval` |
+| **Grading + Reporting** | Hybrid scoring: deterministic rubric + LLM semantic judgment | `HybridGrader`, JSON report output |
+
+### Report Structure
+
+The JSON report contains:
+
+```json
+{
+  "overall_score": 0.97,
+  "num_turns": 300,
+  "num_questions": 50,
+  "learning_time_s": 2486.6,
+  "questioning_time_s": 38.0,
+  "category_breakdown": [
+    {"category": "needle_in_haystack", "avg_score": 1.0, "count": 10},
+    {"category": "temporal_evolution", "avg_score": 1.0, "count": 7}
+  ],
+  "results": [
+    {
+      "question_id": "seclog_01",
+      "question_text": "How many failed SSH logins...",
+      "expected_answer": "6 failed SSH logins...",
+      "actual_answer": "**6 failed SSH logins**...",
+      "score": 1.0,
+      "reasoning": "Agent correctly identified..."
+    }
+  ]
+}
+```
+
 ## Eval Types at a Glance
 
 | Eval Type | Agents | Infrastructure | Use Case |
