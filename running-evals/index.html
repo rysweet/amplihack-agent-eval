@@ -484,7 +484,18 @@
   <a href="#deploy-feed-eval-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deploy, Feed, Eval, Cleanup
+        Deploy, Feed + Eval, Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
       
     </span>
   </a>
@@ -1075,7 +1086,18 @@
   <a href="#deploy-feed-eval-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deploy, Feed, Eval, Cleanup
+        Deploy, Feed + Eval, Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
       
     </span>
   </a>
@@ -1363,50 +1385,66 @@ packages are installed:</p>
 </code></pre></div>
 <p><strong>Details</strong>: <a href="../hive-mind-eval/">Hive Mind Eval Strategy</a></p>
 <h2 id="distributed-azure">Distributed (Azure)<a class="headerlink" href="#distributed-azure" title="Permanent link">&para;</a></h2>
-<p>Deploys agents to Azure Container Apps and evaluates via Service Bus.</p>
-<h3 id="deploy-feed-eval-cleanup">Deploy, Feed, Eval, Cleanup<a class="headerlink" href="#deploy-feed-eval-cleanup" title="Permanent link">&para;</a></h3>
+<p>Deploys agents to Azure Container Apps and evaluates using the <strong>exact same
+eval harness</strong> as single-agent. A <code>RemoteAgentAdapter</code> forwards
+<code>learn_from_content()</code> and <code>answer_question()</code> over Service Bus — the agent's
+OODA loop processes everything normally.</p>
+<h3 id="deploy-feed-eval-cleanup">Deploy, Feed + Eval, Cleanup<a class="headerlink" href="#deploy-feed-eval-cleanup" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># 1. Deploy</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nv">HIVE_AGENT_COUNT</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="nv">HIVE_AGENTS_PER_APP</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nv">HIVE_AGENT_MODEL</span><span class="o">=</span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># 2. Feed content</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="nv">SB_CONN</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>servicebus<span class="w"> </span>namespace<span class="w"> </span>authorization-rule<span class="w"> </span>keys<span class="w"> </span>list<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span>--namespace-name<span class="w"> </span>&lt;ns&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span>--name<span class="w"> </span>RootManageSharedAccessKey<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span>--query<span class="w"> </span>primaryConnectionString<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="nv">AMPLIHACK_MEMORY_CONNECTION_STRING</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="nv">AMPLIHACK_TOPIC_NAME</span><span class="o">=</span><span class="s2">&quot;hive-events&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>python<span class="w"> </span>deploy/azure_hive/feed_content.py<span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="c1"># 3. Run eval</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="nv">LA_ID</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>monitor<span class="w"> </span>log-analytics<span class="w"> </span>workspace<span class="w"> </span>list<span class="w"> </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">  </span>--query<span class="w"> </span><span class="s2">&quot;[0].customerId&quot;</span><span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>
-<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">  </span>--ooda-eval<span class="w"> </span>--repeats<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="w">  </span>--workspace-id<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LA_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="w">  </span>--topic<span class="w"> </span>hive-events<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="w">  </span>--answer-wait<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a><span class="w">  </span>--output<span class="w"> </span>results.json
-<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>
-<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="c1"># 4. Cleanup</span>
-<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;...&quot;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nv">HIVE_AGENT_COUNT</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="nv">HIVE_AGENTS_PER_APP</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nv">HIVE_AGENT_MODEL</span><span class="o">=</span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># 2. Get connection details</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="nv">SB_CONN</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>servicebus<span class="w"> </span>namespace<span class="w"> </span>authorization-rule<span class="w"> </span>keys<span class="w"> </span>list<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span>--namespace-name<span class="w"> </span>&lt;ns&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span>--name<span class="w"> </span>RootManageSharedAccessKey<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span>--query<span class="w"> </span>primaryConnectionString<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="c1"># 3. Run eval (feeds content + asks questions — same harness as single-agent)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>python<span class="w"> </span>deploy/azure_hive/eval_distributed.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">  </span>--input-topic<span class="w"> </span>hive-events-amplihive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">  </span>--response-topic<span class="w"> </span>eval-responses-amplihive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">  </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">  </span>--grader-model<span class="w"> </span>claude-haiku-4-5-20251001<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="w">  </span>--output<span class="w"> </span>results.json
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="c1"># 4. Cleanup</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup
 </code></pre></div>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
+<p>The distributed eval uses <code>RemoteAgentAdapter</code> — a drop-in replacement for
+<code>LearningAgent</code> that forwards calls over Service Bus:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">deploy.azure_hive.remote_agent_adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemoteAgentAdapter</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack.eval.long_horizon_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LongHorizonMemoryEval</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">adapter</span> <span class="o">=</span> <span class="n">RemoteAgentAdapter</span><span class="p">(</span><span class="n">sb_conn</span><span class="p">,</span> <span class="n">input_topic</span><span class="p">,</span> <span class="n">response_topic</span><span class="p">,</span> <span class="n">agent_count</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">report</span> <span class="o">=</span> <span class="n">LongHorizonMemoryEval</span><span class="p">(</span><span class="n">turns</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">questions</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">adapter</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li><code>learn_from_content()</code> → sends <code>LEARN_CONTENT</code> event to all agents (broadcast)</li>
+<li><code>answer_question()</code> → sends <code>INPUT</code> event to one agent (round-robin), waits for
+  <code>EVAL_ANSWER</code> on the response topic (correlated by <code>event_id</code>)</li>
+<li>The agent's OODA loop processes both content and questions identically to
+  single-agent mode</li>
+<li>Grading uses the same <code>_grade_multi_vote</code> hybrid grader</li>
+</ul>
 <p><strong>Details</strong>: <a href="../azure-hive-qa-eval/">Running Distributed Eval on Azure</a></p>
 <h2 id="prerequisites-all-eval-types">Prerequisites (All Eval Types)<a class="headerlink" href="#prerequisites-all-eval-types" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Install packages</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack-agent-eval
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1"># Set API key</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>...
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># For distributed eval only:</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>az<span class="w"> </span>login
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>pip<span class="w"> </span>install<span class="w"> </span>azure-servicebus
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Install packages</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack-agent-eval
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1"># Set API key</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>...
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># For distributed eval only:</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>az<span class="w"> </span>login
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>pip<span class="w"> </span>install<span class="w"> </span>azure-servicebus
 </code></pre></div>
 <h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <table>
@@ -1452,13 +1490,13 @@ packages are installed:</p>
 </table>
 <h2 id="comparing-results">Comparing Results<a class="headerlink" href="#comparing-results" title="Permanent link">&para;</a></h2>
 <h3 id="multi-seed-comparison-single-agent">Multi-seed comparison (single-agent)<a class="headerlink" href="#multi-seed-comparison-single-agent" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
 </code></pre></div>
 <h3 id="cross-topology-comparison">Cross-topology comparison<a class="headerlink" href="#cross-topology-comparison" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.compare<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span>results/single/scores.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span>results/flat/scores.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span>results/distributed/scores.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.compare<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>results/single/scores.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>results/flat/scores.json<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>results/distributed/scores.json
 </code></pre></div>
 
 
