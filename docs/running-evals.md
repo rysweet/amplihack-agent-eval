@@ -181,41 +181,60 @@ export ANTHROPIC_API_KEY=...
 
 ## Distributed (Azure)
 
-Deploys agents to Azure Container Apps and evaluates via Service Bus.
+Deploys agents to Azure Container Apps and evaluates using the **exact same
+eval harness** as single-agent. A `RemoteAgentAdapter` forwards
+`learn_from_content()` and `answer_question()` over Service Bus — the agent's
+OODA loop processes everything normally.
 
-### Deploy, Feed, Eval, Cleanup
+### Deploy, Feed + Eval, Cleanup
 
 ```bash
 # 1. Deploy
+export ANTHROPIC_API_KEY="..."
+HIVE_NAME=amplihive \
 HIVE_AGENT_COUNT=100 HIVE_AGENTS_PER_APP=5 \
 HIVE_AGENT_MODEL=claude-sonnet-4-6 \
 bash deploy/azure_hive/deploy.sh
 
-# 2. Feed content
+# 2. Get connection details
 SB_CONN=$(az servicebus namespace authorization-rule keys list \
   -g hive-mind-rg --namespace-name <ns> \
   --name RootManageSharedAccessKey \
   --query primaryConnectionString -o tsv)
 
-AMPLIHACK_MEMORY_CONNECTION_STRING="$SB_CONN" \
-AMPLIHACK_TOPIC_NAME="hive-events" \
-python deploy/azure_hive/feed_content.py --turns 5000
-
-# 3. Run eval
-LA_ID=$(az monitor log-analytics workspace list -g hive-mind-rg \
-  --query "[0].customerId" -o tsv)
-
-python experiments/hive_mind/query_hive.py \
-  --ooda-eval --repeats 1 \
+# 3. Run eval (feeds content + asks questions — same harness as single-agent)
+python deploy/azure_hive/eval_distributed.py \
   --connection-string "$SB_CONN" \
-  --workspace-id "$LA_ID" \
-  --topic hive-events \
-  --answer-wait 600 \
+  --input-topic hive-events-amplihive \
+  --response-topic eval-responses-amplihive \
+  --turns 5000 --questions 50 \
+  --agents 100 \
+  --grader-model claude-haiku-4-5-20251001 \
   --output results.json
 
 # 4. Cleanup
 bash deploy/azure_hive/deploy.sh --cleanup
 ```
+
+### How It Works
+
+The distributed eval uses `RemoteAgentAdapter` — a drop-in replacement for
+`LearningAgent` that forwards calls over Service Bus:
+
+```python
+from deploy.azure_hive.remote_agent_adapter import RemoteAgentAdapter
+from amplihack.eval.long_horizon_memory import LongHorizonMemoryEval
+
+adapter = RemoteAgentAdapter(sb_conn, input_topic, response_topic, agent_count=100)
+report = LongHorizonMemoryEval(turns=5000, questions=50).run(adapter)
+```
+
+- `learn_from_content()` → sends `LEARN_CONTENT` event to all agents (broadcast)
+- `answer_question()` → sends `INPUT` event to one agent (round-robin), waits for
+  `EVAL_ANSWER` on the response topic (correlated by `event_id`)
+- The agent's OODA loop processes both content and questions identically to
+  single-agent mode
+- Grading uses the same `_grade_multi_vote` hybrid grader
 
 **Details**: [Running Distributed Eval on Azure](azure-hive-qa-eval.md)
 

@@ -5,24 +5,30 @@ content, and run a Q&A evaluation against the live agents.
 
 ## Architecture Overview
 
-The distributed eval deploys N agents as Azure Container Apps. Each agent holds
-a shard of the distributed knowledge graph (DistributedHiveGraph). Agents
-communicate via Azure Service Bus topics. The eval script sends questions as
-events and collects answers from Log Analytics.
+The distributed eval uses a `RemoteAgentAdapter` that implements the same
+interface as a local `LearningAgent`. The eval harness (`LongHorizonMemoryEval`)
+uses the **exact same code path** for local and distributed evaluation — same
+question generation, same OODA loop processing, same grading, same report.
 
 ```
-feed_content.py ──publishes──► Service Bus topic (hive-events)
-                                       │
-                      ┌────────────────┼────────────────┐
-                      ▼                ▼                ▼
-                agent-0 sub      agent-1 sub   …  agent-N sub
-                (Container App)  (Container App)   (Container App)
-                      │                │                │
-                      └────────────────┼────────────────┘
-                                       ▼
-                            query_hive.py collects
-                            answers from Log Analytics
+eval_distributed.py
+  └── LongHorizonMemoryEval.run(RemoteAgentAdapter)
+        │
+        ├── adapter.learn_from_content(text)
+        │     └── Service Bus LEARN_CONTENT ──► all agents (broadcast)
+        │              → agent OODA loop: decide("store") → learn
+        │
+        ├── adapter.answer_question(text)
+        │     ├── Service Bus INPUT {event_id} ──► one agent (round-robin)
+        │     │        → agent OODA loop: decide("answer") → answer
+        │     │        → AnswerPublisher → eval-responses topic {event_id, answer}
+        │     └── ◄── collect answer by event_id correlation
+        │
+        └── _grade_multi_vote(question, answer) ──► score
 ```
+
+The agent code is identical in single-agent and distributed modes. All
+distribution happens via dependency injection at the entrypoint layer.
 
 ## Prerequisites
 
@@ -59,9 +65,10 @@ To check deployment status:
 bash deploy/azure_hive/deploy.sh --status
 ```
 
-## Step 2: Feed Content
+## Step 2: Run Eval
 
-Retrieve the Service Bus connection string and feed dialogue turns to the hive:
+The eval script handles both content feeding and question answering in a single
+command — using the same `LongHorizonMemoryEval` harness as single-agent eval:
 
 ```bash
 SB_CONN=$(az servicebus namespace authorization-rule keys list \
@@ -70,66 +77,38 @@ SB_CONN=$(az servicebus namespace authorization-rule keys list \
   --name RootManageSharedAccessKey \
   --query primaryConnectionString -o tsv)
 
-AMPLIHACK_MEMORY_CONNECTION_STRING="$SB_CONN" \
-AMPLIHACK_TOPIC_NAME="hive-events" \
-python deploy/azure_hive/feed_content.py --turns 5000
-```
-
-Replace `<YOUR-SB-NAMESPACE>` with the Service Bus namespace created by the
-deploy script (visible in `--status` output).
-
-## Step 3: Wait for Processing
-
-Poll Log Analytics to confirm agents are processing content:
-
-```bash
-LA_ID=$(az monitor log-analytics workspace list \
-  -g hive-mind-rg \
-  --query "[0].customerId" -o tsv)
-
-az monitor log-analytics query -w "$LA_ID" \
-  --analytics-query "ContainerAppConsoleLogs_CL | where TimeGenerated > ago(2m) | where Log_s has 'Completed Call' | count"
-```
-
-Wait until the count stops increasing, indicating agents have finished
-processing all turns.
-
-## Step 4: Run Eval
-
-```bash
-python experiments/hive_mind/query_hive.py \
-  --ooda-eval \
-  --repeats 1 \
+python deploy/azure_hive/eval_distributed.py \
   --connection-string "$SB_CONN" \
-  --workspace-id "$LA_ID" \
-  --topic hive-events \
-  --answer-wait 600 \
+  --input-topic hive-events-<HIVE_NAME> \
+  --response-topic eval-responses-<HIVE_NAME> \
+  --turns 5000 --questions 50 \
+  --agents 100 \
+  --grader-model claude-haiku-4-5-20251001 \
   --output results.json
 ```
 
-### Alternative: Run the keyword-match eval
+Replace `<YOUR-SB-NAMESPACE>` and `<HIVE_NAME>` with values from the deploy
+output.
 
-For a faster sanity check using keyword matching instead of LLM grading:
+### What happens during the eval
+
+1. **Generate** — creates deterministic dialogue (5000 turns) and questions (50)
+2. **Learn** — sends each turn to all agents via `LEARN_CONTENT` events
+3. **Quiz** — sends each question to one agent (round-robin) via `INPUT` events;
+   waits for `EVAL_ANSWER` on the response topic
+4. **Grade** — uses the same hybrid grader as single-agent (`_grade_multi_vote`)
+5. **Report** — writes JSON report in the same format as single-agent eval
+
+### Quick validation (smaller scale)
 
 ```bash
-python experiments/hive_mind/query_hive.py \
-  --seed --run-eval \
+python deploy/azure_hive/eval_distributed.py \
   --connection-string "$SB_CONN" \
-  --topic hive-events \
-  --output results.json
-```
-
-### Run eval multiple times for statistical stability
-
-```bash
-python experiments/hive_mind/query_hive.py \
-  --ooda-eval \
-  --repeats 3 \
-  --connection-string "$SB_CONN" \
-  --workspace-id "$LA_ID" \
-  --topic hive-events \
-  --answer-wait 600 \
-  --output results.json
+  --input-topic hive-events-<HIVE_NAME> \
+  --response-topic eval-responses-<HIVE_NAME> \
+  --turns 100 --questions 10 \
+  --agents 100 \
+  --output quick-validation.json
 ```
 
 ## Step 5: Cleanup
