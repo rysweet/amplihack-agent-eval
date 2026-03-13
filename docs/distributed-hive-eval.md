@@ -126,3 +126,32 @@ Each agent:
 | 100    | 20   | 0.25      | 0.5Gi     | 32            | 4      |
 
 Azure Container Apps Consumption plan limits: 4 CPU / 8Gi per app, 30 apps per environment.
+
+## Eval Results (2026-03-13)
+
+### 100 agents × 5000 turns: 99.29%
+
+| Category | Score |
+|---|---|
+| needle_in_haystack (4q) | 100% |
+| numerical_precision (3q) | 100% |
+| temporal_evolution (3q) | 100% |
+| cross_reference (2q) | 100% |
+| infrastructure_knowledge (1q) | 100% |
+| meta_memory (1q) | 100% |
+| security_log_analysis (1q) | 100% |
+| incident_tracking (1q) | 97.50% |
+| distractor_resistance (2q) | 97.50% |
+| source_attribution (2q) | 96.67% |
+| **OVERALL** | **99.29%** |
+
+**Infrastructure**: 20 Container Apps × 5 containers, 0.75 CPU / 1.5Gi each, EH Standard 32 partitions.
+
+**Key requirement**: Explicit `partition_id` routing in EventHubsShardTransport. Do NOT use `partition_key` — it causes 80%+ event loss when multiple agents share a consumer group.
+
+### Release Tag
+
+Results are stored as a GitHub release tag in the amplihack repo:
+`eval/hive-100agents-5000turns-99.29pct`
+
+The release includes JSON result files and re-run instructions pinned to the exact commit.
