@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -338,6 +339,27 @@ def _create_adapter(args: argparse.Namespace):
         base_url = getattr(args, "agent_url", "http://localhost:8000")
         return HttpAdapter(base_url=base_url)
 
+    elif adapter_type == "distributed-hive":
+        from .adapters.distributed_hive_adapter import DistributedHiveAdapter
+
+        conn_str = getattr(args, "connection_string", "") or os.environ.get(
+            "AMPLIHACK_EH_CONNECTION_STRING", ""
+        )
+        if not conn_str:
+            print(
+                "Error: --connection-string or AMPLIHACK_EH_CONNECTION_STRING required "
+                "for distributed-hive adapter",
+                file=sys.stderr,
+            )
+            return None
+        return DistributedHiveAdapter(
+            connection_string=conn_str,
+            input_hub=getattr(args, "input_hub", "hive-events"),
+            response_hub=getattr(args, "response_hub", "eval-responses"),
+            agent_count=getattr(args, "agents", 5),
+            answer_timeout=getattr(args, "answer_timeout", 0),
+        )
+
     else:
         print(f"Error: Unknown adapter type: {adapter_type}", file=sys.stderr)
         return None
@@ -364,12 +386,18 @@ def main() -> None:
     run_parser.add_argument("--output-dir", default="/tmp/amplihack-eval", help="Output directory")
     run_parser.add_argument(
         "--adapter",
-        choices=["http", "subprocess", "learning-agent"],
+        choices=["http", "subprocess", "learning-agent", "distributed-hive"],
         default="http",
         help="Agent adapter type",
     )
     run_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     run_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
+    # Distributed hive adapter args
+    run_parser.add_argument("--connection-string", default="", help="Event Hubs connection string")
+    run_parser.add_argument("--input-hub", default="hive-events", help="Input Event Hub name")
+    run_parser.add_argument("--response-hub", default="eval-responses", help="Response Event Hub name")
+    run_parser.add_argument("--agents", type=int, default=5, help="Number of deployed agents")
+    run_parser.add_argument("--answer-timeout", type=int, default=0, help="Answer timeout (0=none)")
     run_parser.add_argument(
         "--parallel-workers",
         type=int,
