@@ -27,9 +27,11 @@ __all__ = [
     "SharedMemoryStore",
 ]
 
+
 # Lazy import for DistributedHiveAdapter (requires azure-eventhub)
 def __getattr__(name: str):
     if name == "DistributedHiveAdapter":
         from .distributed_hive_adapter import DistributedHiveAdapter
+
         return DistributedHiveAdapter
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

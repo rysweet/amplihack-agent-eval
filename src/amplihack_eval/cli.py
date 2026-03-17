@@ -342,13 +342,10 @@ def _create_adapter(args: argparse.Namespace):
     elif adapter_type == "distributed-hive":
         from .adapters.distributed_hive_adapter import DistributedHiveAdapter
 
-        conn_str = getattr(args, "connection_string", "") or os.environ.get(
-            "AMPLIHACK_EH_CONNECTION_STRING", ""
-        )
+        conn_str = getattr(args, "connection_string", "") or os.environ.get("AMPLIHACK_EH_CONNECTION_STRING", "")
         if not conn_str:
             print(
-                "Error: --connection-string or AMPLIHACK_EH_CONNECTION_STRING required "
-                "for distributed-hive adapter",
+                "Error: --connection-string or AMPLIHACK_EH_CONNECTION_STRING required for distributed-hive adapter",
                 file=sys.stderr,
             )
             return None

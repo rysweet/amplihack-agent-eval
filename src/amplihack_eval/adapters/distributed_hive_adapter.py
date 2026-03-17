@@ -71,8 +71,13 @@ class DistributedHiveAdapter(AgentAdapter):
                     "remote_agent_adapter",
                     os.path.join(
                         os.path.dirname(__file__),
-                        "..", "..", "..", "..",
-                        "deploy", "azure_hive", "remote_agent_adapter.py",
+                        "..",
+                        "..",
+                        "..",
+                        "..",
+                        "deploy",
+                        "azure_hive",
+                        "remote_agent_adapter.py",
                     ),
                 )
                 if spec and spec.loader:
@@ -84,8 +89,7 @@ class DistributedHiveAdapter(AgentAdapter):
                     raise ImportError("Could not load remote_agent_adapter")
             except Exception as exc:
                 raise ImportError(
-                    "amplihack package with RemoteAgentAdapter required. "
-                    "Install with: pip install amplihack"
+                    "amplihack package with RemoteAgentAdapter required. Install with: pip install amplihack"
                 ) from exc
 
         self._adapter = RemoteAgentAdapter(
@@ -101,7 +105,9 @@ class DistributedHiveAdapter(AgentAdapter):
         self._question_count = 0
         logger.info(
             "DistributedHiveAdapter initialized: %d agents, hubs=%s/%s",
-            agent_count, input_hub, response_hub,
+            agent_count,
+            input_hub,
+            response_hub,
         )
 
     def learn(self, content: str) -> None:
