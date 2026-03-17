@@ -1,0 +1,2078 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Evaluation framework for goal-seeking AI agents -- memory recall, tool use, planning, and reasoning across progressive difficulty levels">
+      
+      
+      
+        <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/github-models-migration-investigation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>GitHub Models / gh LM API Migration Investigation - amplihack-agent-eval</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#github-models-gh-lm-api-migration-investigation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="amplihack-agent-eval" class="md-header__button md-logo" aria-label="amplihack-agent-eval" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            amplihack-agent-eval
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GitHub Models / gh LM API Migration Investigation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rysweet/amplihack-agent-eval" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rysweet/amplihack-agent-eval
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="amplihack-agent-eval" class="md-nav__button md-logo" aria-label="amplihack-agent-eval" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    amplihack-agent-eval
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rysweet/amplihack-agent-eval" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rysweet/amplihack-agent-eval
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-evals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running Evals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eval Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Eval Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LONG_HORIZON_EVAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long-Horizon Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hive-mind-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Mind Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../azure-hive-qa-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Eval on Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation Levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-improvement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-Improvement Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Agent Eval
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-all-eval-entry-points-and-their-sdk-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. All Eval Entry Points and Their SDK Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. All Eval Entry Points and Their SDK Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-cli-entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 CLI Entry Point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-core-evaluation-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Core Evaluation Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-multi-agent-evaluation-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Multi-Agent Evaluation Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-agent-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 Agent Adapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-currently-running-eval-do-not-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5 Currently Running Eval (DO NOT MODIFY)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-goalseekingagent-control-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. GoalSeekingAgent Control Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. GoalSeekingAgent Control Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-learningagent-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 LearningAgent Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-end-to-end-control-flow-single-agent-standard-eval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 End-to-End Control Flow (Single Agent, Standard Eval)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-end-to-end-control-flow-continuous-multi-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 End-to-End Control Flow (Continuous / Multi-Agent)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-multi-agent-eval-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Multi-Agent Eval Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-github-models-gh-lm-api-compatibility-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. GitHub Models / gh LM API Compatibility Gaps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. GitHub Models / gh LM API Compatibility Gaps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-available-models-as-of-2026-03-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Available Models (as of 2026-03-17)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-api-incompatibility-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 API Incompatibility Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-grader-specific-system-parameter-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Grader-Specific system= Parameter Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-minimal-viable-migration-plan-grader-layer-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Minimal Viable Migration Plan (Grader Layer Only)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Minimal Viable Migration Plan (Grader Layer Only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-required-code-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Required Code Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Required Code Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#change-1-srcamplihack_evalcoregraderpy-lines-225233-and-178" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change 1: src/amplihack_eval/core/grader.py (lines 225–233 and 178)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#change-2-srcamplihack_evalcorerunnerpy-lines-356414" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change 2: src/amplihack_eval/core/runner.py (lines 356–414)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#change-3-srcamplihack_evalmulti_agent_evalgrader_agentpy-lines-257287" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change 3: src/amplihack_eval/multi_agent_eval/grader_agent.py (lines 257–287)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#change-4-srcamplihack_evalmulti_agent_evaladversary_agentpy-two-functions-lines-268339-and-350400" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change 4: src/amplihack_eval/multi_agent_eval/adversary_agent.py (two functions: lines 268–339 and 350–400)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#change-5-srcamplihack_evalmulti_agent_evalanalyst_agentpy-lines-535600-specifically-541597" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change 5: src/amplihack_eval/multi_agent_eval/analyst_agent.py (lines 535–600, specifically 541–597)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#change-6-pyprojecttoml-optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change 6: pyproject.toml (optional dependencies)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-learningagent-model-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 LearningAgent Model Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-summary-change-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Summary Change Table
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-blockers-and-severity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Blockers and Severity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Blockers and Severity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blocker-1-no-claude-equivalent-on-github-models-severity-high" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blocker 1 — No Claude Equivalent on GitHub Models (SEVERITY: HIGH)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocker-2-system-top-level-parameter-in-grader_agentpy-severity-medium" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blocker 2 — system= Top-Level Parameter in grader_agent.py (SEVERITY: MEDIUM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocker-3-anthropic_api_key-error-messages-in-graders-severity-low" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blocker 3 — ANTHROPIC_API_KEY Error Messages in Graders (SEVERITY: LOW)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocker-4-litellm-provider-prefix-for-learningagent-severity-medium" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blocker 4 — litellm Provider Prefix for LearningAgent (SEVERITY: MEDIUM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocker-5-rate-limits-quota-on-github-models-severity-medium" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blocker 5 — Rate Limits / Quota on GitHub Models (SEVERITY: MEDIUM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-concrete-validation-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Concrete Validation Steps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Concrete Validation Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-verify-github-token-and-models-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Verify GitHub Token and Models Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-install-openai-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Install openai Package
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-unit-test-grader-with-github-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Unit-Test Grader with GitHub Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-100-turn-smoke-eval-parallel-non-disruptive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: 100-Turn Smoke Eval (Parallel, Non-Disruptive)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-verify-running-eval-unaffected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Verify Running Eval Unaffected
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-6-calibration-run-before-full-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Calibration Run (Before Full Migration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-is-provider-only-swap-sufficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Is Provider-Only Swap Sufficient?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-files-not-requiring-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Files Not Requiring Changes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-recommended-migration-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Recommended Migration Order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="github-models-gh-lm-api-migration-investigation">GitHub Models / gh LM API Migration Investigation<a class="headerlink" href="#github-models-gh-lm-api-migration-investigation" title="Permanent link">&para;</a></h1>
+<p><strong>Issue</strong>: <a href="https://github.com/rysweet/amplihack-agent-eval/issues/40">#40</a>
+<strong>Date</strong>: 2026-03-17
+<strong>Status</strong>: Investigation Complete — Implementation Pending
+<strong>Constraint</strong>: The currently running 5000-turn distributed eval MUST NOT be interrupted.</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Migrating the benchmark/eval grading workloads from the Anthropic Python SDK to GitHub Models (OpenAI-compatible endpoint at <code>https://models.inference.ai.azure.com</code>) requires <strong>6 files</strong> to change, targeting <strong>7 distinct <code>client.messages.create()</code> call sites</strong>. The subject under evaluation — <code>LearningAgent</code> — already uses <code>litellm</code> (provider-agnostic) so only the grader layer requires SDK changes.</p>
+<p>The migration is viable with <strong>one breaking compatibility gap</strong> (<code>system=</code> top-level parameter in <code>grader_agent.py</code>) and <strong>one quality risk</strong> (no Claude model available on GitHub Models free tier — only <code>gpt-4o</code>, <code>gpt-4o-mini</code>, and open-source LLaMA/Mistral models are present). The switch can be performed without touching the running eval.</p>
+<hr />
+<h2 id="1-all-eval-entry-points-and-their-sdk-dependencies">1. All Eval Entry Points and Their SDK Dependencies<a class="headerlink" href="#1-all-eval-entry-points-and-their-sdk-dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="11-cli-entry-point">1.1 CLI Entry Point<a class="headerlink" href="#11-cli-entry-point" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>src/amplihack_eval/cli.py:368–561</code>
+<strong>Command</strong>: <code>amplihack-eval</code> (registered in <code>pyproject.toml:43</code>)</p>
+<table>
+<thead>
+<tr>
+<th>Subcommand</th>
+<th>Lines</th>
+<th>Delegates To</th>
+<th>Anthropic SDK?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run</code></td>
+<td>30–119</td>
+<td><code>EvalRunner</code></td>
+<td>Indirect (via grader)</td>
+</tr>
+<tr>
+<td><code>compare</code></td>
+<td>121–158</td>
+<td><code>run_multi_seed_eval()</code></td>
+<td>Indirect (via grader)</td>
+</tr>
+<tr>
+<td><code>self-improve</code></td>
+<td>161–197</td>
+<td><code>run_self_improve()</code></td>
+<td>Indirect (via grader)</td>
+</tr>
+<tr>
+<td><code>report</code></td>
+<td>200–211</td>
+<td>Print saved JSON</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>download-dataset</code></td>
+<td>214–237</td>
+<td><code>DatasetDownloader</code></td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>list-datasets</code></td>
+<td>240–267</td>
+<td><code>DatasetLister</code></td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>continuous</code></td>
+<td>270–305</td>
+<td><code>run_continuous_eval()</code></td>
+<td>Indirect (via grader)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-core-evaluation-files">1.2 Core Evaluation Files<a class="headerlink" href="#12-core-evaluation-files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Anthropic SDK Usage</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/amplihack_eval/core/grader.py</code></td>
+<td>225–231, 178</td>
+<td>Direct — <code>anthropic.Anthropic()</code> + <code>client.messages.create()</code></td>
+<td>Main grader, used by all eval types</td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/core/runner.py</code></td>
+<td>356–368, 408–412</td>
+<td>Direct — <code>anthropic.Anthropic()</code> + <code>client.messages.create()</code></td>
+<td>Dimension-based grading</td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/core/continuous_eval.py</code></td>
+<td>None direct</td>
+<td>None — delegates to above</td>
+<td>Calls <code>grade_answer()</code> from grader</td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/core/multi_seed.py</code></td>
+<td>None direct</td>
+<td>None</td>
+<td>Orchestrates EvalRunner</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-multi-agent-evaluation-files">1.3 Multi-Agent Evaluation Files<a class="headerlink" href="#13-multi-agent-evaluation-files" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Anthropic SDK Usage</th>
+<th>Special Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/amplihack_eval/multi_agent_eval/grader_agent.py</code></td>
+<td>257–268, 280–285</td>
+<td>Direct — <code>anthropic.Anthropic()</code> + <code>client.messages.create()</code></td>
+<td><strong>Uses <code>system=self._system_prompt</code> top-level param</strong></td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/multi_agent_eval/adversary_agent.py</code></td>
+<td>268–275, 314–318 (fn1) and 350–357, 382–387 (fn2)</td>
+<td>Direct — two separate functions each create a client</td>
+<td>No system param</td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/multi_agent_eval/analyst_agent.py</code></td>
+<td>545–547</td>
+<td>Direct — <code>anthropic.Anthropic()</code> + <code>client.messages.create()</code></td>
+<td>No system param</td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/multi_agent_eval/pipeline.py</code></td>
+<td>None direct</td>
+<td>None — orchestrates above agents</td>
+<td></td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/multi_agent_eval/coordinator.py</code></td>
+<td>None direct</td>
+<td>None — orchestrates above agents</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-agent-adapter">1.4 Agent Adapter<a class="headerlink" href="#14-agent-adapter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Anthropic SDK Usage</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/amplihack_eval/adapters/learning_agent.py</code></td>
+<td>54–56</td>
+<td>None — imports <code>amplihack.agents.goal_seeking.learning_agent.LearningAgent</code></td>
+<td>Model name passed as string; agent uses litellm internally</td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/adapters/hive_mind_adapter.py</code></td>
+<td>—</td>
+<td>None</td>
+<td></td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/adapters/http_adapter.py</code></td>
+<td>—</td>
+<td>None</td>
+<td></td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/adapters/subprocess_adapter.py</code></td>
+<td>—</td>
+<td>None</td>
+<td></td>
+</tr>
+<tr>
+<td><code>src/amplihack_eval/adapters/distributed_hive_adapter.py</code></td>
+<td>—</td>
+<td>None</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-currently-running-eval-do-not-modify">1.5 Currently Running Eval (DO NOT MODIFY)<a class="headerlink" href="#15-currently-running-eval-do-not-modify" title="Permanent link">&para;</a></h3>
+<p>The active 5000-turn eval runs <strong>outside</strong> <code>amplihack-agent-eval</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/home/azureuser/src/amplihack/deploy/azure_hive/eval_distributed.py
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  --connection-string Endpoint=sb://hive-eh-atmex3kma74gg.servicebus.windows.net/...
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  --input-hub hive-events-amplihive3175
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  --response-hub eval-responses-amplihive3175
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  --turns 5000  --questions 50  --agents 10  --seed 42
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  --grader-model claude-haiku-4-5-20251001
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  --output /tmp/pr3175_eval_dist_5000turns_2d4257cf3_clean_lh5000_2d4257cf3_rerun_162705.json
+</code></pre></div>
+<p><strong>Grader model</strong>: <code>claude-haiku-4-5-20251001</code> (Anthropic SDK, hardcoded in <code>eval_distributed.py:54</code>).
+This eval uses the <code>amplihack</code> repo's own grader, not <code>amplihack-agent-eval</code>'s <code>core/grader.py</code>.
+<strong>Do not change <code>eval_distributed.py</code> or any files in <code>amplihack/deploy/</code> until this eval completes.</strong></p>
+<hr />
+<h2 id="2-goalseekingagent-control-flow">2. GoalSeekingAgent Control Flow<a class="headerlink" href="#2-goalseekingagent-control-flow" title="Permanent link">&para;</a></h2>
+<h3 id="21-learningagent-architecture">2.1 LearningAgent Architecture<a class="headerlink" href="#21-learningagent-architecture" title="Permanent link">&para;</a></h3>
+<p>The subject under evaluation is <code>amplihack.agents.goal_seeking.learning_agent.LearningAgent</code> (not in this repo). Key properties:</p>
+<ul>
+<li><strong>SDK</strong>: Uses <code>litellm.completion()</code> — <strong>provider-agnostic</strong></li>
+<li><strong>Model format</strong>: litellm model string passed as <code>model=</code> parameter</li>
+<li><strong>Entry point in this repo</strong>: <code>src/amplihack_eval/adapters/learning_agent.py:73</code></li>
+</ul>
+<h3 id="22-end-to-end-control-flow-single-agent-standard-eval">2.2 End-to-End Control Flow (Single Agent, Standard Eval)<a class="headerlink" href="#22-end-to-end-control-flow-single-agent-standard-eval" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>amplihack-eval run \
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    --adapter learning-agent \
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    --model claude-sonnet-4-5-20250929 \
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    --grader-model claude-sonnet-4-5-20250929
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        │
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        ▼
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>cli.py:_cmd_run()
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    │  Creates adapter via _create_adapter()
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    ▼
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>adapters/learning_agent.py:LearningAgentAdapter.__init__()
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │  Imports and instantiates LearningAgent(model=&quot;claude-sonnet-4-5-20250929&quot;)
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │  LearningAgent uses litellm.completion(model=...) internally
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    ▼
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>core/runner.py:EvalRunner.run()
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    │  For each (content_block, question):
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    │    1. adapter.learn(content)        → LearningAgent.learn_from_content()
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    │    2. adapter.answer(question)      → LearningAgent.answer_question()
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    │    3. grade_answer(question, expected, actual, level)
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    │         ▼
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    │    core/grader.py:grade_answer()
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    │         anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    │         client.messages.create(model=GRADER_MODEL, ...)
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    │         message.content[0].text → parse JSON → GradeResult
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    └── Return EvalReport
+</code></pre></div>
+<h3 id="23-end-to-end-control-flow-continuous-multi-agent">2.3 End-to-End Control Flow (Continuous / Multi-Agent)<a class="headerlink" href="#23-end-to-end-control-flow-continuous-multi-agent" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>amplihack-eval continuous
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>        │
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        ▼
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>core/continuous_eval.py:run_continuous_eval()
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    │  Conditions: single | flat | federated
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    │
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    ├── _run_single(): 1 LearningAgent instance
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    ├── _run_flat():   N LearningAgent instances + InMemoryHiveGraph
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    └── _run_federated(): N LearningAgent instances + DistributedHiveGraph
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    │
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    For each condition:
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>        adapt → run EvalRunner
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                    ▼
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>                core/grader.py  (Anthropic SDK)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>                core/runner.py  (Anthropic SDK — dimension grading)
+</code></pre></div>
+<h3 id="24-multi-agent-eval-flow">2.4 Multi-Agent Eval Flow<a class="headerlink" href="#24-multi-agent-eval-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>amplihack-eval run --adapter learning-agent (with multi-agent pipeline enabled)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        │
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        ▼
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>multi_agent_eval/coordinator.py:EvalCoordinator.run_eval()
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    │
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    ├── adversary_agent.py:AdversaryAgent.generate_adversarial_questions()
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    │       Anthropic SDK — generates hard follow-up questions
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    ├── adversary_agent.py:AdversaryAgent.generate_forgetting_probes()
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    │       Anthropic SDK — generates memory-decay probe questions
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    ├── grader_agent.py:GraderAgent._grade_with_llm()  [multiple perspectives]
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    │       Anthropic SDK — perspective-aware grading
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    │       *** Uses system= top-level param (Anthropic-specific) ***
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    └── analyst_agent.py:AnalystAgent.analyze()
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>            Anthropic SDK — pattern analysis across results
+</code></pre></div>
+<hr />
+<h2 id="3-github-models-gh-lm-api-compatibility-gaps">3. GitHub Models / gh LM API Compatibility Gaps<a class="headerlink" href="#3-github-models-gh-lm-api-compatibility-gaps" title="Permanent link">&para;</a></h2>
+<p>GitHub Models exposes an <strong>OpenAI-compatible</strong> endpoint:</p>
+<ul>
+<li><strong>Base URL</strong>: <code>https://models.inference.ai.azure.com</code></li>
+<li><strong>Auth</strong>: <code>Authorization: Bearer $GITHUB_TOKEN</code> (PAT or <code>gh auth token</code>)</li>
+<li><strong>SDK</strong>: <code>openai</code> Python SDK (not <code>anthropic</code>)</li>
+</ul>
+<h3 id="31-available-models-as-of-2026-03-17">3.1 Available Models (as of 2026-03-17)<a class="headerlink" href="#31-available-models-as-of-2026-03-17" title="Permanent link">&para;</a></h3>
+<p>Confirmed via <code>gh api https://models.inference.ai.azure.com/models</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Task</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gpt-4o</code></td>
+<td>chat-completion</td>
+<td>Best quality, higher cost</td>
+</tr>
+<tr>
+<td><code>gpt-4o-mini</code></td>
+<td>chat-completion</td>
+<td>Cheaper, adequate for grading</td>
+</tr>
+<tr>
+<td><code>Meta-Llama-3.1-405B-Instruct</code></td>
+<td>chat-completion</td>
+<td>Large open-source model</td>
+</tr>
+<tr>
+<td><code>Meta-Llama-3.1-70B-Instruct</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Meta-Llama-3.1-8B-Instruct</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Meta-Llama-3-70B-Instruct</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Meta-Llama-3-8B-Instruct</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mistral-large-2407</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+<tr>
+<td><code>Mistral-Nemo</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+<tr>
+<td><code>AI21-Jamba-Instruct</code></td>
+<td>chat-completion</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>No Claude model is available on GitHub Models.</strong> The closest quality equivalent for grading tasks is <code>gpt-4o</code> or <code>gpt-4o-mini</code>.</p>
+<h3 id="32-api-incompatibility-matrix">3.2 API Incompatibility Matrix<a class="headerlink" href="#32-api-incompatibility-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Anthropic SDK</th>
+<th>GitHub Models (OpenAI SDK)</th>
+<th>Breaking?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Package</strong></td>
+<td><code>anthropic&gt;=0.30.0</code></td>
+<td><code>openai&gt;=1.0.0</code></td>
+<td>YES — different package</td>
+</tr>
+<tr>
+<td><strong>Client init</strong></td>
+<td><code>anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)</code></td>
+<td><code>openai.OpenAI(base_url="https://models.inference.ai.azure.com", api_key=GITHUB_TOKEN)</code></td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>Auth env var</strong></td>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td><code>GITHUB_TOKEN</code> (or <code>GH_TOKEN</code>)</td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>Request method</strong></td>
+<td><code>client.messages.create(...)</code></td>
+<td><code>client.chat.completions.create(...)</code></td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>System prompt</strong></td>
+<td><code>system="..."</code> top-level param</td>
+<td><code>{"role": "system", "content": "..."}</code> in messages list</td>
+<td>YES (affects <code>grader_agent.py:283</code>)</td>
+</tr>
+<tr>
+<td><strong>Response access</strong></td>
+<td><code>message.content[0].text</code></td>
+<td><code>response.choices[0].message.content</code></td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>Streaming</strong></td>
+<td>Not used in eval pipeline</td>
+<td>Not needed (no streaming in eval)</td>
+<td>No change needed</td>
+</tr>
+<tr>
+<td><strong>Tool use</strong></td>
+<td>Not used in eval pipeline</td>
+<td>Not needed</td>
+<td>No change needed</td>
+</tr>
+<tr>
+<td><strong>Model names</strong></td>
+<td><code>claude-sonnet-4-5-20250929</code></td>
+<td><code>gpt-4o</code>, <code>gpt-4o-mini</code>, etc.</td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>max_tokens param</strong></td>
+<td><code>max_tokens=...</code></td>
+<td><code>max_tokens=...</code></td>
+<td>No change</td>
+</tr>
+<tr>
+<td><strong>messages format</strong></td>
+<td><code>[{"role": "user", "content": "..."}]</code></td>
+<td>Same format</td>
+<td>No change</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-grader-specific-system-parameter-issue">3.3 Grader-Specific <code>system=</code> Parameter Issue<a class="headerlink" href="#33-grader-specific-system-parameter-issue" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>src/amplihack_eval/multi_agent_eval/grader_agent.py:283</code>
+<strong>Current code</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">system</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_system_prompt</span><span class="p">,</span>          <span class="c1"># ← Anthropic top-level param</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
+</code></pre></div>
+<strong>Required change</strong> for OpenAI SDK:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_system_prompt</span><span class="p">},</span>  <span class="c1"># ← moved into messages</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">},</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="p">],</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h2 id="4-minimal-viable-migration-plan-grader-layer-only">4. Minimal Viable Migration Plan (Grader Layer Only)<a class="headerlink" href="#4-minimal-viable-migration-plan-grader-layer-only" title="Permanent link">&para;</a></h2>
+<p>This plan changes <strong>only the grader layer</strong>. The subject under evaluation (LearningAgent via litellm) is unchanged.</p>
+<h3 id="41-required-code-changes">4.1 Required Code Changes<a class="headerlink" href="#41-required-code-changes" title="Permanent link">&para;</a></h3>
+<h4 id="change-1-srcamplihack_evalcoregraderpy-lines-225233-and-178">Change 1: <code>src/amplihack_eval/core/grader.py</code> (lines 225–233 and 178)<a class="headerlink" href="#change-1-srcamplihack_evalcoregraderpy-lines-225233-and-178" title="Permanent link">&para;</a></h4>
+<p><strong>Before:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">api_key</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY environment variable is required for grading&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kn">import</span><span class="w"> </span><span class="nn">anthropic</span>  <span class="c1"># type: ignore[import-untyped]</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">client</span> <span class="o">=</span> <span class="n">anthropic</span><span class="o">.</span><span class="n">Anthropic</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">grader_model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GRADER_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;claude-sonnet-4-5-20250929&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># ...</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="n">response_text</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+</code></pre></div></p>
+<p><strong>After:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">github_token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GITHUB_TOKEN&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GH_TOKEN&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">if</span> <span class="ow">not</span> <span class="n">github_token</span><span class="p">:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;GITHUB_TOKEN environment variable is required for grading&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">client</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">OpenAI</span><span class="p">(</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://models.inference.ai.azure.com&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="n">api_key</span><span class="o">=</span><span class="n">github_token</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">)</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="n">grader_model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GRADER_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="c1"># ...</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="p">)</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">response_text</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+</code></pre></div></p>
+<h4 id="change-2-srcamplihack_evalcorerunnerpy-lines-356414">Change 2: <code>src/amplihack_eval/core/runner.py</code> (lines 356–414)<a class="headerlink" href="#change-2-srcamplihack_evalcorerunnerpy-lines-356414" title="Permanent link">&para;</a></h4>
+<p>Same pattern as Change 1 — replace Anthropic client init and API call with OpenAI/GitHub Models equivalent.</p>
+<ul>
+<li>Replace <code>anthropic.Anthropic(api_key=...)</code> → <code>openai.OpenAI(base_url=..., api_key=...)</code></li>
+<li>Replace <code>client.messages.create(...)</code> → <code>client.chat.completions.create(...)</code></li>
+<li>Replace <code>message.content[0].text</code> → <code>response.choices[0].message.content</code></li>
+<li>Replace <code>ANTHROPIC_API_KEY</code> → <code>GITHUB_TOKEN</code></li>
+</ul>
+<h4 id="change-3-srcamplihack_evalmulti_agent_evalgrader_agentpy-lines-257287">Change 3: <code>src/amplihack_eval/multi_agent_eval/grader_agent.py</code> (lines 257–287)<a class="headerlink" href="#change-3-srcamplihack_evalmulti_agent_evalgrader_agentpy-lines-257287" title="Permanent link">&para;</a></h4>
+<p><strong>Additional change needed</strong>: Move <code>system=self._system_prompt</code> into the messages list:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_system_prompt</span><span class="p">},</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">},</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">]</span>
+</code></pre></div>
+<p>All other Anthropic → OpenAI substitutions apply.</p>
+<h4 id="change-4-srcamplihack_evalmulti_agent_evaladversary_agentpy-two-functions-lines-268339-and-350400">Change 4: <code>src/amplihack_eval/multi_agent_eval/adversary_agent.py</code> (two functions: lines 268–339 and 350–400)<a class="headerlink" href="#change-4-srcamplihack_evalmulti_agent_evaladversary_agentpy-two-functions-lines-268339-and-350400" title="Permanent link">&para;</a></h4>
+<p>Two separate client-creation patterns in <code>_generate_via_llm()</code> (lines 260–339) and <code>generate_forgetting_probes()</code> (lines 350–400). Both follow same substitution. No <code>system=</code> parameter is used in either function.</p>
+<h4 id="change-5-srcamplihack_evalmulti_agent_evalanalyst_agentpy-lines-535600-specifically-541597">Change 5: <code>src/amplihack_eval/multi_agent_eval/analyst_agent.py</code> (lines 535–600, specifically 541–597)<a class="headerlink" href="#change-5-srcamplihack_evalmulti_agent_evalanalyst_agentpy-lines-535600-specifically-541597" title="Permanent link">&para;</a></h4>
+<p><code>_suggest_improvements_llm()</code> function. No <code>system=</code> parameter is used — verified at lines 591–594:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># analyst_agent.py:591–594 (current, confirmed)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">}],</span>  <span class="c1"># no system= param</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">)</span>
+</code></pre></div>
+Standard substitution applies.</p>
+<h4 id="change-6-pyprojecttoml-optional-dependencies">Change 6: <code>pyproject.toml</code> (optional dependencies)<a class="headerlink" href="#change-6-pyprojecttoml-optional-dependencies" title="Permanent link">&para;</a></h4>
+<p><strong>Before:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">[project.optional-dependencies]</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">anthropic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;anthropic&gt;=0.30.0&quot;</span><span class="p">]</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">openai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;openai&gt;=1.0.0&quot;</span><span class="p">]</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;anthropic&gt;=0.30.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;openai&gt;=1.0.0&quot;</span><span class="p">]</span>
+</code></pre></div></p>
+<p><strong>After (GitHub Models only):</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">[project.optional-dependencies]</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">anthropic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;anthropic&gt;=0.30.0&quot;</span><span class="p">]</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">github-models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;openai&gt;=1.0.0&quot;</span><span class="p">]</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">openai</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;openai&gt;=1.0.0&quot;</span><span class="p">]</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;anthropic&gt;=0.30.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;openai&gt;=1.0.0&quot;</span><span class="p">]</span>
+</code></pre></div></p>
+<p>The <code>openai</code> extra already exists — no new dependency needed.</p>
+<h3 id="42-learningagent-model-configuration">4.2 LearningAgent Model Configuration<a class="headerlink" href="#42-learningagent-model-configuration" title="Permanent link">&para;</a></h3>
+<p>For the <strong>subject under test</strong> (LearningAgent), the <code>--model</code> / <code>EVAL_MODEL</code> value must be changed to match the litellm provider prefix format:</p>
+<table>
+<thead>
+<tr>
+<th>Before (Anthropic)</th>
+<th>After (GitHub Models via litellm)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-sonnet-4-5-20250929</code></td>
+<td><code>openai/gpt-4o</code></td>
+</tr>
+<tr>
+<td><code>claude-opus-4-6</code></td>
+<td><code>openai/gpt-4o</code></td>
+</tr>
+<tr>
+<td><code>claude-haiku-4-5-20251001</code></td>
+<td><code>openai/gpt-4o-mini</code></td>
+</tr>
+</tbody>
+</table>
+<p>And set environment variable:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_BASE</span><span class="o">=</span><span class="s2">&quot;https://models.inference.ai.azure.com&quot;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GITHUB_TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+<p>litellm routes based on model prefix — <code>openai/gpt-4o</code> tells litellm to use OpenAI-compatible endpoint with the configured <code>OPENAI_API_BASE</code>.</p>
+<h3 id="43-summary-change-table">4.3 Summary Change Table<a class="headerlink" href="#43-summary-change-table" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change Type</th>
+<th>LOC Changed</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>core/grader.py</code></td>
+<td>Client init + API call pattern</td>
+<td>~8 lines</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><code>core/runner.py</code></td>
+<td>Client init + API call pattern</td>
+<td>~8 lines</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><code>multi_agent_eval/grader_agent.py</code></td>
+<td>Client init + API call + <code>system=</code> param fix</td>
+<td>~12 lines</td>
+<td>Medium (system param)</td>
+</tr>
+<tr>
+<td><code>multi_agent_eval/adversary_agent.py</code></td>
+<td>Client init + API call × 2</td>
+<td>~16 lines</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><code>multi_agent_eval/analyst_agent.py</code></td>
+<td>Client init + API call</td>
+<td>~8 lines</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>Add <code>github-models</code> extra</td>
+<td>~2 lines</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>~54 lines</strong></td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-blockers-and-severity">5. Blockers and Severity<a class="headerlink" href="#5-blockers-and-severity" title="Permanent link">&para;</a></h2>
+<h3 id="blocker-1-no-claude-equivalent-on-github-models-severity-high">Blocker 1 — No Claude Equivalent on GitHub Models (SEVERITY: HIGH)<a class="headerlink" href="#blocker-1-no-claude-equivalent-on-github-models-severity-high" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: GitHub Models free tier does not include any Claude model. The benchmark was designed and tuned with Claude graders (<code>claude-sonnet-4-5-20250929</code>). Grading quality with <code>gpt-4o</code> may differ, making results non-comparable with historical runs.</p>
+<p><strong>Impact</strong>: Benchmark scores before and after migration are <strong>not directly comparable</strong> without re-running baseline evals.</p>
+<p><strong>Mitigation</strong>:
+1. Run a parallel 100-turn smoke test with both graders to establish a calibration delta before switching.
+2. Accept <code>gpt-4o</code> as the new grader baseline and document the model change in eval reports.</p>
+<h3 id="blocker-2-system-top-level-parameter-in-grader_agentpy-severity-medium">Blocker 2 — <code>system=</code> Top-Level Parameter in <code>grader_agent.py</code> (SEVERITY: MEDIUM)<a class="headerlink" href="#blocker-2-system-top-level-parameter-in-grader_agentpy-severity-medium" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: <code>grader_agent.py:283</code> uses <code>system=self._system_prompt</code> as a top-level Anthropic-specific parameter. OpenAI SDK does not accept this; it must be moved into the messages list as <code>{"role": "system", ...}</code>.</p>
+<p><strong>Impact</strong>: Runtime <code>TypeError</code> if not fixed before switching.</p>
+<p><strong>Mitigation</strong>: Simple mechanical fix — move <code>system=</code> into <code>messages[0]</code>.</p>
+<h3 id="blocker-3-anthropic_api_key-error-messages-in-graders-severity-low">Blocker 3 — <code>ANTHROPIC_API_KEY</code> Error Messages in Graders (SEVERITY: LOW)<a class="headerlink" href="#blocker-3-anthropic_api_key-error-messages-in-graders-severity-low" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: All 5 grader files raise <code>OSError("ANTHROPIC_API_KEY environment variable is required...")</code> when key is missing. After migration, this error message is misleading.</p>
+<p><strong>Impact</strong>: Confusing error messages, not a runtime failure if key is absent.</p>
+<p><strong>Mitigation</strong>: Update error message to <code>GITHUB_TOKEN</code> in all 5 files (trivial).</p>
+<h3 id="blocker-4-litellm-provider-prefix-for-learningagent-severity-medium">Blocker 4 — litellm Provider Prefix for LearningAgent (SEVERITY: MEDIUM)<a class="headerlink" href="#blocker-4-litellm-provider-prefix-for-learningagent-severity-medium" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: The LearningAgent uses litellm with model names like <code>claude-sonnet-4-5-20250929</code>. litellm auto-detects Anthropic provider from model name. For GitHub Models, the model name must include the provider prefix <code>openai/</code> and <code>OPENAI_API_BASE</code> must be set.</p>
+<p><strong>Impact</strong>: Without the prefix, litellm will attempt to reach Anthropic's API with a GitHub model name and fail.</p>
+<p><strong>Mitigation</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_MODEL</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_BASE</span><span class="o">=</span><span class="s2">&quot;https://models.inference.ai.azure.com&quot;</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GITHUB_TOKEN</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+<h3 id="blocker-5-rate-limits-quota-on-github-models-severity-medium">Blocker 5 — Rate Limits / Quota on GitHub Models (SEVERITY: MEDIUM)<a class="headerlink" href="#blocker-5-rate-limits-quota-on-github-models-severity-medium" title="Permanent link">&para;</a></h3>
+<p><strong>Description</strong>: GitHub Models free tier has per-minute and per-day rate limits. A 5000-turn eval with 50 questions × 1 grading call each = 250,000 grading calls. This likely exceeds free tier quota.</p>
+<p><strong>Impact</strong>: Eval may fail partway through due to 429 rate-limit errors.</p>
+<p><strong>Mitigation</strong>:
+1. Test with a 100-turn smoke run first.
+2. The existing <code>_single_grade_call()</code> in <code>grader.py</code> already catches exceptions per-vote — add a retry with exponential backoff.
+3. Consider GitHub Models paid tier or Azure AI inference endpoint for large evals.</p>
+<hr />
+<h2 id="6-concrete-validation-steps">6. Concrete Validation Steps<a class="headerlink" href="#6-concrete-validation-steps" title="Permanent link">&para;</a></h2>
+<p>These steps confirm a successful migration <strong>without touching the running 5000-turn eval</strong>.</p>
+<h3 id="step-1-verify-github-token-and-models-access">Step 1: Verify GitHub Token and Models Access<a class="headerlink" href="#step-1-verify-github-token-and-models-access" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Confirm gh CLI is authenticated</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>gh<span class="w"> </span>auth<span class="w"> </span>status
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Confirm GitHub Models endpoint is reachable</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="k">$(</span>gh<span class="w"> </span>auth<span class="w"> </span>token<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span>https://models.inference.ai.azure.com/models<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json,sys; models=json.load(sys.stdin); print([m[&#39;name&#39;] for m in models[:5]])&quot;</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1"># Quick smoke test — single API call</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="s2">import openai, os</span>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="s2">client = openai.OpenAI(</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="s2">    base_url=&#39;https://models.inference.ai.azure.com&#39;,</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="s2">    api_key=&#39;</span><span class="k">$(</span>gh<span class="w"> </span>auth<span class="w"> </span>token<span class="k">)</span><span class="s2">&#39;,</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="s2">)</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="s2">r = client.chat.completions.create(</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="s2">    model=&#39;gpt-4o-mini&#39;,</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="s2">    max_tokens=50,</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="s2">    messages=[{&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;Reply with just OK.&#39;}],</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="s2">)</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="s2">print(r.choices[0].message.content)</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="step-2-install-openai-package">Step 2: Install openai Package<a class="headerlink" href="#step-2-install-openai-package" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># In the amplihack-agent-eval venv</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;amplihack-agent-eval[openai]&#39;</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># or directly:</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;openai&gt;=1.0.0&#39;</span>
+</code></pre></div>
+<h3 id="step-3-unit-test-grader-with-github-models">Step 3: Unit-Test Grader with GitHub Models<a class="headerlink" href="#step-3-unit-test-grader-with-github-models" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GITHUB_TOKEN</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>gh<span class="w"> </span>auth<span class="w"> </span>token<span class="k">)</span><span class="s2">&quot;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GRADER_MODEL</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Run grader unit test with GitHub Models</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="s2">import os</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="s2">os.environ[&#39;GITHUB_TOKEN&#39;] = os.environ.get(&#39;GITHUB_TOKEN&#39;, &#39;&#39;)</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="s2">os.environ[&#39;GRADER_MODEL&#39;] = &#39;gpt-4o-mini&#39;</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="s2"># After applying migration changes to core/grader.py:</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="s2">from amplihack_eval.core.grader import grade_answer</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="s2">result = grade_answer(</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="s2">    question=&#39;What is the capital of France?&#39;,</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="s2">    expected=&#39;Paris&#39;,</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="s2">    actual=&#39;The capital of France is Paris.&#39;,</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a><span class="s2">    level=&#39;L1&#39;,</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="s2">)</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="s2">print(f&#39;Score: {result.score}, Reasoning: {result.reasoning}&#39;)</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="s2">assert result.score &gt;= 0.8, f&#39;Expected score &gt;= 0.8, got {result.score}&#39;</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="s2">print(&#39;PASS: grader works with GitHub Models&#39;)</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="step-4-100-turn-smoke-eval-parallel-non-disruptive">Step 4: 100-Turn Smoke Eval (Parallel, Non-Disruptive)<a class="headerlink" href="#step-4-100-turn-smoke-eval-parallel-non-disruptive" title="Permanent link">&para;</a></h3>
+<p>Run a small-scale eval alongside the running 5000-turn eval to validate end-to-end:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GITHUB_TOKEN</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>gh<span class="w"> </span>auth<span class="w"> </span>token<span class="k">)</span><span class="s2">&quot;</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GRADER_MODEL</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">EVAL_MODEL</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o-mini&quot;</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_BASE</span><span class="o">=</span><span class="s2">&quot;https://models.inference.ai.azure.com&quot;</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GITHUB_TOKEN</span><span class="s2">&quot;</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">  </span>--model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EVAL_MODEL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">  </span>--grader-model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GRADER_MODEL</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">  </span>--output<span class="w"> </span>/tmp/github-models-smoke-<span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span>.json
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="c1"># Compare scores to baseline (from a previous Anthropic-graded run)</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a><span class="s2">import json</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="s2">with open(&#39;/tmp/eval-sonnet-5000-FINAL.json&#39;) as f:  # adjust path</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="s2">    baseline = json.load(f)</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="s2"># load new result and compare</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="s2">print(&#39;Baseline overall score:&#39;, baseline.get(&#39;overall_score&#39;))</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="step-5-verify-running-eval-unaffected">Step 5: Verify Running Eval Unaffected<a class="headerlink" href="#step-5-verify-running-eval-unaffected" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Check the running 5000-turn eval is still running</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>cat<span class="w"> </span>/tmp/current_eval_pid.txt<span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>eval_distributed<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span>grep
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1"># Check its output log for recent activity</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>tail<span class="w"> </span>-5<span class="w"> </span>/tmp/pr3175_eval_dist_5000turns_2d4257cf3_clean_lh5000_2d4257cf3_rerun_162705.log<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Check eval log directly via: ps aux | grep eval_distributed&quot;</span>
+</code></pre></div>
+<h3 id="step-6-calibration-run-before-full-migration">Step 6: Calibration Run (Before Full Migration)<a class="headerlink" href="#step-6-calibration-run-before-full-migration" title="Permanent link">&para;</a></h3>
+<p>To quantify grading quality delta between Anthropic and GitHub Models:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Run same dataset with Anthropic grader (existing)</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="nv">GRADER_MODEL</span><span class="o">=</span>claude-sonnet-4-5-20250929<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--turns<span class="w"> </span><span class="m">300</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span>--output<span class="w"> </span>/tmp/calibration-anthropic.json
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="c1"># Run same dataset with GitHub Models grader (migrated)</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="nv">GRADER_MODEL</span><span class="o">=</span>gpt-4o-mini<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">  </span>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--turns<span class="w"> </span><span class="m">300</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">  </span>--output<span class="w"> </span>/tmp/calibration-github-models.json
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="c1"># Compare</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="s2">import json</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="s2">a = json.load(open(&#39;/tmp/calibration-anthropic.json&#39;))</span>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="s2">g = json.load(open(&#39;/tmp/calibration-github-models.json&#39;))</span>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="s2">print(f&#39;Anthropic: {a.get(\&quot;overall_score\&quot;, 0):.3f}&#39;)</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="s2">print(f&#39;GitHub Models: {g.get(\&quot;overall_score\&quot;, 0):.3f}&#39;)</span>
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="s2">print(f&#39;Delta: {abs(a.get(\&quot;overall_score\&quot;, 0) - g.get(\&quot;overall_score\&quot;, 0)):.3f}&#39;)</span>
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="s2">&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="7-is-provider-only-swap-sufficient">7. Is Provider-Only Swap Sufficient?<a class="headerlink" href="#7-is-provider-only-swap-sufficient" title="Permanent link">&para;</a></h2>
+<p><strong>Short answer: No.</strong> The following additional changes are required beyond provider swap:</p>
+<ol>
+<li><strong><code>system=</code> parameter fix</strong> in <code>grader_agent.py:283</code> — required for OpenAI SDK compatibility.</li>
+<li><strong>litellm model prefix</strong> — <code>EVAL_MODEL</code> must use <code>openai/gpt-4o</code> format, not bare model name.</li>
+<li><strong>Model name defaults</strong> — all 7 default <code>claude-sonnet-4-5-20250929</code> strings must be updated to a GitHub Models model name (e.g., <code>gpt-4o-mini</code>). Complete enumeration:</li>
+<li><code>adapters/learning_agent.py:64</code> — <code>EVAL_MODEL</code> default</li>
+<li><code>multi_agent_eval/adversary_agent.py:120</code> — <code>GRADER_MODEL</code> default</li>
+<li><code>multi_agent_eval/analyst_agent.py:191</code> — <code>GRADER_MODEL</code> default</li>
+<li><code>multi_agent_eval/grader_agent.py:210</code> — <code>GRADER_MODEL</code> default</li>
+<li><code>core/continuous_eval.py:820</code> — <code>EVAL_MODEL</code> default</li>
+<li><code>core/runner.py:359</code> — <code>GRADER_MODEL</code> default</li>
+<li><code>core/grader.py:233</code> — <code>GRADER_MODEL</code> default</li>
+<li><strong>Error message updates</strong> — all <code>ANTHROPIC_API_KEY</code> error strings should reference <code>GITHUB_TOKEN</code>.</li>
+<li><strong>Calibration baseline</strong> — scores are not comparable across grader models without establishing a calibration delta first.</li>
+</ol>
+<hr />
+<h2 id="8-files-not-requiring-changes">8. Files Not Requiring Changes<a class="headerlink" href="#8-files-not-requiring-changes" title="Permanent link">&para;</a></h2>
+<p>These files are unaffected:</p>
+<ul>
+<li><code>src/amplihack_eval/adapters/learning_agent.py</code> — uses litellm, no Anthropic SDK</li>
+<li><code>src/amplihack_eval/adapters/hive_mind_adapter.py</code> — no SDK usage</li>
+<li><code>src/amplihack_eval/adapters/http_adapter.py</code> — no SDK usage</li>
+<li><code>src/amplihack_eval/adapters/subprocess_adapter.py</code> — no SDK usage</li>
+<li><code>src/amplihack_eval/adapters/distributed_hive_adapter.py</code> — no SDK usage</li>
+<li><code>src/amplihack_eval/core/continuous_eval.py</code> — delegates to graders only</li>
+<li><code>src/amplihack_eval/multi_agent_eval/coordinator.py</code> — orchestrates only</li>
+<li><code>src/amplihack_eval/multi_agent_eval/pipeline.py</code> — orchestrates only</li>
+<li>All <code>src/amplihack_eval/data/*.py</code> — static data</li>
+<li>All <code>src/amplihack_eval/levels/*.py</code> — level definitions</li>
+</ul>
+<hr />
+<h2 id="9-recommended-migration-order">9. Recommended Migration Order<a class="headerlink" href="#9-recommended-migration-order" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Apply Change 3 first (<code>grader_agent.py</code> — the breaking <code>system=</code> fix)</li>
+<li>Apply Changes 1 and 2 (<code>core/grader.py</code>, <code>core/runner.py</code>)</li>
+<li>Apply Changes 4 and 5 (<code>adversary_agent.py</code>, <code>analyst_agent.py</code>)</li>
+<li>Apply Change 6 (<code>pyproject.toml</code>)</li>
+<li>Run Step 1–4 of validation</li>
+<li>Update model defaults in all 7 locations (see section 7 for full list)</li>
+<li>Run calibration (Step 6)</li>
+<li>Decide on full rollout based on delta</li>
+</ol>
+<hr />
+<h2 id="10-references">10. References<a class="headerlink" href="#10-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>GitHub Models endpoint: <code>https://models.inference.ai.azure.com</code></li>
+<li>GitHub Models documentation: <a href="https://github.com/marketplace/models">GitHub Marketplace Models</a></li>
+<li>litellm OpenAI-compatible providers: <code>openai/</code> prefix with <code>OPENAI_API_BASE</code></li>
+<li>Issue: <a href="https://github.com/rysweet/amplihack-agent-eval/issues/40">#40</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

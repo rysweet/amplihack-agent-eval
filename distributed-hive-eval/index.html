@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/repeats-eval/">
+        <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/distributed-hive-eval/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Running Repeats Evaluation with query_hive.py - amplihack-agent-eval</title>
+        <title>Distributed Hive Mind Evaluation - amplihack-agent-eval</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#running-repeats-evaluation-with-query_hivepy" class="md-skip">
+        <a href="#distributed-hive-mind-evaluation" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Running Repeats Evaluation with query_hive.py
+              Distributed Hive Mind Evaluation
             
           </span>
         </div>
@@ -676,10 +676,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Quick Start
       
     </span>
   </a>
@@ -687,10 +687,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        How It Works
       
     </span>
   </a>
@@ -698,22 +698,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-the-repeats-eval" class="md-nav__link">
+  <a href="#cli-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running the Repeats Eval
+        CLI Usage
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Running the Repeats Eval">
+    <nav class="md-nav" aria-label="CLI Usage">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#live-azure-hive-requires-azure-service-bus" class="md-nav__link">
+  <a href="#via-amplihack-eval-cli" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Live Azure Hive (requires Azure Service Bus)
+        Via amplihack-eval CLI
       
     </span>
   </a>
@@ -721,10 +721,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#demo-mode-no-azure-needed" class="md-nav__link">
+  <a href="#via-run_distributed_evalsh" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Demo Mode (no Azure needed)
+        Via run_distributed_eval.sh
       
     </span>
   </a>
@@ -737,10 +737,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output-format" class="md-nav__link">
+  <a href="#parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output Format
+        Parameters
       
     </span>
   </a>
@@ -748,33 +748,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#benchmark-results" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Benchmark Results
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Benchmark Results">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#live-azure-hive-3-repeat-security-analyst-eval" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Live Azure Hive — 3-Repeat Security Analyst Eval
+        Environment Variables
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#interpreting-results" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#result-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Interpreting Results
+        Result Format
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result Format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#re-running-a-past-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-running a Past Evaluation
       
     </span>
   </a>
@@ -787,10 +787,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-report-median-instead-of-mean" class="md-nav__link">
+  <a href="#architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why Report Median Instead of Mean?
+        Architecture
       
     </span>
   </a>
@@ -798,10 +798,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-practice" class="md-nav__link">
+  <a href="#scaling-notes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended Practice
+        Scaling Notes
       
     </span>
   </a>
@@ -809,13 +809,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#related" class="md-nav__link">
+  <a href="#eval-results-2026-03-13" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Related
+        Eval Results (2026-03-13)
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Eval Results (2026-03-13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#100-agents-5000-turns-9929" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        100 agents × 5000 turns: 99.29%
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -839,141 +867,273 @@
   
 
 
-<h1 id="running-repeats-evaluation-with-query_hivepy">Running Repeats Evaluation with query_hive.py<a class="headerlink" href="#running-repeats-evaluation-with-query_hivepy" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The <code>--repeats N</code> flag in <code>query_hive.py</code> runs the evaluation N times and reports
-per-run scores together with the <strong>median</strong> and <strong>standard deviation</strong> across runs.
-This reduces noise from LLM grading variance and provides a more reliable estimate
-of hive mind performance.</p>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Python 3.11+</li>
-<li><code>amplihack-agent-eval</code> installed (<code>pip install amplihack-agent-eval</code>)</li>
-<li>Azure Service Bus connection string (for live hive mode)</li>
-<li>Anthropic API key (for grading)</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>amplihack-agent-eval<span class="w"> </span>anthropic<span class="w"> </span>azure-servicebus
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">HIVE_CONNECTION_STRING</span><span class="o">=</span><span class="s2">&quot;Endpoint=sb://hive-sb-dj2qo2w7vu5zi.servicebus.windows.net/;SharedAccessKeyName=...;SharedAccessKey=...&quot;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;sk-ant-...&quot;</span>
+<h1 id="distributed-hive-mind-evaluation">Distributed Hive Mind Evaluation<a class="headerlink" href="#distributed-hive-mind-evaluation" title="Permanent link">&para;</a></h1>
+<p>Run memory evaluations against a fleet of distributed AI agents deployed on Azure Container Apps.</p>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Single command: deploy + eval + publish results</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="w"> </span>./run_distributed_eval.sh<span class="w"> </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span>--turns<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
 </code></pre></div>
-<h2 id="running-the-repeats-eval">Running the Repeats Eval<a class="headerlink" href="#running-the-repeats-eval" title="Permanent link">&para;</a></h2>
-<h3 id="live-azure-hive-requires-azure-service-bus">Live Azure Hive (requires Azure Service Bus)<a class="headerlink" href="#live-azure-hive-requires-azure-service-bus" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Run the security analyst eval 3 times against the live Azure hive</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--run-eval<span class="w"> </span>--repeats<span class="w"> </span><span class="m">3</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># With output saved to JSON</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--run-eval<span class="w"> </span>--repeats<span class="w"> </span><span class="m">3</span><span class="w"> </span>--output<span class="w"> </span>repeats_results.json
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Seed the hive first if not already seeded, then run 3 repeats</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--seed<span class="w"> </span>--run-eval<span class="w"> </span>--repeats<span class="w"> </span><span class="m">3</span><span class="w"> </span>--output<span class="w"> </span>repeats_results.json
+<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Deploy</strong> — Creates N agents across Azure Container Apps with Event Hubs transport</li>
+<li><strong>Learn</strong> — Feeds T dialogue turns (round-robin across agents)</li>
+<li><strong>Question</strong> — Asks Q questions, agents search their local + remote knowledge</li>
+<li><strong>Grade</strong> — LLM grades each answer against ground truth</li>
+<li><strong>Publish</strong> — Results tagged as a GitHub release with full metadata</li>
+</ol>
+<h2 id="cli-usage">CLI Usage<a class="headerlink" href="#cli-usage" title="Permanent link">&para;</a></h2>
+<h3 id="via-amplihack-eval-cli">Via amplihack-eval CLI<a class="headerlink" href="#via-amplihack-eval-cli" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>--adapter<span class="w"> </span>distributed-hive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$EH_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span>--input-hub<span class="w"> </span>hive-events-myhive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span>--response-hub<span class="w"> </span>eval-responses-myhive<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span>--turns<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span>--questions<span class="w"> </span><span class="m">20</span>
 </code></pre></div>
-<h3 id="demo-mode-no-azure-needed">Demo Mode (no Azure needed)<a class="headerlink" href="#demo-mode-no-azure-needed" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Run demo eval (local DistributedHiveGraph) 3 times</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--demo<span class="w"> </span>--repeats<span class="w"> </span><span class="m">3</span>
+<h3 id="via-run_distributed_evalsh">Via run_distributed_eval.sh<a class="headerlink" href="#via-run_distributed_evalsh" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Deploy 100 agents, run 1000-turn eval</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./run_distributed_eval.sh<span class="w"> </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span>--turns<span class="w"> </span><span class="m">1000</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># With output</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>python<span class="w"> </span>experiments/hive_mind/query_hive.py<span class="w"> </span>--demo<span class="w"> </span>--repeats<span class="w"> </span><span class="m">3</span><span class="w"> </span>--output<span class="w"> </span>demo_repeats.json
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Skip deployment (reuse existing agents)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">SKIP_DEPLOY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>./run_distributed_eval.sh<span class="w"> </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span>--turns<span class="w"> </span><span class="m">5000</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Custom seed and grader model</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>./run_distributed_eval.sh<span class="w"> </span>--agents<span class="w"> </span><span class="m">50</span><span class="w"> </span>--turns<span class="w"> </span><span class="m">500</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">123</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span>--grader-model<span class="w"> </span>claude-haiku-4-5-20251001
 </code></pre></div>
-<h2 id="output-format">Output Format<a class="headerlink" href="#output-format" title="Permanent link">&para;</a></h2>
-<p>Each repeat prints its full eval output. After all repeats, a summary is printed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>=======================================================================
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>REPEATS SUMMARY (3 runs)
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>=======================================================================
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  Run 1: avg_score=0.872
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  Run 2: avg_score=0.841
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  Run 3: avg_score=0.882
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  Median: 0.872  StdDev: 0.022
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>=======================================================================
-</code></pre></div>
-<p>When <code>--output</code> is specified, the JSON file contains:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;live_repeats&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;repeats&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;scores&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.872</span><span class="p">,</span><span class="w"> </span><span class="mf">0.841</span><span class="p">,</span><span class="w"> </span><span class="mf">0.882</span><span class="p">],</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&quot;median&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.872</span><span class="p">,</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nt">&quot;stddev&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.022</span><span class="p">,</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">&quot;runs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
-</code></pre></div>
-<h2 id="benchmark-results">Benchmark Results<a class="headerlink" href="#benchmark-results" title="Permanent link">&para;</a></h2>
-<h3 id="live-azure-hive-3-repeat-security-analyst-eval">Live Azure Hive — 3-Repeat Security Analyst Eval<a class="headerlink" href="#live-azure-hive-3-repeat-security-analyst-eval" title="Permanent link">&para;</a></h3>
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Metric</th>
-<th>Value</th>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Median score</strong></td>
-<td><strong>86.5%</strong></td>
+<td><code>--agents</code></td>
+<td>5</td>
+<td>Number of deployed agents</td>
 </tr>
 <tr>
-<td><strong>Std deviation</strong></td>
-<td><strong>10.1%</strong></td>
+<td><code>--turns</code></td>
+<td>100</td>
+<td>Dialogue turns to feed</td>
 </tr>
 <tr>
-<td>Runs</td>
-<td>3</td>
+<td><code>--questions</code></td>
+<td>20</td>
+<td>Evaluation questions</td>
 </tr>
 <tr>
-<td>Eval type</td>
-<td>Security analyst Q&amp;A (live Azure hive)</td>
+<td><code>--seed</code></td>
+<td>42</td>
+<td>Random seed for reproducibility</td>
 </tr>
 <tr>
-<td>Branch</td>
-<td><code>feat/distributed-hive-mind</code></td>
+<td><code>--agents-per-app</code></td>
+<td>5</td>
+<td>Agents per Azure Container App</td>
+</tr>
+<tr>
+<td><code>--grader-model</code></td>
+<td>claude-haiku-4-5-20251001</td>
+<td>Model for answer grading</td>
+</tr>
+<tr>
+<td><code>--answer-timeout</code></td>
+<td>0</td>
+<td>Per-answer timeout (0 = none)</td>
 </tr>
 </tbody>
 </table>
-<p>The 10.1% standard deviation indicates moderate run-to-run variance, driven by:
-- LLM grading noise (semantic scoring varies per call)
-- Hive routing non-determinism (queries may hit different shards)
-- Service Bus message ordering effects</p>
-<h3 id="interpreting-results">Interpreting Results<a class="headerlink" href="#interpreting-results" title="Permanent link">&para;</a></h3>
+<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Stddev</th>
-<th>Interpretation</th>
+<th>Variable</th>
+<th>Required</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>&lt; 5%</td>
-<td>High consistency — routing and grading are stable</td>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>Yes</td>
+<td>Claude API key for agents</td>
 </tr>
 <tr>
-<td>5–15%</td>
-<td>Moderate variance — acceptable for semantic eval</td>
+<td><code>HIVE_RESOURCE_GROUP</code></td>
+<td>No</td>
+<td>Azure resource group (default: hive-mind-eval-rg)</td>
 </tr>
 <tr>
-<td>&gt; 15%</td>
-<td>High variance — investigate routing or grading issues</td>
+<td><code>HIVE_LOCATION</code></td>
+<td>No</td>
+<td>Azure region (default: eastus)</td>
+</tr>
+<tr>
+<td><code>SKIP_DEPLOY</code></td>
+<td>No</td>
+<td>Set to 1 to skip deployment</td>
+</tr>
+<tr>
+<td><code>SKIP_CLEANUP</code></td>
+<td>No</td>
+<td>Set to 1 to keep infra after eval</td>
 </tr>
 </tbody>
 </table>
-<h2 id="why-report-median-instead-of-mean">Why Report Median Instead of Mean?<a class="headerlink" href="#why-report-median-instead-of-mean" title="Permanent link">&para;</a></h2>
-<p>The median is more robust to outlier runs caused by:
-- Transient Service Bus timeouts
-- LLM API rate limits causing partial grading failures
-- Network partitions during federated queries</p>
-<p>For N=3, the median equals the middle value. For N≥5, it provides
-a more representative central estimate than the mean.</p>
-<h2 id="recommended-practice">Recommended Practice<a class="headerlink" href="#recommended-practice" title="Permanent link">&para;</a></h2>
+<h2 id="result-format">Result Format<a class="headerlink" href="#result-format" title="Permanent link">&para;</a></h2>
+<p>Each eval run produces:</p>
 <ul>
-<li>Run at least <strong>N=3</strong> repeats for any reported benchmark</li>
-<li>Report both <strong>median</strong> and <strong>stddev</strong> (not just the single best run)</li>
-<li>Use <code>--output</code> to save all run data for reproducibility</li>
-<li>Re-seed the hive before long eval campaigns to ensure fresh state</li>
+<li><strong>eval_report.json</strong> — Full graded report with per-category scores</li>
+<li><strong>metadata.json</strong> — Config, git SHA, duration, re-run command</li>
+<li><strong>eval.log</strong> — Complete execution log</li>
 </ul>
-<h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../experiments/hive_mind/query_hive.py"><code>query_hive.py</code></a> — the eval script</li>
-<li><a href="../hive-mind-eval/">Hive Mind Eval Strategy</a> — background on eval methodology</li>
-<li><a href="../azure-hive-qa-eval/">Azure Hive Q&amp;A Eval</a> — live hive setup guide</li>
-</ul>
+<p>Results are published as GitHub releases with the tag format:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>eval-{agents}agents-{turns}turns-{timestamp}
+</code></pre></div></p>
+<h3 id="re-running-a-past-evaluation">Re-running a Past Evaluation<a class="headerlink" href="#re-running-a-past-evaluation" title="Permanent link">&para;</a></h3>
+<p>Each release includes the exact re-run command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>checkout<span class="w"> </span>&lt;sha&gt;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="nv">SKIP_DEPLOY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>./run_distributed_eval.sh<span class="w"> </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span>--turns<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span>
+</code></pre></div>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌─────────────┐     Event Hubs      ┌──────────────────────┐
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│ Eval Harness │ ─── LEARN_CONTENT ──→│ Container App 0      │
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│              │ ─── INPUT ──────────→│  agent-0 ... agent-9 │
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│              │                     ├──────────────────────┤
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│              │                     │ Container App 1      │
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│              │                     │  agent-10..agent-19  │
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│              │                     ├──────────────────────┤
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│              │                     │ ...                  │
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>│              │                     ├──────────────────────┤
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│              │ ← EVAL_ANSWER ──────│ Container App N      │
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│              │                     │  agent-90..agent-99  │
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>└─────────────┘                     └──────────────────────┘
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>                                           │ ↕ │
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>                                     SHARD_QUERY / SHARD_RESPONSE
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>                                     (cross-agent knowledge search)
+</code></pre></div>
+<p>Each agent:
+- Stores facts in a local Kuzu graph database
+- Responds to cross-shard queries from other agents via Event Hubs
+- Searches the full distributed graph when answering questions</p>
+<h2 id="scaling-notes">Scaling Notes<a class="headerlink" href="#scaling-notes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Agents</th>
+<th>Apps</th>
+<th>CPU/Agent</th>
+<th>Mem/Agent</th>
+<th>EH Partitions</th>
+<th>EH TUs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≤5</td>
+<td>1</td>
+<td>0.75</td>
+<td>1.5Gi</td>
+<td>N+4</td>
+<td>1</td>
+</tr>
+<tr>
+<td>≤20</td>
+<td>4</td>
+<td>0.75</td>
+<td>1.5Gi</td>
+<td>N+4</td>
+<td>1</td>
+</tr>
+<tr>
+<td>≤50</td>
+<td>10</td>
+<td>0.25</td>
+<td>0.5Gi</td>
+<td>32</td>
+<td>2</td>
+</tr>
+<tr>
+<td>100</td>
+<td>20</td>
+<td>0.25</td>
+<td>0.5Gi</td>
+<td>32</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>Azure Container Apps Consumption plan limits: 4 CPU / 8Gi per app, 30 apps per environment.</p>
+<h2 id="eval-results-2026-03-13">Eval Results (2026-03-13)<a class="headerlink" href="#eval-results-2026-03-13" title="Permanent link">&para;</a></h2>
+<h3 id="100-agents-5000-turns-9929">100 agents × 5000 turns: 99.29%<a class="headerlink" href="#100-agents-5000-turns-9929" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>needle_in_haystack (4q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>numerical_precision (3q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>temporal_evolution (3q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>cross_reference (2q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>infrastructure_knowledge (1q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>meta_memory (1q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>security_log_analysis (1q)</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>incident_tracking (1q)</td>
+<td>97.50%</td>
+</tr>
+<tr>
+<td>distractor_resistance (2q)</td>
+<td>97.50%</td>
+</tr>
+<tr>
+<td>source_attribution (2q)</td>
+<td>96.67%</td>
+</tr>
+<tr>
+<td><strong>OVERALL</strong></td>
+<td><strong>99.29%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Infrastructure</strong>: 20 Container Apps × 5 containers, 0.75 CPU / 1.5Gi each, EH Standard 32 partitions.</p>
+<p><strong>Key requirement</strong>: Explicit <code>partition_id</code> routing in EventHubsShardTransport. Do NOT use <code>partition_key</code> — it causes 80%+ event loss when multiple agents share a consumer group.</p>
+<h3 id="release-tag">Release Tag<a class="headerlink" href="#release-tag" title="Permanent link">&para;</a></h3>
+<p>Results are stored as a GitHub release tag in the amplihack repo:
+<code>eval/hive-100agents-5000turns-99.29pct</code></p>
+<p>The release includes JSON result files and re-run instructions pinned to the exact commit.</p>
 
 
 
