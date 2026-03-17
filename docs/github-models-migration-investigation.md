@@ -236,7 +236,7 @@ This plan changes **only the grader layer**. The subject under evaluation (Learn
 
 ### 4.1 Required Code Changes
 
-#### Change 1: `src/amplihack_eval/core/grader.py` (lines 225–184)
+#### Change 1: `src/amplihack_eval/core/grader.py` (lines 225–233 and 178)
 
 **Before:**
 ```python
@@ -299,13 +299,22 @@ messages=[
 
 All other Anthropic → OpenAI substitutions apply.
 
-#### Change 4: `src/amplihack_eval/multi_agent_eval/adversary_agent.py` (two functions, lines 268–320 and 350–390)
+#### Change 4: `src/amplihack_eval/multi_agent_eval/adversary_agent.py` (two functions: lines 268–339 and 350–400)
 
-Two separate client-creation patterns, both follow same substitution. No `system=` parameter used.
+Two separate client-creation patterns in `_generate_via_llm()` (lines 260–339) and `generate_forgetting_probes()` (lines 350–400). Both follow same substitution. No `system=` parameter is used in either function.
 
-#### Change 5: `src/amplihack_eval/multi_agent_eval/analyst_agent.py` (lines 545+)
+#### Change 5: `src/amplihack_eval/multi_agent_eval/analyst_agent.py` (lines 535–600, specifically 541–597)
 
-Same substitution pattern. Verify exact `system=` usage before applying.
+`_suggest_improvements_llm()` function. No `system=` parameter is used — verified at lines 591–594:
+```python
+# analyst_agent.py:591–594 (current, confirmed)
+message = client.messages.create(
+    model=self.model,
+    max_tokens=2000,
+    messages=[{"role": "user", "content": prompt}],  # no system= param
+)
+```
+Standard substitution applies.
 
 #### Change 6: `pyproject.toml` (optional dependencies)
 
@@ -553,7 +562,14 @@ print(f'Delta: {abs(a.get(\"overall_score\", 0) - g.get(\"overall_score\", 0)):.
 
 1. **`system=` parameter fix** in `grader_agent.py:283` — required for OpenAI SDK compatibility.
 2. **litellm model prefix** — `EVAL_MODEL` must use `openai/gpt-4o` format, not bare model name.
-3. **Model name defaults** — all 7 default `claude-sonnet-4-5-20250929` strings must be updated to a GitHub Models model name (e.g., `gpt-4o-mini`).
+3. **Model name defaults** — all 7 default `claude-sonnet-4-5-20250929` strings must be updated to a GitHub Models model name (e.g., `gpt-4o-mini`). Complete enumeration:
+   - `adapters/learning_agent.py:64` — `EVAL_MODEL` default
+   - `multi_agent_eval/adversary_agent.py:120` — `GRADER_MODEL` default
+   - `multi_agent_eval/analyst_agent.py:191` — `GRADER_MODEL` default
+   - `multi_agent_eval/grader_agent.py:210` — `GRADER_MODEL` default
+   - `core/continuous_eval.py:820` — `EVAL_MODEL` default
+   - `core/runner.py:359` — `GRADER_MODEL` default
+   - `core/grader.py:233` — `GRADER_MODEL` default
 4. **Error message updates** — all `ANTHROPIC_API_KEY` error strings should reference `GITHUB_TOKEN`.
 5. **Calibration baseline** — scores are not comparable across grader models without establishing a calibration delta first.
 
@@ -583,7 +599,7 @@ These files are unaffected:
 3. Apply Changes 4 and 5 (`adversary_agent.py`, `analyst_agent.py`)
 4. Apply Change 6 (`pyproject.toml`)
 5. Run Step 1–4 of validation
-6. Update model defaults in all 7 locations
+6. Update model defaults in all 7 locations (see section 7 for full list)
 7. Run calibration (Step 6)
 8. Decide on full rollout based on delta
 
