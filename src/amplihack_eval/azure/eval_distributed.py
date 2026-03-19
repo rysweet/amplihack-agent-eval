@@ -72,7 +72,14 @@ def _default_question_failover_retries(agent_count: int) -> int:
         return 2
     if agent_count >= 50:
         return 1
-    return 0
+    # <50 agents: 1 retry to compensate for the 120s answer_timeout default
+    return 1
+
+
+def _default_answer_timeout(agent_count: int) -> int:
+    if agent_count >= 100:
+        return 0
+    return 120
 
 
 def main() -> int:
@@ -93,7 +100,13 @@ def main() -> int:
     p.add_argument("--grader-model", default="claude-haiku-4-5-20251001")
     p.add_argument("--resource-group", default="", help="Azure resource group (optional, unused)")
     p.add_argument(
-        "--answer-timeout", type=int, default=0, help="Seconds to wait per answer (0=no timeout)"
+        "--answer-timeout",
+        type=int,
+        default=None,
+        help=(
+            "Seconds to wait per answer before failover "
+            "(default: scale-aware; 0 for 100+ agents, 120 otherwise)"
+        ),
     )
     p.add_argument("--output", default="", help="Output JSON path")
     p.add_argument(
@@ -122,6 +135,8 @@ def main() -> int:
         args.parallel_workers = _default_parallel_workers(args.agents)
     if args.question_failover_retries is None:
         args.question_failover_retries = _default_question_failover_retries(args.agents)
+    if args.answer_timeout is None:
+        args.answer_timeout = _default_answer_timeout(args.agents)
 
     configure_otel(
         service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip()
