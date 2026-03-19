@@ -37,6 +37,7 @@ QUESTION_FAILOVER_RETRIES=""
 REPLICATE_LEARN_TO_ALL_AGENTS=false
 MEMORY_QUERY_FANOUT="${HIVE_MEMORY_QUERY_FANOUT:-}"
 SHARD_QUERY_TIMEOUT_SECONDS="${HIVE_SHARD_QUERY_TIMEOUT_SECONDS:-}"
+DEPLOYMENT_PROFILE="${HIVE_DEPLOYMENT_PROFILE:-}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -52,6 +53,7 @@ while [[ $# -gt 0 ]]; do
         --replicate-learn-to-all-agents) REPLICATE_LEARN_TO_ALL_AGENTS=true; shift ;;
         --memory-query-fanout) MEMORY_QUERY_FANOUT="$2"; shift 2 ;;
         --shard-query-timeout) SHARD_QUERY_TIMEOUT_SECONDS="$2"; shift 2 ;;
+        --deployment-profile) DEPLOYMENT_PROFILE="$2"; shift 2 ;;
         *) echo "Unknown arg: $1"; exit 1 ;;
     esac
 done
@@ -104,11 +106,22 @@ if [[ -z "${SHARD_QUERY_TIMEOUT_SECONDS}" ]]; then
     fi
 fi
 
+# Resolve deployment profile: explicit arg/env > infer from agent count
+if [[ -z "${DEPLOYMENT_PROFILE}" ]]; then
+    if (( AGENTS == 100 && AGENTS_PER_APP == 5 )); then
+        DEPLOYMENT_PROFILE="federated-100"
+    elif (( AGENTS == 10 && AGENTS_PER_APP == 1 )); then
+        DEPLOYMENT_PROFILE="smoke-10"
+    else
+        DEPLOYMENT_PROFILE="custom"
+    fi
+fi
+
 mkdir -p "${RESULTS_DIR}"
 
 log() { echo "[$(date -u +%H:%M:%S)] $*"; }
 
-RERUN_COMMAND="ANTHROPIC_API_KEY=\\\"...\\\" SKIP_DEPLOY=1 HIVE_NAME=${HIVE_NAME} HIVE_RESOURCE_GROUP=${RESOURCE_GROUP} HIVE_LOCATION=${LOCATION} AMPLIHACK_ROOT=${AMPLIHACK_ROOT} AMPLIHACK_SOURCE_ROOT=${AMPLIHACK_SOURCE_ROOT} ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED} --agents-per-app ${AGENTS_PER_APP} --grader-model ${GRADER_MODEL} --answer-timeout ${ANSWER_TIMEOUT} --parallel-workers ${PARALLEL_WORKERS} --question-failover-retries ${QUESTION_FAILOVER_RETRIES} --memory-query-fanout ${MEMORY_QUERY_FANOUT} --shard-query-timeout ${SHARD_QUERY_TIMEOUT_SECONDS}"
+RERUN_COMMAND="ANTHROPIC_API_KEY=\\\"...\\\" SKIP_DEPLOY=1 HIVE_NAME=${HIVE_NAME} HIVE_RESOURCE_GROUP=${RESOURCE_GROUP} HIVE_LOCATION=${LOCATION} AMPLIHACK_ROOT=${AMPLIHACK_ROOT} AMPLIHACK_SOURCE_ROOT=${AMPLIHACK_SOURCE_ROOT} HIVE_DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE} ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED} --agents-per-app ${AGENTS_PER_APP} --grader-model ${GRADER_MODEL} --answer-timeout ${ANSWER_TIMEOUT} --parallel-workers ${PARALLEL_WORKERS} --question-failover-retries ${QUESTION_FAILOVER_RETRIES} --memory-query-fanout ${MEMORY_QUERY_FANOUT} --shard-query-timeout ${SHARD_QUERY_TIMEOUT_SECONDS} --deployment-profile ${DEPLOYMENT_PROFILE}"
 if [[ "${REPLICATE_LEARN_TO_ALL_AGENTS}" == "true" ]]; then
     RERUN_COMMAND+=" --replicate-learn-to-all-agents"
 fi
@@ -127,6 +140,7 @@ log "  Timeout:    ${ANSWER_TIMEOUT}s"
 log "  Failover:   ${QUESTION_FAILOVER_RETRIES} retries"
 log "  Fanout:     ${MEMORY_QUERY_FANOUT} shards"
 log "  Shard wait: ${SHARD_QUERY_TIMEOUT_SECONDS}s"
+log "  Profile:    ${DEPLOYMENT_PROFILE}"
 log "  Tag:        ${TAG_NAME}"
 log "============================================"
 
@@ -142,6 +156,7 @@ if [[ "${SKIP_DEPLOY:-0}" != "1" ]]; then
     HIVE_AGENTS_PER_APP="${AGENTS_PER_APP}" \
     HIVE_MEMORY_QUERY_FANOUT="${MEMORY_QUERY_FANOUT}" \
     HIVE_SHARD_QUERY_TIMEOUT_SECONDS="${SHARD_QUERY_TIMEOUT_SECONDS}" \
+    HIVE_DEPLOYMENT_PROFILE="${DEPLOYMENT_PROFILE}" \
     bash "${AMPLIHACK_SOURCE_ROOT}/deploy/azure_hive/deploy.sh" 2>&1 | tee "${RESULTS_DIR}/deploy.log"
     log "Deployment complete."
 else
@@ -243,7 +258,8 @@ cat > "${RESULTS_DIR}/metadata.json" << EOF
         "resource_group": "${RESOURCE_GROUP}",
         "location": "${LOCATION}",
         "amplihack_root": "${AMPLIHACK_ROOT}",
-        "amplihack_source_root": "${AMPLIHACK_SOURCE_ROOT}"
+        "amplihack_source_root": "${AMPLIHACK_SOURCE_ROOT}",
+        "deployment_profile": "${DEPLOYMENT_PROFILE}"
     },
     "duration_seconds": ${EVAL_DURATION},
     "rerun_command": "${RERUN_COMMAND}"
