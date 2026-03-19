@@ -90,7 +90,8 @@ if [[ -z "${QUESTION_FAILOVER_RETRIES}" ]]; then
     elif (( AGENTS >= 50 )); then
         QUESTION_FAILOVER_RETRIES=1
     else
-        QUESTION_FAILOVER_RETRIES=0
+        # <50 agents: 1 retry to compensate for the 120s answer_timeout default
+        QUESTION_FAILOVER_RETRIES=1
     fi
 fi
 
