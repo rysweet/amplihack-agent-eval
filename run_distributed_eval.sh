@@ -108,8 +108,15 @@ mkdir -p "${RESULTS_DIR}"
 
 log() { echo "[$(date -u +%H:%M:%S)] $*"; }
 
+RERUN_COMMAND="ANTHROPIC_API_KEY=\\\"...\\\" SKIP_DEPLOY=1 HIVE_NAME=${HIVE_NAME} HIVE_RESOURCE_GROUP=${RESOURCE_GROUP} HIVE_LOCATION=${LOCATION} AMPLIHACK_ROOT=${AMPLIHACK_ROOT} AMPLIHACK_SOURCE_ROOT=${AMPLIHACK_SOURCE_ROOT} ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED} --agents-per-app ${AGENTS_PER_APP} --grader-model ${GRADER_MODEL} --answer-timeout ${ANSWER_TIMEOUT} --parallel-workers ${PARALLEL_WORKERS} --question-failover-retries ${QUESTION_FAILOVER_RETRIES} --memory-query-fanout ${MEMORY_QUERY_FANOUT} --shard-query-timeout ${SHARD_QUERY_TIMEOUT_SECONDS}"
+if [[ "${REPLICATE_LEARN_TO_ALL_AGENTS}" == "true" ]]; then
+    RERUN_COMMAND+=" --replicate-learn-to-all-agents"
+fi
+
 log "============================================"
 log "Distributed Hive Mind Evaluation"
+log "  Eval repo:   ${REPO_ROOT}"
+log "  Code root:   ${AMPLIHACK_SOURCE_ROOT}"
 log "  Agents:     ${AGENTS}"
 log "  Turns:      ${TURNS}"
 log "  Questions:  ${QUESTIONS}"
@@ -218,10 +225,12 @@ cat > "${RESULTS_DIR}/metadata.json" << EOF
         "shard_query_timeout_seconds": ${SHARD_QUERY_TIMEOUT_SECONDS},
         "hive_name": "${HIVE_NAME}",
         "resource_group": "${RESOURCE_GROUP}",
-        "location": "${LOCATION}"
+        "location": "${LOCATION}",
+        "amplihack_root": "${AMPLIHACK_ROOT}",
+        "amplihack_source_root": "${AMPLIHACK_SOURCE_ROOT}"
     },
     "duration_seconds": ${EVAL_DURATION},
-    "rerun_command": "ANTHROPIC_API_KEY=\\\"...\\\" SKIP_DEPLOY=1 HIVE_RESOURCE_GROUP=${RESOURCE_GROUP} HIVE_MEMORY_QUERY_FANOUT=${MEMORY_QUERY_FANOUT} HIVE_SHARD_QUERY_TIMEOUT_SECONDS=${SHARD_QUERY_TIMEOUT_SECONDS} ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED} --answer-timeout ${ANSWER_TIMEOUT} --parallel-workers ${PARALLEL_WORKERS} --question-failover-retries ${QUESTION_FAILOVER_RETRIES}"
+    "rerun_command": "${RERUN_COMMAND}"
 }
 EOF
 
@@ -249,9 +258,10 @@ RELEASE_BODY="## Distributed Hive Mind Eval: ${OVERALL_SCORE}
 
 ### Re-run Command
 \`\`\`bash
+cd ${AMPLIHACK_SOURCE_ROOT}
 git checkout ${GIT_SHA}
-ANTHROPIC_API_KEY=\"...\" SKIP_DEPLOY=1 \\
-  ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED}
+cd ${REPO_ROOT}
+${RERUN_COMMAND}
 \`\`\`
 "
 
