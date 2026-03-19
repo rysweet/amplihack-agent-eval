@@ -202,6 +202,18 @@ log "Step 4/4: Packaging results and creating release..."
 # Capture git state
 GIT_SHA=$(cd "${AMPLIHACK_SOURCE_ROOT}" && git rev-parse HEAD)
 GIT_BRANCH=$(cd "${AMPLIHACK_SOURCE_ROOT}" && git rev-parse --abbrev-ref HEAD)
+if [[ -n "$(cd "${AMPLIHACK_SOURCE_ROOT}" && git status --porcelain)" ]]; then
+    GIT_DIRTY=true
+else
+    GIT_DIRTY=false
+fi
+EVAL_REPO_GIT_SHA=$(cd "${REPO_ROOT}" && git rev-parse HEAD)
+EVAL_REPO_GIT_BRANCH=$(cd "${REPO_ROOT}" && git rev-parse --abbrev-ref HEAD)
+if [[ -n "$(cd "${REPO_ROOT}" && git status --porcelain)" ]]; then
+    EVAL_REPO_GIT_DIRTY=true
+else
+    EVAL_REPO_GIT_DIRTY=false
+fi
 
 # Write metadata
 cat > "${RESULTS_DIR}/metadata.json" << EOF
@@ -210,6 +222,10 @@ cat > "${RESULTS_DIR}/metadata.json" << EOF
     "timestamp": "${TIMESTAMP}",
     "git_sha": "${GIT_SHA}",
     "git_branch": "${GIT_BRANCH}",
+    "git_dirty": ${GIT_DIRTY},
+    "eval_repo_git_sha": "${EVAL_REPO_GIT_SHA}",
+    "eval_repo_git_branch": "${EVAL_REPO_GIT_BRANCH}",
+    "eval_repo_git_dirty": ${EVAL_REPO_GIT_DIRTY},
     "config": {
         "agents": ${AGENTS},
         "turns": ${TURNS},
