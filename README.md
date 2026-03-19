@@ -24,6 +24,9 @@ pip install amplihack-agent-eval
 # With Anthropic grading support
 pip install amplihack-agent-eval[anthropic]
 
+# With Azure/Event Hubs distributed-hive adapter support
+pip install amplihack-agent-eval[azure]
+
 # Development
 pip install amplihack-agent-eval[dev]
 
@@ -109,6 +112,7 @@ Optional properties:
 | `HttpAdapter` | Any agent with REST API (`POST /learn`, `POST /answer`, `POST /reset`) |
 | `SubprocessAdapter` | Any agent invokable via CLI subprocess |
 | `LearningAgentAdapter` | amplihack's LearningAgent (requires `amplihack` package) |
+| `DistributedHiveAdapter` | Azure/Event Hubs distributed hive fleet (`amplihack-agent-eval[azure]`) |
 
 See [docs/adapters.md](docs/adapters.md) for the complete adapter writing guide.
 

@@ -5,6 +5,9 @@ Run memory evaluations against a fleet of distributed AI agents deployed on Azur
 ## Quick Start
 
 ```bash
+# Install Azure/Event Hubs support
+pip install amplihack-agent-eval[azure]
+
 # Single command: deploy + eval + publish results
 ANTHROPIC_API_KEY="..." ./run_distributed_eval.sh --agents 100 --turns 1000 --questions 20
 ```
@@ -38,8 +41,9 @@ amplihack-eval run \
 # Deploy 100 agents, run 1000-turn eval
 ./run_distributed_eval.sh --agents 100 --turns 1000
 
-# Skip deployment (reuse existing agents)
-SKIP_DEPLOY=1 ./run_distributed_eval.sh --agents 100 --turns 5000
+# Skip deployment (reuse an existing hive)
+SKIP_DEPLOY=1 HIVE_NAME=amplihive3175 HIVE_RESOURCE_GROUP=hive-pr3175-rg \
+  ./run_distributed_eval.sh --agents 100 --turns 5000
 
 # Custom seed and grader model
 ./run_distributed_eval.sh --agents 50 --turns 500 --seed 123 \
@@ -65,6 +69,9 @@ SKIP_DEPLOY=1 ./run_distributed_eval.sh --agents 100 --turns 5000
 | `ANTHROPIC_API_KEY` | Yes | Claude API key for agents |
 | `HIVE_RESOURCE_GROUP` | No | Azure resource group (default: hive-mind-eval-rg) |
 | `HIVE_LOCATION` | No | Azure region (default: eastus) |
+| `HIVE_NAME` | No | Existing hive name to reuse when `SKIP_DEPLOY=1` |
+| `AMPLIHACK_ROOT` | No | Path to the amplihack checkout whose virtualenv should run the eval |
+| `AMPLIHACK_SOURCE_ROOT` | No | Path to the amplihack source tree to use for deploy/eval code |
 | `SKIP_DEPLOY` | No | Set to 1 to skip deployment |
 | `SKIP_CLEANUP` | No | Set to 1 to keep infra after eval |
 

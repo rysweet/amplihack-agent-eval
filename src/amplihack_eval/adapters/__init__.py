@@ -28,10 +28,14 @@ __all__ = [
 ]
 
 
-# Lazy import for DistributedHiveAdapter (requires azure-eventhub)
+# Lazy imports for Azure/Event Hubs adapters (require azure-eventhub)
 def __getattr__(name: str):
     if name == "DistributedHiveAdapter":
         from .distributed_hive_adapter import DistributedHiveAdapter
 
         return DistributedHiveAdapter
+    if name == "RemoteAgentAdapter":
+        from .remote_agent_adapter import RemoteAgentAdapter
+
+        return RemoteAgentAdapter
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
