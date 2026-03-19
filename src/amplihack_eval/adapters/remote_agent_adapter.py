@@ -103,6 +103,7 @@ class RemoteAgentAdapter:
         # Pending answers: event_id -> answer text
         self._pending_answers: dict[str, str] = {}
         self._answer_events: dict[str, threading.Event] = {}
+        self._answer_targets: dict[str, str] = {}
         self._producer: Any | None = None
         self._fact_batch_extractor: Any | None = None
         self._fact_batch_extractor_dir: Path | None = None
@@ -483,6 +484,7 @@ class RemoteAgentAdapter:
             answer_event = threading.Event()
             with self._answer_lock:
                 self._answer_events[event_id] = answer_event
+                self._answer_targets[event_id] = target_name
 
             self._publish_event(
                 {
@@ -518,8 +520,72 @@ class RemoteAgentAdapter:
             with self._answer_lock:
                 answer = self._pending_answers.pop(event_id, "No answer received")
                 self._answer_events.pop(event_id, None)
+                self._answer_targets.pop(event_id, None)
 
             return answer
+
+    def _release_pending_answers_for_agent(
+        self, agent_id: str, *, reason: str, detail: str = ""
+    ) -> None:
+        released_event_ids: list[str] = []
+        with self._answer_lock:
+            for event_id, target_name in list(self._answer_targets.items()):
+                if target_name != agent_id:
+                    continue
+                answer_event = self._answer_events.get(event_id)
+                if answer_event is None:
+                    continue
+                self._pending_answers.setdefault(event_id, "No answer received")
+                answer_event.set()
+                released_event_ids.append(event_id)
+
+        if released_event_ids:
+            logger.warning(
+                "RemoteAgentAdapter: released %d pending question(s) for %s after %s (%s)",
+                len(released_event_ids),
+                agent_id,
+                reason,
+                detail or "no detail",
+            )
+
+    def _handle_agent_online(self, agent_id: str) -> None:
+        if not agent_id:
+            return
+        with self._online_lock:
+            already_online = agent_id in self._online_agents
+            self._online_agents.add(agent_id)
+            online_count = len(self._online_agents)
+        logger.info(
+            "RemoteAgentAdapter: AGENT_ONLINE from %s (%d/%d)",
+            agent_id,
+            online_count,
+            self._agent_count,
+        )
+        if already_online:
+            self._release_pending_answers_for_agent(
+                agent_id,
+                reason="agent restart",
+                detail="duplicate AGENT_ONLINE while question was pending",
+            )
+
+    def _handle_agent_shutdown(self, agent_id: str, reason: str = "", detail: str = "") -> None:
+        if not agent_id:
+            return
+        with self._online_lock:
+            self._online_agents.discard(agent_id)
+        with self._ready_lock:
+            self._ready_agents.discard(agent_id)
+        logger.warning(
+            "RemoteAgentAdapter: AGENT_SHUTDOWN from %s reason=%s detail=%s",
+            agent_id,
+            reason,
+            detail,
+        )
+        self._release_pending_answers_for_agent(
+            agent_id,
+            reason=f"agent shutdown:{reason or 'unknown'}",
+            detail=detail,
+        )
 
     def answer_question(self, question: str, target_agent: int | None = None) -> str:
         """Send question to one agent, retrying on other agents when configured."""
@@ -682,16 +748,7 @@ class RemoteAgentAdapter:
 
                 if event_type == "AGENT_ONLINE":
                     agent_id = body.get("agent_id", "")
-                    if agent_id:
-                        with self._online_lock:
-                            self._online_agents.add(agent_id)
-                            online_count = len(self._online_agents)
-                        logger.info(
-                            "RemoteAgentAdapter: AGENT_ONLINE from %s (%d/%d)",
-                            agent_id,
-                            online_count,
-                            self._agent_count,
-                        )
+                    self._handle_agent_online(agent_id)
                     if hasattr(partition_context, "update_checkpoint"):
                         partition_context.update_checkpoint(event)
                     return
@@ -760,11 +817,10 @@ class RemoteAgentAdapter:
                     return
 
                 if event_type == "AGENT_SHUTDOWN":
-                    logger.warning(
-                        "RemoteAgentAdapter: AGENT_SHUTDOWN from %s reason=%s detail=%s",
-                        body.get("agent_id", "?"),
-                        body.get("reason", ""),
-                        body.get("detail", ""),
+                    self._handle_agent_shutdown(
+                        body.get("agent_id", ""),
+                        reason=body.get("reason", ""),
+                        detail=body.get("detail", ""),
                     )
 
                 if hasattr(partition_context, "update_checkpoint"):

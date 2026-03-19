@@ -60,6 +60,7 @@ def _make_adapter(mod, agent_count=5, answer_timeout=0):
         adapter._extractor_lock = threading.Lock()
         adapter._pending_answers = {}
         adapter._answer_events = {}
+        adapter._answer_targets = {}
         adapter._producer = None
         adapter._fact_batch_extractor = None
         adapter._fact_batch_extractor_dir = None
@@ -418,6 +419,63 @@ class TestAnswerQuestion:
         assert result == "Recovered answer"
         assert send_question.call_args_list[0].args == ("recover after timeout", 0)
         assert send_question.call_args_list[1].args == ("recover after timeout", 1)
+
+    def test_duplicate_agent_online_releases_pending_question(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._idle_wait_done.set()
+        adapter._publish_event = MagicMock()
+        adapter._online_agents.add("agent-0")
+
+        result_holder = {}
+
+        def ask_question():
+            result_holder["answer"] = adapter._send_question_to_agent("still there?", 0)
+
+        thread = threading.Thread(target=ask_question, daemon=True)
+        thread.start()
+
+        for _ in range(100):
+            with adapter._answer_lock:
+                if adapter._answer_targets:
+                    break
+            time.sleep(0.01)
+
+        adapter._handle_agent_online("agent-0")
+
+        thread.join(timeout=5)
+        assert result_holder["answer"] == "No answer received"
+        assert adapter._answer_targets == {}
+
+    def test_agent_shutdown_releases_pending_question(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._idle_wait_done.set()
+        adapter._publish_event = MagicMock()
+        adapter._online_agents.add("agent-0")
+        adapter._ready_agents.add("agent-0")
+
+        result_holder = {}
+
+        def ask_question():
+            result_holder["answer"] = adapter._send_question_to_agent("still there?", 0)
+
+        thread = threading.Thread(target=ask_question, daemon=True)
+        thread.start()
+
+        for _ in range(100):
+            with adapter._answer_lock:
+                if adapter._answer_targets:
+                    break
+            time.sleep(0.01)
+
+        adapter._handle_agent_shutdown("agent-0", reason="signal", detail="signal=15")
+
+        thread.join(timeout=5)
+        assert result_holder["answer"] == "No answer received"
+        assert "agent-0" not in adapter._online_agents
+        assert "agent-0" not in adapter._ready_agents
+        assert adapter._answer_targets == {}
 
     def test_semantic_abstention_retries_next_agent(self):
         mod = _load_module()
