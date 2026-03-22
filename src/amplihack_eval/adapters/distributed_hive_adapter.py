@@ -1,10 +1,9 @@
 """Distributed hive adapter — wraps Event Hubs-based distributed agents.
 
 Connects the eval harness to a fleet of remote agents deployed on
-Azure Container Apps, communicating via Event Hubs. Uses the same
-``RemoteAgentAdapter`` from amplihack that the ad-hoc eval script uses,
-but packages it behind the standard ``AgentAdapter`` interface so that
-the full eval harness (levels, grading, reports) works transparently.
+Azure Container Apps, communicating via Event Hubs. Bundles
+``RemoteAgentAdapter`` behind the standard ``AgentAdapter`` interface so
+that the full eval harness (levels, grading, reports) works transparently.
 
 Usage::
 
@@ -18,7 +17,6 @@ Usage::
 from __future__ import annotations
 
 import logging
-import os
 
 from .base import AgentAdapter, AgentResponse
 
@@ -60,36 +58,14 @@ class DistributedHiveAdapter(AgentAdapter):
     ) -> None:
         # Import here to avoid hard dependency at module level
         try:
-            from amplihack.eval.distributed_adapter import RemoteAgentAdapter
+            from .remote_agent_adapter import RemoteAgentAdapter
         except ImportError:
-            # Fall back to the deploy-local copy
             try:
-                import importlib.util
-                import sys
-
-                spec = importlib.util.spec_from_file_location(
-                    "remote_agent_adapter",
-                    os.path.join(
-                        os.path.dirname(__file__),
-                        "..",
-                        "..",
-                        "..",
-                        "..",
-                        "deploy",
-                        "azure_hive",
-                        "remote_agent_adapter.py",
-                    ),
-                )
-                if spec and spec.loader:
-                    mod = importlib.util.module_from_spec(spec)
-                    sys.modules["remote_agent_adapter"] = mod
-                    spec.loader.exec_module(mod)
-                    RemoteAgentAdapter = mod.RemoteAgentAdapter  # type: ignore[assignment]
-                else:
-                    raise ImportError("Could not load remote_agent_adapter")
+                from amplihack.eval.distributed_adapter import RemoteAgentAdapter
             except Exception as exc:
                 raise ImportError(
-                    "amplihack package with RemoteAgentAdapter required. Install with: pip install amplihack"
+                    "DistributedHiveAdapter requires amplihack-agent-eval[azure] or "
+                    "an amplihack compatibility shim exporting RemoteAgentAdapter."
                 ) from exc
 
         self._adapter = RemoteAgentAdapter(

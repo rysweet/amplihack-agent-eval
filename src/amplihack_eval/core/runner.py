@@ -35,6 +35,7 @@ from typing import Any
 
 from ..adapters.base import AgentAdapter
 from ..data.long_horizon import (
+    DEFAULT_QUESTION_SET,
     GradingRubric,
     GroundTruth,
     Question,
@@ -101,12 +102,14 @@ class EvalReport:
     category_breakdown: list[CategoryBreakdown]
     results: list[EvalResult]
     memory_stats: dict[str, Any] = field(default_factory=dict)
+    question_set: str = DEFAULT_QUESTION_SET
 
     def to_dict(self) -> dict[str, Any]:
         """Convert report to dictionary for JSON serialization."""
         return {
             "num_turns": self.num_turns,
             "num_questions": self.num_questions,
+            "question_set": self.question_set,
             "total_facts_delivered": self.total_facts_delivered,
             "learning_time_s": round(self.learning_time_s, 2),
             "questioning_time_s": round(self.questioning_time_s, 2),
@@ -532,12 +535,14 @@ class EvalRunner:
         seed: int = 42,
         grader_votes: int = 3,
         parallel_workers: int = 10,
+        question_set: str = DEFAULT_QUESTION_SET,
     ):
         self.num_turns = num_turns
         self.num_questions = num_questions
         self.seed = seed
         self.grader_votes = max(1, grader_votes)
         self.parallel_workers = max(1, min(MAX_PARALLEL_WORKERS, parallel_workers))
+        self.question_set = question_set
         self.ground_truth: GroundTruth | None = None
         self.questions: list[Question] = []
 
@@ -548,7 +553,11 @@ class EvalRunner:
             Tuple of (GroundTruth, list[Question])
         """
         self.ground_truth = generate_dialogue(num_turns=self.num_turns, seed=self.seed)
-        self.questions = generate_questions(self.ground_truth, num_questions=self.num_questions)
+        self.questions = generate_questions(
+            self.ground_truth,
+            num_questions=self.num_questions,
+            question_set=self.question_set,
+        )
         return self.ground_truth, self.questions
 
     def run_dialogue(self, agent: AgentAdapter, ground_truth: GroundTruth | None = None) -> float:
@@ -669,6 +678,7 @@ class EvalRunner:
             category_breakdown=breakdown,
             results=results,
             memory_stats=mem_stats,
+            question_set=self.question_set,
         )
 
     def _evaluate_sequential(

@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import pytest
+
 from amplihack_eval.data.long_horizon import (
+    DEFAULT_QUESTION_SET,
+    SUPPORTED_QUESTION_SETS,
     GradingRubric,
     GroundTruth,
     Question,
@@ -141,6 +145,25 @@ class TestQuestionGeneration:
         for q in questions:
             for t in q.relevant_turns:
                 assert 0 <= t <= max_turn
+
+    def test_holdout_question_set_differs_from_standard(self):
+        gt = generate_dialogue(num_turns=1000, seed=42)
+        standard = generate_questions(gt, num_questions=50, question_set=DEFAULT_QUESTION_SET)
+        holdout = generate_questions(gt, num_questions=50, question_set="holdout")
+        standard_ids = [q.question_id for q in standard]
+        holdout_ids = [q.question_id for q in holdout]
+        assert len(standard_ids) == len(holdout_ids) == 50
+        assert standard_ids != holdout_ids
+        assert set(standard_ids) != set(holdout_ids)
+
+    def test_invalid_question_set_raises(self):
+        gt = generate_dialogue(num_turns=20, seed=42)
+        with pytest.raises(ValueError, match="Unsupported question_set"):
+            generate_questions(gt, num_questions=5, question_set="bogus")
+
+    def test_supported_question_sets_include_holdout(self):
+        assert DEFAULT_QUESTION_SET == "standard"
+        assert SUPPORTED_QUESTION_SETS == ("standard", "holdout")
 
 
 # --- Progressive levels tests ---

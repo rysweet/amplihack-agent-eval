@@ -14,7 +14,7 @@ The hive mind is built on four layers:
 | Layer | Responsibility | Implementations |
 |-------|---------------|-----------------|
 | **Storage** (HiveGraph) | Shared fact store | `InMemoryHiveGraph` (local, < 20 agents), `DistributedHiveGraph` (DHT-sharded, 20-1000+ agents) |
-| **Transport** (EventBus) | Message delivery between agents | `LocalEventBus` (in-process), Azure Service Bus (distributed) |
+| **Transport** (EventBus) | Message delivery between agents | `LocalEventBus` (in-process), Azure Event Hubs (distributed) |
 | **Discovery** (Gossip) | Peer discovery and fact propagation | Gossip protocol with configurable broadcast thresholds |
 | **Query** (Dedup + Rerank) | Answer assembly from distributed shards | Fan-out to K shard owners, RRF merge, deduplication |
 
@@ -34,8 +34,8 @@ consensus filtering through a single entry point.
 
 - **LocalEventBus** -- In-process event delivery for local evaluation. No
   network overhead.
-- **Azure Service Bus** -- Cloud-based transport for distributed deployments.
-  Each agent subscribes to a shared topic and publishes responses back.
+- **Azure Event Hubs** -- Cloud-based transport for distributed deployments.
+  Agents consume targeted input partitions and publish eval responses through dedicated Event Hubs.
 
 ## Why Evaluate the Hive Mind?
 
