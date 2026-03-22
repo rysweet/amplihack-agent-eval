@@ -59,6 +59,17 @@ def _default_agent_count() -> int:
     return 10 if os.environ.get("HIVE_DEPLOYMENT_PROFILE", "").strip() == "smoke-10" else 100
 
 
+def _default_agents_per_app() -> int:
+    raw = os.environ.get("AMPLIHACK_AGENTS_PER_APP") or os.environ.get("HIVE_AGENTS_PER_APP")
+    if raw:
+        try:
+            return int(raw)
+        except ValueError:
+            logger.warning("Ignoring invalid agents-per-app override: %s", raw)
+
+    return 1 if os.environ.get("HIVE_DEPLOYMENT_PROFILE", "").strip() == "smoke-10" else 5
+
+
 def _default_parallel_workers(agent_count: int) -> int:
     if agent_count >= 100:
         return 1
@@ -96,7 +107,19 @@ def main() -> int:
     p.add_argument(
         "--agents", type=int, default=_default_agent_count(), help="Number of deployed agents"
     )
+    p.add_argument(
+        "--agents-per-app",
+        type=int,
+        default=_default_agents_per_app(),
+        help="Number of agents packed into each Azure Container App failure domain",
+    )
     p.add_argument("--seed", type=int, default=42, help="Random seed")
+    p.add_argument(
+        "--question-set",
+        choices=("standard", "holdout"),
+        default="standard",
+        help="Deterministic question subset to use",
+    )
     p.add_argument("--grader-model", default="claude-haiku-4-5-20251001")
     p.add_argument("--resource-group", default="", help="Azure resource group (optional, unused)")
     p.add_argument(
@@ -137,6 +160,7 @@ def main() -> int:
         args.question_failover_retries = _default_question_failover_retries(args.agents)
     if args.answer_timeout is None:
         args.answer_timeout = _default_answer_timeout(args.agents)
+    args.agents_per_app = max(1, min(args.agents, args.agents_per_app))
 
     configure_otel(
         service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip()
@@ -144,8 +168,10 @@ def main() -> int:
         component="eval-distributed",
         attributes={
             "amplihack.agent_count": args.agents,
+            "amplihack.agents_per_app": args.agents_per_app,
             "amplihack.turns": args.turns,
             "amplihack.questions": args.questions,
+            "amplihack.question_set": args.question_set,
             "amplihack.parallel_workers": args.parallel_workers,
             "amplihack.question_failover_retries": args.question_failover_retries,
             "amplihack.answer_timeout": args.answer_timeout,
@@ -162,19 +188,22 @@ def main() -> int:
         input_hub=args.input_hub,
         response_hub=args.response_hub,
         agent_count=args.agents,
+        agents_per_app=args.agents_per_app,
         resource_group=args.resource_group,
         answer_timeout=args.answer_timeout,
         replicate_learning_to_all_agents=args.replicate_learn_to_all_agents,
         question_failover_retries=args.question_failover_retries,
     )
     logger.info(
-        "Distributed eval config: agents=%d parallel_workers=%d "
-        "answer_timeout=%d failover_retries=%d replicate_learn=%s",
+        "Distributed eval config: agents=%d agents_per_app=%d parallel_workers=%d "
+        "answer_timeout=%d failover_retries=%d replicate_learn=%s question_set=%s",
         args.agents,
+        args.agents_per_app,
         args.parallel_workers,
         args.answer_timeout,
         args.question_failover_retries,
         args.replicate_learn_to_all_agents,
+        args.question_set,
     )
 
     # Create the eval harness — IDENTICAL to single-agent
@@ -183,6 +212,7 @@ def main() -> int:
         num_questions=args.questions,
         seed=args.seed,
         parallel_workers=args.parallel_workers,
+        question_set=args.question_set,
     )
 
     # Run — same code path as: python -m amplihack.eval.long_horizon_memory
@@ -192,8 +222,10 @@ def main() -> int:
             tracer_name=__name__,
             attributes={
                 "amplihack.agent_count": args.agents,
+                "amplihack.agents_per_app": args.agents_per_app,
                 "amplihack.turns": args.turns,
                 "amplihack.questions": args.questions,
+                "amplihack.question_set": args.question_set,
                 "amplihack.parallel_workers": args.parallel_workers,
                 "amplihack.question_failover_retries": args.question_failover_retries,
                 "amplihack.answer_timeout": args.answer_timeout,
@@ -211,6 +243,8 @@ def main() -> int:
     report_dict = report.to_dict()
     report_dict["eval_type"] = "distributed"
     report_dict["agent_count"] = args.agents
+    report_dict["agents_per_app"] = args.agents_per_app
+    report_dict["question_set"] = args.question_set
     report_dict["input_hub"] = args.input_hub
     report_dict["response_hub"] = args.response_hub
     report_dict["parallel_workers"] = args.parallel_workers

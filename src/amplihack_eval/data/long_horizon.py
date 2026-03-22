@@ -3098,7 +3098,42 @@ def _make_rubric(
     )
 
 
-def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> list[Question]:
+DEFAULT_QUESTION_SET = "standard"
+SUPPORTED_QUESTION_SETS = ("standard", "holdout")
+
+
+def _normalize_question_set(question_set: str | None) -> str:
+    normalized = (question_set or DEFAULT_QUESTION_SET).strip().lower().replace("-", "_")
+    if normalized not in SUPPORTED_QUESTION_SETS:
+        supported = ", ".join(SUPPORTED_QUESTION_SETS)
+        raise ValueError(f"Unsupported question_set '{question_set}'. Expected one of: {supported}")
+    return normalized
+
+
+def _select_question_subset(
+    candidates: list[Question],
+    count: int,
+    question_set: str,
+) -> list[Question]:
+    if count <= 0 or not candidates:
+        return []
+    if count >= len(candidates) or question_set == DEFAULT_QUESTION_SET:
+        return list(candidates[:count])
+    if question_set == "holdout":
+        if len(candidates) >= count * 2:
+            return list(candidates[count : count * 2])
+        selected = list(candidates[-count:])
+        if selected == candidates[:count] and len(candidates) > count:
+            return list(candidates[1 : count + 1])
+        return selected
+    raise AssertionError(f"Unexpected question_set: {question_set}")
+
+
+def generate_questions(
+    ground_truth: GroundTruth,
+    num_questions: int = 100,
+    question_set: str = DEFAULT_QUESTION_SET,
+) -> list[Question]:
     """Generate quiz questions targeting specific memory capabilities.
 
     Only includes questions whose answers were actually delivered in the dialogue.
@@ -3108,6 +3143,9 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
     Args:
         ground_truth: The GroundTruth from generate_dialogue
         num_questions: Target number of questions (scaled proportionally)
+        question_set: Deterministic question subset to use. ``standard`` keeps
+            the current canonical selection. ``holdout`` selects a different
+            deterministic slice when enough candidate questions exist.
 
     Returns:
         List of Questions with expected answers and scoring metadata
@@ -3115,6 +3153,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
     questions: list[Question] = []
     scale = num_questions / 100.0  # Scale relative to standard 100 questions
     delivered = _delivered_entities(ground_truth)
+    question_set = _normalize_question_set(question_set)
 
     # Category 1: Needle-in-haystack (20% of questions)
     needle_count = max(1, int(20 * scale))
@@ -3317,7 +3356,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     needle_questions = [q for q in needle_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(needle_questions[:needle_count])
+    questions.extend(_select_question_subset(needle_questions, needle_count, question_set))
 
     # Category 2: Temporal evolution (15% of questions)
     temporal_count = max(1, int(15 * scale))
@@ -3514,7 +3553,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     temporal_questions = [q for q in temporal_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(temporal_questions[:temporal_count])
+    questions.extend(_select_question_subset(temporal_questions, temporal_count, question_set))
 
     # Category 3: Numerical precision (15% of questions)
     numerical_count = max(1, int(15 * scale))
@@ -3656,7 +3695,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     numerical_questions = [q for q in numerical_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(numerical_questions[:numerical_count])
+    questions.extend(_select_question_subset(numerical_questions, numerical_count, question_set))
 
     # Category 4: Source attribution (10% of questions)
     source_count = max(1, int(10 * scale))
@@ -3786,7 +3825,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     source_questions = [q for q in source_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(source_questions[:source_count])
+    questions.extend(_select_question_subset(source_questions, source_count, question_set))
 
     # Category 5: Cross-reference (10% of questions)
     cross_ref_count = max(1, int(10 * scale))
@@ -3911,7 +3950,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     cross_ref_questions = [q for q in cross_ref_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(cross_ref_questions[:cross_ref_count])
+    questions.extend(_select_question_subset(cross_ref_questions, cross_ref_count, question_set))
 
     # Category 6: Distractor resistance (10% of questions)
     distractor_count = max(1, int(10 * scale))
@@ -4039,7 +4078,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
     distractor_questions = [
         q for q in distractor_questions if _question_references_delivered(q, delivered, ground_truth)
     ]
-    questions.extend(distractor_questions[:distractor_count])
+    questions.extend(_select_question_subset(distractor_questions, distractor_count, question_set))
 
     # Category 7: Meta-memory (5% of questions)
     meta_count = max(1, int(5 * scale))
@@ -4097,7 +4136,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         ),
     ]
     meta_questions = [q for q in meta_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(meta_questions[:meta_count])
+    questions.extend(_select_question_subset(meta_questions, meta_count, question_set))
 
     # Category 8: Security log analysis (conditional on security blocks being delivered)
     has_security = "__block:security_logs__" in delivered
@@ -4170,7 +4209,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ]
         sec_log_questions = [q for q in sec_log_questions if _question_references_delivered(q, delivered, ground_truth)]
-        questions.extend(sec_log_questions[:sec_log_count])
+        questions.extend(_select_question_subset(sec_log_questions, sec_log_count, question_set))
 
     # Category 9: Incident tracking (conditional on incidents block)
     has_incidents = "__block:incidents__" in delivered
@@ -4264,7 +4303,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         incident_questions = [
             q for q in incident_questions if _question_references_delivered(q, delivered, ground_truth)
         ]
-        questions.extend(incident_questions[:incident_count])
+        questions.extend(_select_question_subset(incident_questions, incident_count, question_set))
 
     # Category 10: Infrastructure knowledge (conditional on infrastructure block)
     has_infra = "__block:infrastructure__" in delivered
@@ -4326,7 +4365,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ]
         infra_questions = [q for q in infra_questions if _question_references_delivered(q, delivered, ground_truth)]
-        questions.extend(infra_questions[:infra_count])
+        questions.extend(_select_question_subset(infra_questions, infra_count, question_set))
 
     # Category 11: Problem solving (conditional on problem_solving block)
     has_problems = "__block:problem_solving__" in delivered
@@ -4367,7 +4406,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
             ),
         ]
         problem_questions = [q for q in problem_questions if _question_references_delivered(q, delivered, ground_truth)]
-        questions.extend(problem_questions[:problem_count])
+        questions.extend(_select_question_subset(problem_questions, problem_count, question_set))
 
     # Category 12: Multi-hop reasoning (chains across blocks)
     multi_hop_count = max(1, int(6 * scale))
@@ -4447,7 +4486,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
         )
 
     multi_hop_questions = [q for q in multi_hop_questions if _question_references_delivered(q, delivered, ground_truth)]
-    questions.extend(multi_hop_questions[:multi_hop_count])
+    questions.extend(_select_question_subset(multi_hop_questions, multi_hop_count, question_set))
 
     # Add bonus questions to fill up to num_questions if needed
     bonus_questions = [
@@ -4591,7 +4630,7 @@ def generate_questions(ground_truth: GroundTruth, num_questions: int = 100) -> l
     remaining = num_questions - len(questions)
     if remaining > 0:
         bonus_questions = [q for q in bonus_questions if _question_references_delivered(q, delivered, ground_truth)]
-        questions.extend(bonus_questions[:remaining])
+        questions.extend(_select_question_subset(bonus_questions, remaining, question_set))
 
     # Ensure all questions have rubrics (backfill for security/infra questions)
     for q in questions:
@@ -4606,6 +4645,8 @@ __all__ = [
     "Question",
     "GradingRubric",
     "GroundTruth",
+    "DEFAULT_QUESTION_SET",
+    "SUPPORTED_QUESTION_SETS",
     "generate_dialogue",
     "generate_questions",
     "PEOPLE",

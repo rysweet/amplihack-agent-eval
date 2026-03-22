@@ -50,6 +50,10 @@ except ImportError:  # pragma: no cover
         return _contextlib.nullcontext()
 
 logger = logging.getLogger(__name__)
+logging.getLogger("azure.eventhub").setLevel(logging.WARNING)
+logging.getLogger("azure.eventhub._pyamqp").setLevel(logging.WARNING)
+logging.getLogger("azure.eventhub._pyamqp.cbs").setLevel(logging.WARNING)
+logging.getLogger("uamqp").setLevel(logging.WARNING)
 
 _FAILOVER_ANSWER_PREFIXES = (
     "no answer received",
@@ -73,6 +77,7 @@ class RemoteAgentAdapter:
         input_hub: str,
         response_hub: str,
         agent_count: int = 100,
+        agents_per_app: int = 1,
         resource_group: str = "",
         answer_timeout: int = 0,
         replicate_learning_to_all_agents: bool = False,
@@ -83,6 +88,7 @@ class RemoteAgentAdapter:
         self._response_hub = response_hub
         self._resource_group = resource_group
         self._agent_count = agent_count
+        self._agents_per_app = max(1, min(agent_count, agents_per_app))
 
         self._learn_count = 0
         self._learn_turn_counts = [0 for _ in range(agent_count)]
@@ -104,12 +110,16 @@ class RemoteAgentAdapter:
         self._pending_answers: dict[str, str] = {}
         self._answer_events: dict[str, threading.Event] = {}
         self._answer_targets: dict[str, str] = {}
+        self._pending_question_meta: dict[str, dict[str, Any]] = {}
+        self._agent_boot_ids: dict[str, str] = {}
         self._producer: Any | None = None
         self._fact_batch_extractor: Any | None = None
         self._fact_batch_extractor_dir: Path | None = None
 
         # AGENT_READY tracking for _wait_for_agents_idle
         self._ready_agents: set[str] = set()
+        self._ready_boot_ids: dict[str, str] = {}
+        self._question_ineligible_agents: set[str] = set()
         self._ready_lock = threading.Lock()
         self._all_agents_ready = threading.Event()
 
@@ -123,6 +133,7 @@ class RemoteAgentAdapter:
         self._progress_counts: dict[str, int] = {}
         self._progress_lock = threading.Lock()
         self._feed_telemetry_wait_done = threading.Event()
+        self._feed_telemetry_monitor_thread: threading.Thread | None = None
 
         # Unique run_id to filter stale events from previous eval runs
         self._run_id = uuid.uuid4().hex[:12]
@@ -130,6 +141,10 @@ class RemoteAgentAdapter:
 
         # Listener liveness flag — fail fast if listener can't connect
         self._listener_alive = threading.Event()
+        self._listener_restart_count = 0
+        self._last_listener_event_at = 0.0
+        self._last_listener_event_type = ""
+        self._last_listener_partition = ""
 
         self._listener_thread = threading.Thread(target=self._listen_for_answers, daemon=True)
         self._listener_thread.start()
@@ -142,10 +157,11 @@ class RemoteAgentAdapter:
             )
 
         logger.info(
-            "RemoteAgentAdapter: input=%s response=%s agents=%d run_id=%s",
+            "RemoteAgentAdapter: input=%s response=%s agents=%d agents_per_app=%d run_id=%s",
             input_hub,
             response_hub,
             agent_count,
+            self._agents_per_app,
             self._run_id,
         )
         configure_otel(
@@ -195,6 +211,7 @@ class RemoteAgentAdapter:
             "amplihack.input_hub": self._input_hub,
             "amplihack.response_hub": self._response_hub,
             "amplihack.agent_count": self._agent_count,
+            "amplihack.agents_per_app": self._agents_per_app,
             "amplihack.run_id": self._run_id,
             "amplihack.replicate_learning": self._replicate_learning_to_all_agents,
             "amplihack.question_failover_retries": self._question_failover_retries,
@@ -356,7 +373,7 @@ class RemoteAgentAdapter:
                 len(expected_agents),
             )
             poll_interval = 5
-            while True:
+            while not self._shutdown.is_set():
                 with self._progress_lock:
                     missing_agents = sorted(expected_agents - self._progress_agents)
 
@@ -369,6 +386,26 @@ class RemoteAgentAdapter:
 
                 logger.info("  waiting for AGENT_PROGRESS from: %s", ", ".join(missing_agents))
                 time.sleep(poll_interval)
+
+            logger.warning(
+                "Feed telemetry monitor stopped before all agents reported progress; still missing: %s",
+                ", ".join(sorted(expected_agents - self._progress_agents)),
+            )
+
+    def _start_feed_telemetry_monitor(self, expected_agents: set[str]) -> None:
+        """Start a background monitor for initial AGENT_PROGRESS coverage."""
+        if not expected_agents or self._feed_telemetry_wait_done.is_set():
+            return
+
+        self._feed_telemetry_wait_done.set()
+        monitor = threading.Thread(
+            target=self._wait_for_feed_telemetry,
+            args=(set(expected_agents),),
+            daemon=True,
+            name="feed-telemetry-monitor",
+        )
+        self._feed_telemetry_monitor_thread = monitor
+        monitor.start()
 
     def learn_from_content(self, content: str) -> dict[str, Any]:
         """Send content to one agent or to all agents when replication is enabled.
@@ -444,8 +481,7 @@ class RemoteAgentAdapter:
                     }
 
                 if expected_progress_agents is not None:
-                    self._wait_for_feed_telemetry(expected_progress_agents)
-                    self._feed_telemetry_wait_done.set()
+                    self._start_feed_telemetry_monitor(expected_progress_agents)
 
             log_every = 50 if self._replicate_learning_to_all_agents else 500
             if learn_count % log_every == 0:
@@ -471,6 +507,7 @@ class RemoteAgentAdapter:
     def _send_question_to_agent(self, question: str, target_agent: int) -> str:
         """Send one question attempt to one agent and wait for its answer."""
         target_name = self._agent_name(target_agent)
+        target_partition = self._target_partition(target_name)
         with start_span(
             "azure_eval.send_question",
             tracer_name=__name__,
@@ -480,11 +517,19 @@ class RemoteAgentAdapter:
             ),
         ):
             event_id = uuid.uuid4().hex[:12]
+            question_id = f"q_{target_agent}_{event_id}"
+            sent_at = time.monotonic()
 
             answer_event = threading.Event()
             with self._answer_lock:
                 self._answer_events[event_id] = answer_event
                 self._answer_targets[event_id] = target_name
+                self._pending_question_meta[event_id] = {
+                    "question_id": question_id,
+                    "partition_id": target_partition,
+                    "question_preview": question[:120],
+                    "sent_at_monotonic": sent_at,
+                }
 
             self._publish_event(
                 {
@@ -494,7 +539,7 @@ class RemoteAgentAdapter:
                     "source_agent": "eval-harness",
                     "payload": {
                         "question": question,
-                        "question_id": f"q_{target_agent}_{event_id}",
+                        "question_id": question_id,
                         "target_agent": target_name,
                     },
                 },
@@ -502,25 +547,39 @@ class RemoteAgentAdapter:
             )
 
             logger.info(
-                "RemoteAgentAdapter: sent question to %s (event_id=%s): %s",
+                "RemoteAgentAdapter: sent question to %s (event_id=%s question_id=%s partition=%s run_id=%s): %s",
                 target_name,
                 event_id,
+                question_id,
+                target_partition,
+                self._run_id,
                 question[:60],
             )
 
-            timeout = self._answer_timeout if self._answer_timeout > 0 else None
-            got_answer = answer_event.wait(timeout=timeout)
+            got_answer = self._wait_for_answer_event(event_id, answer_event)
             if not got_answer:
                 logger.warning(
                     "answer_question: timeout after %ds waiting for event_id=%s",
                     self._answer_timeout,
                     event_id,
                 )
+                self._log_pending_question_state(event_id, reason="wait ended without answer")
 
             with self._answer_lock:
                 answer = self._pending_answers.pop(event_id, "No answer received")
                 self._answer_events.pop(event_id, None)
                 self._answer_targets.pop(event_id, None)
+                self._pending_question_meta.pop(event_id, None)
+
+            logger.info(
+                "RemoteAgentAdapter: completed question "
+                "event_id=%s question_id=%s target=%s elapsed=%.3fs answer_chars=%d",
+                event_id,
+                question_id,
+                target_name,
+                time.monotonic() - sent_at,
+                len(answer),
+            )
 
             return answer
 
@@ -547,25 +606,53 @@ class RemoteAgentAdapter:
                 reason,
                 detail or "no detail",
             )
+            for event_id in released_event_ids:
+                self._log_pending_question_state(
+                    event_id,
+                    reason=f"released after {reason}: {detail or 'no detail'}",
+                )
 
-    def _handle_agent_online(self, agent_id: str) -> None:
+    def _handle_agent_online(self, agent_id: str, boot_id: str = "") -> None:
         if not agent_id:
             return
         with self._online_lock:
             already_online = agent_id in self._online_agents
+            previous_boot_id = self._agent_boot_ids.get(agent_id, "")
             self._online_agents.add(agent_id)
+            if boot_id:
+                self._agent_boot_ids[agent_id] = boot_id
             online_count = len(self._online_agents)
         logger.info(
-            "RemoteAgentAdapter: AGENT_ONLINE from %s (%d/%d)",
+            "RemoteAgentAdapter: AGENT_ONLINE from %s boot_id=%s (%d/%d)",
             agent_id,
+            boot_id or "unknown",
             online_count,
             self._agent_count,
         )
-        if already_online:
+        boot_changed = bool(boot_id and previous_boot_id and previous_boot_id != boot_id)
+        if self._idle_wait_done.is_set() and already_online and (boot_changed or not boot_id):
+            with self._ready_lock:
+                was_ready = agent_id in self._ready_agents
+                ready_boot_id = self._ready_boot_ids.get(agent_id, "")
+                self._ready_agents.discard(agent_id)
+                self._question_ineligible_agents.add(agent_id)
+            logger.warning(
+                "RemoteAgentAdapter: excluding %s from question targets after post-ready restart "
+                "(was_ready=%s ready_boot_id=%s previous_boot_id=%s new_boot_id=%s)",
+                agent_id,
+                was_ready,
+                ready_boot_id or "unknown",
+                previous_boot_id or "unknown",
+                boot_id or "unknown",
+            )
+        if already_online and (boot_changed or not boot_id):
             self._release_pending_answers_for_agent(
                 agent_id,
                 reason="agent restart",
-                detail="duplicate AGENT_ONLINE while question was pending",
+                detail=(
+                    f"duplicate AGENT_ONLINE with boot_id={boot_id or 'unknown'} "
+                    "while question was pending"
+                ),
             )
 
     def _handle_agent_shutdown(self, agent_id: str, reason: str = "", detail: str = "") -> None:
@@ -573,8 +660,12 @@ class RemoteAgentAdapter:
             return
         with self._online_lock:
             self._online_agents.discard(agent_id)
+            self._agent_boot_ids.pop(agent_id, None)
         with self._ready_lock:
             self._ready_agents.discard(agent_id)
+            self._ready_boot_ids.pop(agent_id, None)
+            if self._idle_wait_done.is_set():
+                self._question_ineligible_agents.add(agent_id)
         logger.warning(
             "RemoteAgentAdapter: AGENT_SHUTDOWN from %s reason=%s detail=%s",
             agent_id,
@@ -586,6 +677,137 @@ class RemoteAgentAdapter:
             reason=f"agent shutdown:{reason or 'unknown'}",
             detail=detail,
         )
+
+    def _question_attempt_targets(self, base_target_agent: int, max_attempts: int) -> list[int]:
+        if max_attempts <= 1 or self._agents_per_app <= 1:
+            return [
+                (base_target_agent + attempt) % self._agent_count
+                for attempt in range(max_attempts)
+            ]
+
+        app_groups = [
+            list(range(start, min(start + self._agents_per_app, self._agent_count)))
+            for start in range(0, self._agent_count, self._agents_per_app)
+        ]
+        if not app_groups:
+            return []
+
+        app_count = len(app_groups)
+        base_app = min(app_count - 1, base_target_agent // self._agents_per_app)
+        base_slot = base_target_agent % self._agents_per_app
+        ordered: list[int] = []
+        seen: set[int] = set()
+
+        def add_candidate(candidate: int) -> bool:
+            if candidate in seen:
+                return False
+            seen.add(candidate)
+            ordered.append(candidate)
+            return len(ordered) >= max_attempts
+
+        for app_offset in range(app_count):
+            group = app_groups[(base_app + app_offset) % app_count]
+            for slot_offset in range(self._agents_per_app):
+                slot = (base_slot + slot_offset) % self._agents_per_app
+                if slot >= len(group):
+                    continue
+                if add_candidate(group[slot]):
+                    return ordered
+
+        return ordered
+
+    def _is_question_target_eligible(self, target_agent: int) -> bool:
+        target_name = self._agent_name(target_agent)
+        with self._ready_lock:
+            if target_name in self._question_ineligible_agents:
+                return False
+            ready_agents = set(self._ready_agents)
+        return not ready_agents or target_name in ready_agents
+
+    def _dispatch_question_targets(self, base_target_agent: int, max_attempts: int) -> list[int]:
+        ordered_candidates = self._question_attempt_targets(base_target_agent, self._agent_count)
+        eligible_candidates = [
+            candidate
+            for candidate in ordered_candidates
+            if self._is_question_target_eligible(candidate)
+        ]
+        if eligible_candidates:
+            skipped = len(ordered_candidates) - len(eligible_candidates)
+            if skipped > 0:
+                logger.warning(
+                    "RemoteAgentAdapter: filtered %d ineligible question target(s) after restart",
+                    skipped,
+                )
+            return eligible_candidates[:max_attempts]
+        return ordered_candidates[:max_attempts]
+
+    def _record_listener_event(self, event_type: str, partition_id: str = "") -> None:
+        self._last_listener_event_at = time.monotonic()
+        self._last_listener_event_type = event_type
+        self._last_listener_partition = partition_id
+
+    def _listener_thread_is_alive(self) -> bool:
+        thread = getattr(self, "_listener_thread", None)
+        is_alive = getattr(thread, "is_alive", None)
+        if not callable(is_alive):
+            return False
+        try:
+            return bool(is_alive())
+        except Exception:
+            return False
+
+    def _log_pending_question_state(self, event_id: str, *, reason: str) -> None:
+        with self._answer_lock:
+            meta = dict(self._pending_question_meta.get(event_id, {}))
+            target_name = self._answer_targets.get(event_id, "")
+
+        if not meta and not target_name:
+            return
+
+        now = time.monotonic()
+        sent_at = float(meta.get("sent_at_monotonic", now))
+        question_age = max(0.0, now - sent_at)
+        listener_age = max(0.0, now - self._last_listener_event_at) if self._last_listener_event_at else -1.0
+
+        logger.warning(
+            "RemoteAgentAdapter: pending question event_id=%s question_id=%s target=%s "
+            "partition=%s age=%.1fs listener_alive=%s listener_thread_alive=%s "
+            "listener_restarts=%d last_listener_event_type=%s last_listener_partition=%s "
+            "last_listener_event_age=%.1fs target_boot_id=%s reason=%s preview=%s",
+            event_id,
+            str(meta.get("question_id", "")) or "unknown",
+            target_name or "unknown",
+            str(meta.get("partition_id", "")) or "unknown",
+            question_age,
+            self._listener_alive.is_set(),
+            self._listener_thread_is_alive(),
+            self._listener_restart_count,
+            self._last_listener_event_type or "none",
+            self._last_listener_partition or "unknown",
+            listener_age,
+            self._agent_boot_ids.get(target_name, "") or "unknown",
+            reason,
+            str(meta.get("question_preview", "")),
+        )
+
+    def _wait_for_answer_event(self, event_id: str, answer_event: threading.Event) -> bool:
+        if self._answer_timeout > 0:
+            deadline = time.monotonic() + self._answer_timeout
+            log_interval = min(30.0, max(1.0, float(self._answer_timeout)))
+            while not self._shutdown.is_set():
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    return False
+                if answer_event.wait(timeout=min(log_interval, remaining)):
+                    return True
+                self._log_pending_question_state(event_id, reason="still waiting")
+            return False
+
+        while not self._shutdown.is_set():
+            if answer_event.wait(timeout=30.0):
+                return True
+            self._log_pending_question_state(event_id, reason="still waiting (no timeout)")
+        return False
 
     def answer_question(self, question: str, target_agent: int | None = None) -> str:
         """Send question to one agent, retrying on other agents when configured."""
@@ -615,9 +837,9 @@ class RemoteAgentAdapter:
                 self._question_count += 1
 
             max_attempts = min(self._agent_count, 1 + self._question_failover_retries)
+            attempt_targets = self._dispatch_question_targets(base_target_agent, max_attempts)
             last_answer = "No answer received"
-            for attempt in range(max_attempts):
-                attempt_target = (base_target_agent + attempt) % self._agent_count
+            for attempt, attempt_target in enumerate(attempt_targets):
                 if attempt > 0:
                     logger.info(
                         "RemoteAgentAdapter: retrying question on %s after previous timeout/no-answer",
@@ -626,10 +848,10 @@ class RemoteAgentAdapter:
                 answer = self._send_question_to_agent(question, attempt_target)
                 if not self._answer_requires_failover(answer):
                     return answer
-                if attempt + 1 < max_attempts:
+                if attempt + 1 < len(attempt_targets):
                     logger.info(
                         "RemoteAgentAdapter: retrying question on %s after incomplete answer from %s: %s",
-                        self._agent_name((attempt_target + 1) % self._agent_count),
+                        self._agent_name(attempt_targets[attempt + 1]),
                         self._agent_name(attempt_target),
                         answer[:120],
                     )
@@ -667,6 +889,8 @@ class RemoteAgentAdapter:
 
             with self._ready_lock:
                 self._ready_agents.clear()
+                self._ready_boot_ids.clear()
+                self._question_ineligible_agents.clear()
                 self._all_agents_ready.clear()
 
             logger.info(
@@ -734,146 +958,198 @@ class RemoteAgentAdapter:
             logger.error("azure-eventhub not installed — RemoteAgentAdapter cannot receive answers")
             return
 
-        def _on_event(partition_context: Any, event: Any) -> None:
-            if event is None:
-                return
+        starting_position = "@latest"
+        while not self._shutdown.is_set():
+            consumer = EventHubConsumerClient.from_connection_string(
+                self._connection_string,
+                consumer_group="eval-reader",
+                eventhub_name=self._response_hub,
+            )
             try:
-                body = json.loads(event.body_as_str())
-                event_type = body.get("event_type", "")
+                expected_partitions = set(consumer.get_partition_ids())
+            except Exception:
+                logger.debug("Failed to enumerate response hub partitions", exc_info=True)
+                expected_partitions = set()
 
-                # Filter stale events from previous eval runs
-                run_id = body.get("run_id", "")
-                if run_id and run_id != self._run_id:
+            initialized_partitions: set[str] = set()
+            initialized_lock = threading.Lock()
+
+            def _on_event(partition_context: Any, event: Any) -> None:
+                if event is None:
                     return
+                partition_id = str(getattr(partition_context, "partition_id", ""))
+                try:
+                    body = json.loads(event.body_as_str())
+                    event_type = body.get("event_type", "")
+                    self._record_listener_event(event_type or "UNKNOWN", partition_id)
 
-                if event_type == "AGENT_ONLINE":
-                    agent_id = body.get("agent_id", "")
-                    self._handle_agent_online(agent_id)
-                    if hasattr(partition_context, "update_checkpoint"):
-                        partition_context.update_checkpoint(event)
-                    return
+                    # Filter stale events from previous eval runs
+                    run_id = body.get("run_id", "")
+                    if run_id and run_id != self._run_id:
+                        return
 
-                if event_type == "AGENT_READY":
-                    agent_id = body.get("agent_id", "")
-                    if agent_id:
-                        with self._ready_lock:
-                            self._ready_agents.add(agent_id)
-                            ready_count = len(self._ready_agents)
-                        logger.info(
-                            "RemoteAgentAdapter: AGENT_READY from %s (%d/%d)",
-                            agent_id,
-                            ready_count,
-                            self._agent_count,
-                        )
-                    if hasattr(partition_context, "update_checkpoint"):
-                        partition_context.update_checkpoint(event)
-                    return
+                    if event_type == "AGENT_ONLINE":
+                        agent_id = body.get("agent_id", "")
+                        boot_id = body.get("boot_id", "")
+                        self._handle_agent_online(agent_id, boot_id=boot_id)
+                        if hasattr(partition_context, "update_checkpoint"):
+                            partition_context.update_checkpoint(event)
+                        return
 
-                if event_type == "AGENT_PROGRESS":
-                    agent_id = body.get("agent_id", "")
-                    phase = body.get("phase", "")
-                    processed_count = int(body.get("processed_count", 0) or 0)
-                    if agent_id:
-                        with self._progress_lock:
-                            self._progress_agents.add(agent_id)
-                            self._progress_counts[agent_id] = max(
-                                processed_count,
-                                self._progress_counts.get(agent_id, 0),
-                            )
-                            progress_count = len(self._progress_agents)
-                        logger.info(
-                            "RemoteAgentAdapter: AGENT_PROGRESS from %s phase=%s count=%d (%d/%d)",
-                            agent_id,
-                            phase or "unknown",
-                            processed_count,
-                            progress_count,
-                            self._agent_count,
-                        )
-                    if hasattr(partition_context, "update_checkpoint"):
-                        partition_context.update_checkpoint(event)
-                    return
-
-                if event_type == "EVAL_ANSWER":
-                    event_id = body.get("event_id", "")
-                    answer = body.get("answer", "")
-
-                    with self._answer_lock:
-                        if event_id in self._answer_events:
-                            self._pending_answers[event_id] = answer
-                            self._answer_events[event_id].set()
+                    if event_type == "AGENT_READY":
+                        agent_id = body.get("agent_id", "")
+                        boot_id = body.get("boot_id", "")
+                        if agent_id:
+                            with self._ready_lock:
+                                self._ready_agents.add(agent_id)
+                                if boot_id:
+                                    self._ready_boot_ids[agent_id] = boot_id
+                                if not self._idle_wait_done.is_set():
+                                    self._question_ineligible_agents.discard(agent_id)
+                                ready_count = len(self._ready_agents)
                             logger.info(
-                                "RemoteAgentAdapter: got answer for %s from %s: %s",
-                                event_id,
-                                body.get("agent_id", "?"),
-                                answer[:80] if answer else "(empty)",
+                                "RemoteAgentAdapter: AGENT_READY from %s boot_id=%s partition=%s (%d/%d)",
+                                agent_id,
+                                boot_id or "unknown",
+                                partition_id or "unknown",
+                                ready_count,
+                                self._agent_count,
                             )
-                        else:
-                            logger.warning(
-                                "RemoteAgentAdapter: answer for unknown event_id=%s (stale?)",
-                                event_id,
+                        if hasattr(partition_context, "update_checkpoint"):
+                            partition_context.update_checkpoint(event)
+                        return
+
+                    if event_type == "AGENT_PROGRESS":
+                        agent_id = body.get("agent_id", "")
+                        phase = body.get("phase", "")
+                        processed_count = int(body.get("processed_count", 0) or 0)
+                        if agent_id:
+                            with self._progress_lock:
+                                self._progress_agents.add(agent_id)
+                                self._progress_counts[agent_id] = max(
+                                    processed_count,
+                                    self._progress_counts.get(agent_id, 0),
+                                )
+                                progress_count = len(self._progress_agents)
+                            logger.info(
+                                "RemoteAgentAdapter: AGENT_PROGRESS from %s "
+                                "phase=%s count=%d boot_id=%s partition=%s (%d/%d)",
+                                agent_id,
+                                phase or "unknown",
+                                processed_count,
+                                body.get("boot_id", "") or "unknown",
+                                partition_id or "unknown",
+                                progress_count,
+                                self._agent_count,
                             )
+                        if hasattr(partition_context, "update_checkpoint"):
+                            partition_context.update_checkpoint(event)
+                        return
+
+                    if event_type == "EVAL_ANSWER":
+                        event_id = body.get("event_id", "")
+                        answer = body.get("answer", "")
+
+                        with self._answer_lock:
+                            if event_id in self._answer_events:
+                                self._pending_answers[event_id] = answer
+                                self._answer_events[event_id].set()
+                                logger.info(
+                                    "RemoteAgentAdapter: got answer event_id=%s "
+                                    "question_id=%s from %s boot_id=%s partition=%s: %s",
+                                    event_id,
+                                    body.get("question_id", "") or "unknown",
+                                    body.get("agent_id", "?"),
+                                    body.get("boot_id", "") or "unknown",
+                                    partition_id or "unknown",
+                                    answer[:80] if answer else "(empty)",
+                                )
+                            else:
+                                logger.warning(
+                                    "RemoteAgentAdapter: answer for unknown "
+                                    "event_id=%s question_id=%s partition=%s (stale?)",
+                                    event_id,
+                                    body.get("question_id", "") or "unknown",
+                                    partition_id or "unknown",
+                                )
+                        if hasattr(partition_context, "update_checkpoint"):
+                            partition_context.update_checkpoint(event)
+                        return
+
+                    if event_type == "AGENT_SHUTDOWN":
+                        self._handle_agent_shutdown(
+                            body.get("agent_id", ""),
+                            reason=body.get("reason", ""),
+                            detail=body.get("detail", ""),
+                        )
+
                     if hasattr(partition_context, "update_checkpoint"):
                         partition_context.update_checkpoint(event)
-                    return
+                except Exception:
+                    logger.debug("Failed to parse response message", exc_info=True)
 
-                if event_type == "AGENT_SHUTDOWN":
-                    self._handle_agent_shutdown(
-                        body.get("agent_id", ""),
-                        reason=body.get("reason", ""),
-                        detail=body.get("detail", ""),
+            def _on_partition_initialize(partition_context: Any) -> None:
+                partition_id = str(getattr(partition_context, "partition_id", ""))
+                should_mark_alive = False
+                with initialized_lock:
+                    if partition_id:
+                        initialized_partitions.add(partition_id)
+                    if expected_partitions:
+                        should_mark_alive = initialized_partitions >= expected_partitions
+                    else:
+                        should_mark_alive = True
+                if should_mark_alive and not self._listener_alive.is_set():
+                    self._listener_alive.set()
+                    logger.info(
+                        "RemoteAgentAdapter: listening on '%s' (eval-reader, partitions=%d, starting_position=%s)",
+                        self._response_hub,
+                        len(initialized_partitions),
+                        starting_position,
                     )
 
-                if hasattr(partition_context, "update_checkpoint"):
-                    partition_context.update_checkpoint(event)
+            try:
+                consumer.receive(
+                    on_event=_on_event,
+                    on_partition_initialize=_on_partition_initialize,
+                    starting_position=starting_position,
+                )
+                if self._shutdown.is_set():
+                    break
+                self._listener_alive.clear()
+                self._listener_restart_count += 1
+                logger.warning(
+                    "RemoteAgentAdapter: response listener returned unexpectedly; "
+                    "reconnecting with backfill (restart=%d)",
+                    self._listener_restart_count,
+                )
             except Exception:
-                logger.debug("Failed to parse response message", exc_info=True)
+                if self._shutdown.is_set():
+                    break
+                self._listener_alive.clear()
+                self._listener_restart_count += 1
+                logger.warning(
+                    "RemoteAgentAdapter: response listener failed; reconnecting with backfill (restart=%d)",
+                    self._listener_restart_count,
+                    exc_info=True,
+                )
+            finally:
+                try:
+                    consumer.close()
+                except Exception:
+                    pass
 
-        consumer = EventHubConsumerClient.from_connection_string(
-            self._connection_string,
-            consumer_group="eval-reader",
-            eventhub_name=self._response_hub,
-        )
-        try:
-            expected_partitions = set(consumer.get_partition_ids())
-        except Exception:
-            logger.debug("Failed to enumerate response hub partitions", exc_info=True)
-            expected_partitions: set[str] = set()
-
-        initialized_partitions: set[str] = set()
-        initialized_lock = threading.Lock()
-
-        def _on_partition_initialize(partition_context: Any) -> None:
-            partition_id = str(getattr(partition_context, "partition_id", ""))
-            should_mark_alive = False
-            with initialized_lock:
-                if partition_id:
-                    initialized_partitions.add(partition_id)
-                if expected_partitions:
-                    should_mark_alive = initialized_partitions >= expected_partitions
-                else:
-                    should_mark_alive = True
-            if should_mark_alive and not self._listener_alive.is_set():
-                self._listener_alive.set()
-                logger.info(
-                    "RemoteAgentAdapter: listening on '%s' (eval-reader, partitions=%d)",
-                    self._response_hub,
-                    len(initialized_partitions),
+            with self._answer_lock:
+                pending_event_ids = list(self._answer_targets.keys())
+            for event_id in pending_event_ids:
+                self._log_pending_question_state(
+                    event_id,
+                    reason="response listener reconnecting with backfill",
                 )
 
-        try:
-            consumer.receive(
-                on_event=_on_event,
-                on_partition_initialize=_on_partition_initialize,
-                starting_position="@latest",
-            )
-        except Exception:
-            if not self._shutdown.is_set():
-                logger.debug("Response listener error", exc_info=True)
-        finally:
-            try:
-                consumer.close()
-            except Exception:
-                pass
+            if self._shutdown.is_set():
+                break
+            starting_position = "-1"
+            time.sleep(1.0)
 
     def get_memory_stats(self) -> dict[str, Any]:
         """Return adapter stats."""

@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..adapters.base import AgentAdapter
+from ..data.long_horizon import DEFAULT_QUESTION_SET
 from .runner import EvalReport, EvalRunner
 
 logger = logging.getLogger(__name__)
@@ -81,6 +82,7 @@ class MultiSeedReport:
     overall_margin_of_error: float = 0.0
     repeats_per_seed: int = 1
     intra_seed_stddev: float = 0.0
+    question_set: str = DEFAULT_QUESTION_SET
 
     def to_dict(self) -> dict[str, Any]:
         """Convert report to JSON-serializable dictionary."""
@@ -88,6 +90,7 @@ class MultiSeedReport:
             "seeds": self.seeds,
             "num_turns": self.num_turns,
             "num_questions": self.num_questions,
+            "question_set": self.question_set,
             "total_time_s": round(self.total_time_s, 2),
             "overall_mean": round(self.overall_mean, 4),
             "overall_stddev": round(self.overall_stddev, 4),
@@ -216,6 +219,7 @@ def run_multi_seed_eval(
     grader_model: str = "",
     grader_votes: int = 3,
     repeats_per_seed: int = 1,
+    question_set: str = DEFAULT_QUESTION_SET,
 ) -> MultiSeedReport:
     """Run long-horizon eval across multiple seeds.
 
@@ -230,6 +234,7 @@ def run_multi_seed_eval(
         repeats_per_seed: Number of repeat runs per seed. When > 1, each seed
             is run N times. The median-scoring run is kept as the representative
             report for that seed. Intra-seed stddev is tracked.
+        question_set: Deterministic question subset to evaluate.
 
     Returns:
         MultiSeedReport with variance analysis and confidence intervals
@@ -253,6 +258,7 @@ def run_multi_seed_eval(
                         num_questions=num_questions,
                         seed=seed,
                         grader_votes=grader_votes,
+                        question_set=question_set,
                     )
                     report = evaluator.run(agent, grader_model=grader_model)
                     repeat_reports.append(report)
@@ -282,6 +288,7 @@ def run_multi_seed_eval(
                     num_questions=num_questions,
                     seed=seed,
                     grader_votes=grader_votes,
+                    question_set=question_set,
                 )
                 report = evaluator.run(agent, grader_model=grader_model)
                 per_seed_reports[seed] = report
@@ -396,6 +403,7 @@ def run_multi_seed_eval(
         overall_margin_of_error=overall_moe,
         repeats_per_seed=repeats_per_seed,
         intra_seed_stddev=intra_seed_stddev,
+        question_set=question_set,
     )
 
 

@@ -26,6 +26,8 @@ import os
 import sys
 from pathlib import Path
 
+QUESTION_SET_CHOICES = ("standard", "holdout")
+
 
 def _cmd_run(args: argparse.Namespace) -> int:
     """Run a long-horizon memory evaluation."""
@@ -80,6 +82,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
                 grader_model=args.grader_model,
                 grader_votes=args.grader_votes,
                 repeats_per_seed=repeats,
+                question_set=args.question_set,
             )
 
             print_multi_seed_report(ms_report)
@@ -96,6 +99,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
             seed=args.seed,
             grader_votes=args.grader_votes,
             parallel_workers=getattr(args, "parallel_workers", 10),
+            question_set=args.question_set,
         )
 
         if skip_learning:
@@ -144,6 +148,7 @@ def _cmd_compare(args: argparse.Namespace) -> int:
         grader_model=args.grader_model,
         grader_votes=args.grader_votes,
         repeats_per_seed=getattr(args, "repeats", 1),
+        question_set=args.question_set,
     )
 
     print_multi_seed_report(report)
@@ -377,6 +382,12 @@ def main() -> None:
     run_parser.add_argument("--turns", type=int, default=100, help="Dialogue turns (default: 100)")
     run_parser.add_argument("--questions", type=int, default=20, help="Quiz questions (default: 20)")
     run_parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    run_parser.add_argument(
+        "--question-set",
+        choices=QUESTION_SET_CHOICES,
+        default="standard",
+        help="Deterministic question subset to use (default: standard)",
+    )
     run_parser.add_argument("--grader-votes", type=int, default=3, help="Grading votes per question")
     run_parser.add_argument("--grader-model", default="", help="Model for grading")
     run_parser.add_argument("--model", default="", help="Agent model")
@@ -429,6 +440,12 @@ def main() -> None:
     cmp_parser.add_argument("--turns", type=int, default=100, help="Dialogue turns")
     cmp_parser.add_argument("--questions", type=int, default=20, help="Quiz questions")
     cmp_parser.add_argument("--seeds", default="42,123,456,789", help="Comma-separated seeds")
+    cmp_parser.add_argument(
+        "--question-set",
+        choices=QUESTION_SET_CHOICES,
+        default="standard",
+        help="Deterministic question subset to use (default: standard)",
+    )
     cmp_parser.add_argument("--grader-votes", type=int, default=3, help="Grading votes")
     cmp_parser.add_argument("--grader-model", default="", help="Grader model")
     cmp_parser.add_argument("--model", default="", help="Agent model")

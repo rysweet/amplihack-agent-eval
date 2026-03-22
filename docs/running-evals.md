@@ -1,282 +1,97 @@
-# Running Evals -- Quick Start
+# Running Evals
 
-This page covers all evaluation types in the amplihack-agent-eval framework.
-Choose the eval type that matches your scenario.
+This page is the command-oriented quick start for the current eval surface. Use it when you want to know which entrypoint to run.
 
-## End-to-End Eval Pipeline
+## Choose an Entry Point
 
-All eval types follow the same four-stage pipeline: generate data, feed it to
-agents, ask questions, and grade the answers.
+| Goal | Command | When To Use |
+|------|---------|-------------|
+| Run one eval locally | `amplihack-eval run` | Single-agent or adapter-level work |
+| Compare seeds or question sets | `amplihack-eval compare` | Variance and anti-overfitting checks |
+| Run the Event Hubs distributed runner directly | `python -m amplihack_eval.azure.eval_distributed` | Azure hive already exists |
+| Deploy and run end-to-end | `./run_distributed_eval.sh` | Fresh Azure distributed run with wrapper-managed artifacts |
 
-```mermaid
-flowchart TB
-    subgraph "Stage 1: Data Generation"
-        GD[generate_dialogue<br/>N turns, seed=S] --> GT[GroundTruth<br/>turns + facts + blocks]
-        GT --> GQ[generate_questions<br/>M questions across 15 categories]
-        GQ --> QS[Questions<br/>with rubrics + expected answers]
-    end
+## Local Runs
 
-    subgraph "Stage 2: Learning"
-        direction TB
-        GT --> |content turns| LA
-
-        subgraph local ["Local Eval"]
-            LA[LearningAgent]
-            LA --> |LLM fact extraction| KG[Kuzu Graph DB]
-        end
-
-        subgraph distributed ["Distributed Eval (Azure)"]
-            FC[feed_content.py] --> |Service Bus| SB[hive-events topic]
-            SB --> A1[Agent 0..4<br/>Container App 0]
-            SB --> A2[Agent 5..9<br/>Container App 1]
-            SB --> AN[Agent N..N+4<br/>Container App K]
-            A1 --> KG1[Kuzu DB]
-            A2 --> KG2[Kuzu DB]
-            AN --> KGN[Kuzu DB]
-        end
-    end
-
-    subgraph "Stage 3: Question Answering"
-        QS --> |questions| QA
-
-        subgraph local_qa ["Local"]
-            QA[agent.answer_question] --> |LLM synthesis| ANS[Answers]
-        end
-
-        subgraph dist_qa ["Distributed"]
-            QH[query_hive.py<br/>--ooda-eval] --> |INPUT events via SB| AGENTS[Agents process<br/>via OODA loop]
-            AGENTS --> |stdout| LOGS[Log Analytics]
-            LOGS --> |poll for ANSWER lines| QH
-            QH --> DANS[Answers]
-        end
-    end
-
-    subgraph "Stage 4: Grading + Reporting"
-        ANS --> GRADE
-        DANS --> GRADE
-        GRADE[Hybrid Grader] --> |deterministic rubric<br/>keywords + patterns| DET[Deterministic Score]
-        GRADE --> |LLM semantic judgment<br/>multi-vote for stability| LLM_G[LLM Score]
-        DET --> MERGE[Weighted Merge]
-        LLM_G --> MERGE
-        MERGE --> RPT[JSON Report<br/>overall + per-category + per-question]
-    end
-
-    style local fill:#e8f5e9
-    style distributed fill:#e3f2fd
-    style local_qa fill:#e8f5e9
-    style dist_qa fill:#e3f2fd
-```
-
-### Pipeline Stages
-
-| Stage | What Happens | Key Tools |
-|-------|-------------|-----------|
-| **Data Generation** | Deterministic dialogue with embedded facts across 12 blocks | `generate_dialogue()`, `generate_questions()` |
-| **Learning** | Agents ingest content via LLM fact extraction (~3 LLM calls/turn) | `LearningAgent.learn_from_content()`, `feed_content.py` |
-| **Question Answering** | Agents retrieve facts and synthesize answers (~2 LLM calls/question) | `LearningAgent.answer_question()`, `query_hive.py --ooda-eval` |
-| **Grading + Reporting** | Hybrid scoring: deterministic rubric + LLM semantic judgment | `HybridGrader`, JSON report output |
-
-### Report Structure
-
-The JSON report contains:
-
-```json
-{
-  "overall_score": 0.97,
-  "num_turns": 300,
-  "num_questions": 50,
-  "learning_time_s": 2486.6,
-  "questioning_time_s": 38.0,
-  "category_breakdown": [
-    {"category": "needle_in_haystack", "avg_score": 1.0, "count": 10},
-    {"category": "temporal_evolution", "avg_score": 1.0, "count": 7}
-  ],
-  "results": [
-    {
-      "question_id": "seclog_01",
-      "question_text": "How many failed SSH logins...",
-      "expected_answer": "6 failed SSH logins...",
-      "actual_answer": "**6 failed SSH logins**...",
-      "score": 1.0,
-      "reasoning": "Agent correctly identified..."
-    }
-  ]
-}
-```
-
-## Eval Types at a Glance
-
-| Eval Type | Agents | Infrastructure | Use Case |
-|-----------|--------|---------------|----------|
-| [Single-agent (local)](#single-agent-local) | 1 | None | Baseline memory recall testing |
-| [20-agent comparative (local)](#20-agent-comparative-local) | 20+1 | None | Multi-agent topology comparison with adversarial testing |
-| [Distributed (Azure)](#distributed-azure) | 5-1000+ | Azure Container Apps + Service Bus | Production-scale distributed eval |
-
-## Single-Agent (Local)
-
-Tests a single agent's memory system with up to 5000 dialogue turns and 200
-questions across 15 categories.
-
-### Quick Run
+### LearningAgent adapter
 
 ```bash
-python -m amplihack.eval.long_horizon_memory \
-  --turns 300 --questions 50 \
-  --model claude-sonnet-4-6 \
-  --grader-model claude-haiku-4-5-20251001 \
-  --output-dir /tmp/eval-results
+amplihack-eval run   --turns 100   --questions 20   --adapter learning-agent   --question-set standard   --output-dir /tmp/eval-run
 ```
 
-### Smoke Test (fast, cheap)
+### HTTP adapter
 
 ```bash
-python -m amplihack.eval.long_horizon_memory \
-  --turns 100 --questions 20
+amplihack-eval run   --turns 100   --questions 20   --adapter http   --agent-url http://localhost:8000   --question-set holdout   --output-dir /tmp/eval-http
 ```
 
-### Full Stress Test
+### Compare multiple seeds
 
 ```bash
-python -m amplihack.eval.long_horizon_memory \
-  --turns 5000 --questions 200 \
-  --grader-votes 5 --seed 42 \
-  --output-dir /tmp/eval-results
+amplihack-eval compare   --seeds 42,123,456,789   --turns 100   --questions 20   --question-set holdout   --output-dir /tmp/eval-compare
 ```
 
-### Skip Learning (use pre-built dataset)
+## Distributed Azure Runs
+
+The distributed path uses **Event Hubs** for agent input and eval responses. The older Service Bus instructions are obsolete.
+
+### Direct runner
+
+Use this when the Azure hive is already deployed and you have the Event Hubs namespace connection string.
 
 ```bash
-amplihack-eval run \
-  --adapter learning-agent \
-  --skip-learning \
-  --load-db datasets/5000t-seed42-v1.0/memory_db \
-  --turns 5000 --questions 100
+python -m amplihack_eval.azure.eval_distributed   --connection-string "<event-hubs-connection-string>"   --input-hub "hive-events-amplihive3175e"   --response-hub "eval-responses-amplihive3175e"   --agents 100   --agents-per-app 5   --turns 5000   --questions 50   --question-set standard   --parallel-workers 1   --question-failover-retries 2   --answer-timeout 0   --output /tmp/eval_report.json
 ```
 
-**Details**: [Long-Horizon Memory Eval](LONG_HORIZON_EVAL.md)
+### Wrapper script
 
-## 20-Agent Comparative (Local)
-
-Runs four conditions in a single script to compare topologies:
-
-1. **SINGLE_AGENT** -- One agent learns all turns (ceiling)
-2. **ISOLATED_20** -- 20 agents, no sharing
-3. **FLAT_SHARED_20** -- 20 agents, all facts bulk-loaded
-4. **HIVE_20** -- 20 agents with consensus hive + 1 adversarial agent
+Use the wrapper when you want deploy + Event Hubs setup + eval + packaged artifacts in one flow.
 
 ```bash
-python experiments/hive_mind/run_20agent_eval.py
+./run_distributed_eval.sh   --agents 100   --turns 5000   --questions 50   --question-set standard
 ```
 
-This runs from the amplihack repo (not amplihack-agent-eval). Ensure both
-packages are installed:
+Reuse an existing deployment instead of redeploying:
 
 ```bash
-pip install -e /path/to/amplihack
-pip install -e /path/to/amplihack-agent-eval
-export ANTHROPIC_API_KEY=...
+SKIP_DEPLOY=1 HIVE_NAME=amplihive3175e HIVE_RESOURCE_GROUP=hive-pr3175-rg ./run_distributed_eval.sh   --agents 100   --turns 5000   --questions 50   --question-set holdout
 ```
 
-**Details**: [Hive Mind Eval Strategy](hive-mind-eval.md)
+The wrapper expects the sibling `amplihack` repo for Azure deployment assets. Set `AMPLIHACK_SOURCE_ROOT` if that repo is not checked out next to `amplihack-agent-eval`.
 
-## Distributed (Azure)
+## Question Sets
 
-Deploys agents to Azure Container Apps and evaluates using the **exact same
-eval harness** as single-agent. A `RemoteAgentAdapter` forwards
-`learn_from_content()` and `answer_question()` over Service Bus — the agent's
-OODA loop processes everything normally.
+| Value | Meaning |
+|-------|---------|
+| `standard` | Canonical deterministic question slice |
+| `holdout` | Alternate deterministic slice for anti-overfitting validation |
 
-### Deploy, Feed + Eval, Cleanup
+Both slices are generated from the same fact universe. `holdout` changes which questions are asked, not how the dialogue is produced.
 
-```bash
-# 1. Deploy
-export ANTHROPIC_API_KEY="..."
-HIVE_NAME=amplihive \
-HIVE_AGENT_COUNT=100 HIVE_AGENTS_PER_APP=5 \
-HIVE_AGENT_MODEL=claude-sonnet-4-6 \
-bash deploy/azure_hive/deploy.sh
+## Common Flags
 
-# 2. Get connection details
-SB_CONN=$(az servicebus namespace authorization-rule keys list \
-  -g hive-mind-rg --namespace-name <ns> \
-  --name RootManageSharedAccessKey \
-  --query primaryConnectionString -o tsv)
+| Flag | Commands | Meaning |
+|------|----------|---------|
+| `--question-set {standard,holdout}` | `run`, `compare`, `eval_distributed`, wrapper | Choose the deterministic question slice |
+| `--parallel-workers` | `run`, `compare`, `eval_distributed` | Parallelize question answering and grading |
+| `--answer-timeout` | `run`, `eval_distributed` | Per-question timeout; `0` means no timeout |
+| `--question-failover-retries` | `eval_distributed` | Retry unanswered questions on other agents |
+| `--replicate-learn-to-all-agents` | `eval_distributed` | Replicate every learn call to every remote agent |
+| `--repeats` | `run`, `compare` | Repeat each seed multiple times |
 
-# 3. Run eval (feeds content + asks questions — same harness as single-agent)
-python deploy/azure_hive/eval_distributed.py \
-  --connection-string "$SB_CONN" \
-  --input-topic hive-events-amplihive \
-  --response-topic eval-responses-amplihive \
-  --turns 5000 --questions 50 \
-  --agents 100 \
-  --grader-model claude-haiku-4-5-20251001 \
-  --output results.json
+## Outputs
 
-# 4. Cleanup
-bash deploy/azure_hive/deploy.sh --cleanup
-```
+Current entrypoints all produce an `eval_report.json`-style artifact with:
 
-### How It Works
+- overall score
+- per-category breakdown
+- per-question grading details
+- run metadata such as seed, turn count, question count, and question set
 
-The distributed eval uses `RemoteAgentAdapter` — a drop-in replacement for
-`LearningAgent` that forwards calls over Service Bus:
+The wrapper also writes helper artifacts such as a rerun command and deployment metadata next to the report.
 
-```python
-from deploy.azure_hive.remote_agent_adapter import RemoteAgentAdapter
-from amplihack.eval.long_horizon_memory import LongHorizonMemoryEval
+## Next Steps
 
-adapter = RemoteAgentAdapter(sb_conn, input_topic, response_topic, agent_count=100)
-report = LongHorizonMemoryEval(turns=5000, questions=50).run(adapter)
-```
-
-- `learn_from_content()` → sends `LEARN_CONTENT` event to all agents (broadcast)
-- `answer_question()` → sends `INPUT` event to one agent (round-robin), waits for
-  `EVAL_ANSWER` on the response topic (correlated by `event_id`)
-- The agent's OODA loop processes both content and questions identically to
-  single-agent mode
-- Grading uses the same `_grade_multi_vote` hybrid grader
-
-**Details**: [Running Distributed Eval on Azure](azure-hive-qa-eval.md)
-
-## Prerequisites (All Eval Types)
-
-```bash
-# Install packages
-pip install -e /path/to/amplihack
-pip install -e /path/to/amplihack-agent-eval
-
-# Set API key
-export ANTHROPIC_API_KEY=...
-
-# For distributed eval only:
-az login
-pip install azure-servicebus
-```
-
-## Environment Variables
-
-| Variable | Used By | Description |
-|----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | All | API key for LLM calls |
-| `GRADER_MODEL` | Single-agent, 20-agent | Model for grading (default: `claude-sonnet-4-5-20250929`) |
-| `EVAL_MODEL` | Single-agent, 20-agent | Model for LearningAgent (default: `claude-sonnet-4-5-20250929`) |
-| `HIVE_AGENT_MODEL` | Distributed | Model for hive agents (default: `claude-sonnet-4-6`) |
-| `HIVE_AGENT_COUNT` | Distributed | Number of agents to deploy |
-| `OODA_ANSWER_WAIT` | Distributed | Seconds to wait for answers (default: `600`) |
-
-## Comparing Results
-
-### Multi-seed comparison (single-agent)
-
-```bash
-amplihack-eval compare --seeds 42,123,456,789 --turns 100 --questions 20
-```
-
-### Cross-topology comparison
-
-```bash
-python -m amplihack_eval.compare \
-  results/single/scores.json \
-  results/flat/scores.json \
-  results/distributed/scores.json
-```
+- For a fuller Azure walkthrough, see [Distributed Hive Eval on Azure](./distributed-hive-eval.md).
+- For the short Azure command sheet, see [Azure Hive Q&A Eval Quick Reference](./azure-hive-qa-eval.md).
+- For single-agent dataset details, see [Long-Horizon Memory Eval](./LONG_HORIZON_EVAL.md).

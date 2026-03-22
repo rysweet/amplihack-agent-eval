@@ -148,6 +148,7 @@ class TestCLIIntegration:
         assert result.returncode == 0
         assert "--skip-learning" in result.stdout
         assert "--load-db" in result.stdout
+        assert "--question-set" in result.stdout
 
     def test_skip_learning_requires_load_db(self):
         """--skip-learning without --load-db should error."""

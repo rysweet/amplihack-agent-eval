@@ -28,6 +28,7 @@ def _make_adapter(mod, agent_count=5, answer_timeout=0):
     with patch.object(mod, "threading") as mock_threading:
         # Make the listener thread a no-op
         mock_thread = MagicMock()
+        mock_thread.is_alive.return_value = True
         mock_threading.Event.side_effect = [
             threading.Event(),  # _shutdown
             threading.Event(),  # _idle_wait_done
@@ -45,6 +46,7 @@ def _make_adapter(mod, agent_count=5, answer_timeout=0):
         adapter._response_hub = "eval-responses"
         adapter._resource_group = ""
         adapter._agent_count = agent_count
+        adapter._agents_per_app = 1
         adapter._learn_count = 0
         adapter._learn_turn_counts = [0 for _ in range(agent_count)]
         adapter._question_count = 0
@@ -61,6 +63,8 @@ def _make_adapter(mod, agent_count=5, answer_timeout=0):
         adapter._pending_answers = {}
         adapter._answer_events = {}
         adapter._answer_targets = {}
+        adapter._pending_question_meta = {}
+        adapter._agent_boot_ids = {}
         adapter._producer = None
         adapter._fact_batch_extractor = None
         adapter._fact_batch_extractor_dir = None
@@ -71,14 +75,22 @@ def _make_adapter(mod, agent_count=5, answer_timeout=0):
         adapter._progress_counts = {}
         adapter._progress_lock = threading.Lock()
         adapter._feed_telemetry_wait_done = threading.Event()
+        adapter._feed_telemetry_monitor_thread = None
         adapter._ready_agents = set()
+        adapter._ready_boot_ids = {}
+        adapter._question_ineligible_agents = set()
         adapter._ready_lock = threading.Lock()
         adapter._all_agents_ready = threading.Event()
         adapter._run_id = "test_run_abc"
         adapter._num_partitions = 32
         adapter._listener_alive = threading.Event()
         adapter._listener_alive.set()
+        adapter._listener_restart_count = 0
+        adapter._last_listener_event_at = 0.0
+        adapter._last_listener_event_type = ""
+        adapter._last_listener_partition = ""
         adapter._listener_thread = MagicMock()
+        adapter._listener_thread.is_alive.return_value = True
 
     return adapter
 
@@ -262,7 +274,9 @@ class TestLearnFromContent:
         adapter = _make_adapter(mod, agent_count=2)
         adapter._wait_for_agents_online = MagicMock()
         adapter._publish_event = MagicMock()
-        adapter._wait_for_feed_telemetry = MagicMock()
+        adapter._start_feed_telemetry_monitor = MagicMock(
+            side_effect=lambda expected: adapter._feed_telemetry_wait_done.set()
+        )
 
         adapter.learn_from_content("hello")
         adapter.learn_from_content("world")
@@ -274,7 +288,9 @@ class TestLearnFromContent:
         mod = _load_module()
         adapter = _make_adapter(mod, agent_count=3)
         adapter._startup_wait_done.set()
-        adapter._wait_for_feed_telemetry = MagicMock()
+        adapter._start_feed_telemetry_monitor = MagicMock(
+            side_effect=lambda expected: adapter._feed_telemetry_wait_done.set()
+        )
 
         published_keys = []
 
@@ -296,7 +312,9 @@ class TestLearnFromContent:
             "agent-2",
         ]
         assert adapter._learn_turn_counts == [2, 2, 2]
-        adapter._wait_for_feed_telemetry.assert_called_once_with({"agent-0", "agent-1", "agent-2"})
+        adapter._start_feed_telemetry_monitor.assert_called_once_with(
+            {"agent-0", "agent-1", "agent-2"}
+        )
         assert adapter._feed_telemetry_wait_done.is_set()
 
     def test_replicated_learning_targets_all_agents(self):
@@ -304,7 +322,9 @@ class TestLearnFromContent:
         adapter = _make_adapter(mod, agent_count=3)
         adapter._startup_wait_done.set()
         adapter._replicate_learning_to_all_agents = True
-        adapter._wait_for_feed_telemetry = MagicMock()
+        adapter._start_feed_telemetry_monitor = MagicMock(
+            side_effect=lambda expected: adapter._feed_telemetry_wait_done.set()
+        )
         adapter._prepare_fact_batch = MagicMock(
             return_value={
                 "facts_extracted": 2,
@@ -349,7 +369,9 @@ class TestLearnFromContent:
         assert adapter._learn_turn_counts == [1, 1, 1]
         assert result["facts_stored"] == 2
         assert result["replicated_to"] == 3
-        adapter._wait_for_feed_telemetry.assert_called_once_with({"agent-0", "agent-1", "agent-2"})
+        adapter._start_feed_telemetry_monitor.assert_called_once_with(
+            {"agent-0", "agent-1", "agent-2"}
+        )
         assert adapter._feed_telemetry_wait_done.is_set()
 
     def test_learn_increments_counter(self):
@@ -357,12 +379,41 @@ class TestLearnFromContent:
         adapter = _make_adapter(mod, agent_count=2)
         adapter._startup_wait_done.set()
         adapter._publish_event = MagicMock()
-        adapter._wait_for_feed_telemetry = MagicMock()
+        adapter._start_feed_telemetry_monitor = MagicMock(
+            side_effect=lambda expected: adapter._feed_telemetry_wait_done.set()
+        )
 
         adapter.learn_from_content("hello")
         assert adapter._learn_count == 1
         adapter.learn_from_content("world")
         assert adapter._learn_count == 2
+
+    def test_start_feed_telemetry_monitor_runs_in_background(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=2)
+        adapter._wait_for_feed_telemetry = MagicMock()
+
+        started: dict[str, object] = {}
+
+        class ImmediateThread:
+            def __init__(self, *, target, args, daemon, name):
+                started["target"] = target
+                started["args"] = args
+                started["daemon"] = daemon
+                started["name"] = name
+
+            def start(self):
+                started["started"] = True
+
+        with patch.object(mod.threading, "Thread", ImmediateThread):
+            adapter._start_feed_telemetry_monitor({"agent-0", "agent-1"})
+
+        assert adapter._feed_telemetry_wait_done.is_set()
+        assert started["target"] is adapter._wait_for_feed_telemetry
+        assert started["args"] == ({"agent-0", "agent-1"},)
+        assert started["daemon"] is True
+        assert started["name"] == "feed-telemetry-monitor"
+        assert started["started"] is True
 
 
 class TestAnswerQuestion:
@@ -394,6 +445,31 @@ class TestAnswerQuestion:
         t.join(timeout=5)
         assert result == "The answer is 42"
 
+    def test_send_question_tracks_pending_question_metadata_and_cleans_up(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._idle_wait_done.set()
+
+        captured = {}
+
+        def capture_publish(payload, partition_key):
+            captured["payload"] = payload
+            captured["partition_key"] = partition_key
+            event_id = payload["event_id"]
+            with adapter._answer_lock:
+                assert adapter._pending_question_meta[event_id]["question_id"] == payload["payload"]["question_id"]
+                adapter._pending_answers[event_id] = "tracked answer"
+                adapter._answer_events[event_id].set()
+
+        adapter._publish_event = capture_publish
+
+        result = adapter._send_question_to_agent("how many projects?", 0)
+
+        assert result == "tracked answer"
+        assert captured["payload"]["payload"]["question_id"].startswith("q_0_")
+        assert captured["partition_key"] == "agent-0"
+        assert adapter._pending_question_meta == {}
+
     def test_answer_timeout_returns_default(self):
         mod = _load_module()
         adapter = _make_adapter(mod, agent_count=1, answer_timeout=1)
@@ -420,12 +496,32 @@ class TestAnswerQuestion:
         assert send_question.call_args_list[0].args == ("recover after timeout", 0)
         assert send_question.call_args_list[1].args == ("recover after timeout", 1)
 
+    def test_answer_timeout_retries_other_slots_before_other_apps_when_agents_per_app_set(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=15)
+        adapter._idle_wait_done.set()
+        adapter._agents_per_app = 5
+        adapter._question_failover_retries = 2
+
+        with patch.object(
+            adapter,
+            "_send_question_to_agent",
+            side_effect=["No answer received", "No answer received", "Recovered answer"],
+        ) as send_question:
+            result = adapter.answer_question("recover across apps", target_agent=4)
+
+        assert result == "Recovered answer"
+        assert send_question.call_args_list[0].args == ("recover across apps", 4)
+        assert send_question.call_args_list[1].args == ("recover across apps", 0)
+        assert send_question.call_args_list[2].args == ("recover across apps", 1)
+
     def test_duplicate_agent_online_releases_pending_question(self):
         mod = _load_module()
         adapter = _make_adapter(mod, agent_count=1)
         adapter._idle_wait_done.set()
         adapter._publish_event = MagicMock()
         adapter._online_agents.add("agent-0")
+        adapter._agent_boot_ids["agent-0"] = "boot-1"
 
         result_holder = {}
 
@@ -441,11 +537,79 @@ class TestAnswerQuestion:
                     break
             time.sleep(0.01)
 
-        adapter._handle_agent_online("agent-0")
+        adapter._handle_agent_online("agent-0", boot_id="boot-2")
 
         thread.join(timeout=5)
         assert result_holder["answer"] == "No answer received"
         assert adapter._answer_targets == {}
+
+    def test_duplicate_agent_online_same_boot_id_does_not_release_pending_question(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._idle_wait_done.set()
+        adapter._publish_event = MagicMock()
+        adapter._online_agents.add("agent-0")
+        adapter._agent_boot_ids["agent-0"] = "boot-1"
+
+        result_holder = {}
+
+        def ask_question():
+            result_holder["answer"] = adapter._send_question_to_agent("still there?", 0)
+
+        thread = threading.Thread(target=ask_question, daemon=True)
+        thread.start()
+
+        for _ in range(100):
+            with adapter._answer_lock:
+                if adapter._answer_targets:
+                    break
+            time.sleep(0.01)
+
+        adapter._handle_agent_online("agent-0", boot_id="boot-1")
+
+        with adapter._answer_lock:
+            [event_id] = list(adapter._answer_targets.keys())
+            assert event_id not in adapter._pending_answers
+            assert not adapter._answer_events[event_id].is_set()
+            adapter._pending_answers[event_id] = "Recovered answer"
+            adapter._answer_events[event_id].set()
+
+        thread.join(timeout=5)
+        assert result_holder["answer"] == "Recovered answer"
+
+    def test_post_ready_restart_marks_agent_ineligible_for_future_questions(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._idle_wait_done.set()
+        adapter._online_agents.add("agent-0")
+        adapter._agent_boot_ids["agent-0"] = "boot-1"
+        adapter._ready_agents.add("agent-0")
+        adapter._ready_boot_ids["agent-0"] = "boot-1"
+
+        adapter._handle_agent_online("agent-0", boot_id="boot-2")
+
+        assert "agent-0" not in adapter._ready_agents
+        assert "agent-0" in adapter._question_ineligible_agents
+
+    def test_answer_question_skips_restart_ineligible_target(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=15)
+        adapter._idle_wait_done.set()
+        adapter._agents_per_app = 5
+        adapter._ready_agents.update(
+            {"agent-0", "agent-1", "agent-2", "agent-3", "agent-4"}
+        )
+        adapter._question_ineligible_agents.add("agent-4")
+
+        with patch.object(
+            adapter,
+            "_send_question_to_agent",
+            return_value="Recovered answer",
+        ) as send_question:
+            result = adapter.answer_question("skip restarted target", target_agent=4)
+
+        assert result == "Recovered answer"
+        send_question.assert_called_once_with("skip restarted target", 0)
 
     def test_agent_shutdown_releases_pending_question(self):
         mod = _load_module()
@@ -453,6 +617,7 @@ class TestAnswerQuestion:
         adapter._idle_wait_done.set()
         adapter._publish_event = MagicMock()
         adapter._online_agents.add("agent-0")
+        adapter._agent_boot_ids["agent-0"] = "boot-1"
         adapter._ready_agents.add("agent-0")
 
         result_holder = {}
@@ -732,6 +897,7 @@ class TestListenerStartup:
             assert not adapter._listener_alive.is_set()
             on_partition_initialize(MagicMock(partition_id="1"))
             assert adapter._listener_alive.is_set()
+            adapter._shutdown.set()
 
         consumer.receive.side_effect = fake_receive
 
@@ -741,3 +907,66 @@ class TestListenerStartup:
 
         consumer_cls.from_connection_string.assert_called_once()
         consumer.close.assert_called_once()
+
+    def test_listener_reconnects_with_backfill_after_unexpected_return(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._listener_alive.clear()
+
+        first_consumer = MagicMock()
+        first_consumer.get_partition_ids.return_value = ["0"]
+        second_consumer = MagicMock()
+        second_consumer.get_partition_ids.return_value = ["0"]
+        starting_positions = []
+
+        def receive_first(*, on_event, on_partition_initialize, starting_position):
+            starting_positions.append(starting_position)
+            on_partition_initialize(MagicMock(partition_id="0"))
+            return None
+
+        def receive_second(*, on_event, on_partition_initialize, starting_position):
+            starting_positions.append(starting_position)
+            on_partition_initialize(MagicMock(partition_id="0"))
+            adapter._shutdown.set()
+            return None
+
+        first_consumer.receive.side_effect = receive_first
+        second_consumer.receive.side_effect = receive_second
+
+        with patch("azure.eventhub.EventHubConsumerClient", create=True) as consumer_cls:
+            consumer_cls.from_connection_string.side_effect = [first_consumer, second_consumer]
+            adapter._listen_for_answers()
+
+        assert starting_positions == ["@latest", "-1"]
+        assert adapter._listener_restart_count == 1
+
+    def test_listener_reconnects_with_backfill_after_exception(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod, agent_count=1)
+        adapter._listener_alive.clear()
+
+        first_consumer = MagicMock()
+        first_consumer.get_partition_ids.return_value = ["0"]
+        second_consumer = MagicMock()
+        second_consumer.get_partition_ids.return_value = ["0"]
+        starting_positions = []
+
+        def receive_first(*, on_event, on_partition_initialize, starting_position):
+            starting_positions.append(starting_position)
+            raise RuntimeError("boom")
+
+        def receive_second(*, on_event, on_partition_initialize, starting_position):
+            starting_positions.append(starting_position)
+            on_partition_initialize(MagicMock(partition_id="0"))
+            adapter._shutdown.set()
+            return None
+
+        first_consumer.receive.side_effect = receive_first
+        second_consumer.receive.side_effect = receive_second
+
+        with patch("azure.eventhub.EventHubConsumerClient", create=True) as consumer_cls:
+            consumer_cls.from_connection_string.side_effect = [first_consumer, second_consumer]
+            adapter._listen_for_answers()
+
+        assert starting_positions == ["@latest", "-1"]
+        assert adapter._listener_restart_count == 1

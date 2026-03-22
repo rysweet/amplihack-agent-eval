@@ -29,6 +29,7 @@ AGENTS=5
 TURNS=100
 QUESTIONS=20
 SEED=42
+QUESTION_SET="standard"
 AGENTS_PER_APP=5
 GRADER_MODEL="claude-haiku-4-5-20251001"
 ANSWER_TIMEOUT=""
@@ -45,6 +46,7 @@ while [[ $# -gt 0 ]]; do
         --turns)        TURNS="$2"; shift 2 ;;
         --questions)    QUESTIONS="$2"; shift 2 ;;
         --seed)         SEED="$2"; shift 2 ;;
+        --question-set) QUESTION_SET="$2"; shift 2 ;;
         --agents-per-app) AGENTS_PER_APP="$2"; shift 2 ;;
         --grader-model) GRADER_MODEL="$2"; shift 2 ;;
         --answer-timeout) ANSWER_TIMEOUT="$2"; shift 2 ;;
@@ -130,7 +132,7 @@ mkdir -p "${RESULTS_DIR}"
 
 log() { echo "[$(date -u +%H:%M:%S)] $*"; }
 
-RERUN_COMMAND="ANTHROPIC_API_KEY=\\\"...\\\" SKIP_DEPLOY=1 HIVE_NAME=${HIVE_NAME} HIVE_RESOURCE_GROUP=${RESOURCE_GROUP} HIVE_LOCATION=${LOCATION} AMPLIHACK_ROOT=${AMPLIHACK_ROOT} AMPLIHACK_SOURCE_ROOT=${AMPLIHACK_SOURCE_ROOT} HIVE_DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE} ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED} --agents-per-app ${AGENTS_PER_APP} --grader-model ${GRADER_MODEL} --answer-timeout ${ANSWER_TIMEOUT} --parallel-workers ${PARALLEL_WORKERS} --question-failover-retries ${QUESTION_FAILOVER_RETRIES} --memory-query-fanout ${MEMORY_QUERY_FANOUT} --shard-query-timeout ${SHARD_QUERY_TIMEOUT_SECONDS} --deployment-profile ${DEPLOYMENT_PROFILE}"
+RERUN_COMMAND="ANTHROPIC_API_KEY=\\\"...\\\" SKIP_DEPLOY=1 HIVE_NAME=${HIVE_NAME} HIVE_RESOURCE_GROUP=${RESOURCE_GROUP} HIVE_LOCATION=${LOCATION} AMPLIHACK_ROOT=${AMPLIHACK_ROOT} AMPLIHACK_SOURCE_ROOT=${AMPLIHACK_SOURCE_ROOT} HIVE_DEPLOYMENT_PROFILE=${DEPLOYMENT_PROFILE} ./run_distributed_eval.sh --agents ${AGENTS} --turns ${TURNS} --questions ${QUESTIONS} --seed ${SEED} --question-set ${QUESTION_SET} --agents-per-app ${AGENTS_PER_APP} --grader-model ${GRADER_MODEL} --answer-timeout ${ANSWER_TIMEOUT} --parallel-workers ${PARALLEL_WORKERS} --question-failover-retries ${QUESTION_FAILOVER_RETRIES} --memory-query-fanout ${MEMORY_QUERY_FANOUT} --shard-query-timeout ${SHARD_QUERY_TIMEOUT_SECONDS} --deployment-profile ${DEPLOYMENT_PROFILE}"
 if [[ "${REPLICATE_LEARN_TO_ALL_AGENTS}" == "true" ]]; then
     RERUN_COMMAND+=" --replicate-learn-to-all-agents"
 fi
@@ -143,6 +145,7 @@ log "  Agents:     ${AGENTS}"
 log "  Turns:      ${TURNS}"
 log "  Questions:  ${QUESTIONS}"
 log "  Seed:       ${SEED}"
+log "  Q-set:      ${QUESTION_SET}"
 log "  Hive name:  ${HIVE_NAME}"
 log "  Parallel:   ${PARALLEL_WORKERS} workers"
 log "  Timeout:    ${ANSWER_TIMEOUT}s"
@@ -198,6 +201,7 @@ eval_cmd=(
     --questions "${QUESTIONS}"
     --agents "${AGENTS}"
     --seed "${SEED}"
+    --question-set "${QUESTION_SET}"
     --grader-model "${GRADER_MODEL}"
     --connection-string "${EH_CONN}"
     --input-hub "hive-events-${HIVE_NAME}"
@@ -205,6 +209,7 @@ eval_cmd=(
     --answer-timeout "${ANSWER_TIMEOUT}"
     --parallel-workers "${PARALLEL_WORKERS}"
     --question-failover-retries "${QUESTION_FAILOVER_RETRIES}"
+    --agents-per-app "${AGENTS_PER_APP}"
     --output "${RESULTS_DIR}/eval_report.json"
 )
 if [[ "${REPLICATE_LEARN_TO_ALL_AGENTS}" == "true" ]]; then
@@ -255,6 +260,7 @@ cat > "${RESULTS_DIR}/metadata.json" << EOF
         "turns": ${TURNS},
         "questions": ${QUESTIONS},
         "seed": ${SEED},
+        "question_set": "${QUESTION_SET}",
         "agents_per_app": ${AGENTS_PER_APP},
         "grader_model": "${GRADER_MODEL}",
         "answer_timeout": ${ANSWER_TIMEOUT},

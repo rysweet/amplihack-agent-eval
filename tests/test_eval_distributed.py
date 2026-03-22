@@ -4,6 +4,15 @@ from amplihack_eval.azure import eval_distributed
 
 
 class TestScaleAwareDefaults:
+    def test_agents_per_app_default_scales_by_profile(self, monkeypatch):
+        monkeypatch.delenv("AMPLIHACK_AGENTS_PER_APP", raising=False)
+        monkeypatch.delenv("HIVE_AGENTS_PER_APP", raising=False)
+        monkeypatch.delenv("HIVE_DEPLOYMENT_PROFILE", raising=False)
+        assert eval_distributed._default_agents_per_app() == 5
+
+        monkeypatch.setenv("HIVE_DEPLOYMENT_PROFILE", "smoke-10")
+        assert eval_distributed._default_agents_per_app() == 1
+
     def test_parallel_workers_default_scales_down(self):
         assert eval_distributed._default_parallel_workers(10) == 10
         assert eval_distributed._default_parallel_workers(50) == 2
