@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -1303,7 +1303,7 @@ collective knowledge.</p>
 <tr>
 <td><strong>Transport</strong> (EventBus)</td>
 <td>Message delivery between agents</td>
-<td><code>LocalEventBus</code> (in-process), Azure Service Bus (distributed)</td>
+<td><code>LocalEventBus</code> (in-process), Azure Event Hubs (distributed)</td>
 </tr>
 <tr>
 <td><strong>Discovery</strong> (Gossip)</td>
@@ -1332,8 +1332,8 @@ consensus filtering through a single entry point.</p>
 <ul>
 <li><strong>LocalEventBus</strong> -- In-process event delivery for local evaluation. No
   network overhead.</li>
-<li><strong>Azure Service Bus</strong> -- Cloud-based transport for distributed deployments.
-  Each agent subscribes to a shared topic and publishes responses back.</li>
+<li><strong>Azure Event Hubs</strong> -- Cloud-based transport for distributed deployments.
+  Agents consume targeted input partitions and publish eval responses through dedicated Event Hubs.</li>
 </ul>
 <h2 id="why-evaluate-the-hive-mind">Why Evaluate the Hive Mind?<a class="headerlink" href="#why-evaluate-the-hive-mind" title="Permanent link">&para;</a></h2>
 <p>Shared knowledge introduces trade-offs that don't exist in single-agent mode:</p>

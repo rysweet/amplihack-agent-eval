@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#running-evals-quick-start" class="md-skip">
+        <a href="#running-evals" class="md-skip">
           Skip to content
         </a>
       
@@ -347,22 +347,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#end-to-end-eval-pipeline" class="md-nav__link">
+  <a href="#choose-an-entry-point" class="md-nav__link">
     <span class="md-ellipsis">
       
-        End-to-End Eval Pipeline
+        Choose an Entry Point
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="End-to-End Eval Pipeline">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Runs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Local Runs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pipeline-stages" class="md-nav__link">
+  <a href="#learningagent-adapter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Stages
+        LearningAgent adapter
       
     </span>
   </a>
@@ -370,10 +381,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#report-structure" class="md-nav__link">
+  <a href="#http-adapter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Report Structure
+        HTTP adapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compare-multiple-seeds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compare multiple seeds
       
     </span>
   </a>
@@ -386,33 +408,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#eval-types-at-a-glance" class="md-nav__link">
+  <a href="#distributed-azure-runs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Eval Types at a Glance
+        Distributed Azure Runs
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#single-agent-local" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Single-Agent (Local)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Single-Agent (Local)">
+    <nav class="md-nav" aria-label="Distributed Azure Runs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#quick-run" class="md-nav__link">
+  <a href="#direct-runner" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Run
+        Direct runner
       
     </span>
   </a>
@@ -420,32 +431,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#smoke-test-fast-cheap" class="md-nav__link">
+  <a href="#wrapper-script" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Smoke Test (fast, cheap)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#full-stress-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Full Stress Test
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#skip-learning-use-pre-built-dataset" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Skip Learning (use pre-built dataset)
+        Wrapper script
       
     </span>
   </a>
@@ -458,10 +447,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#20-agent-comparative-local" class="md-nav__link">
+  <a href="#question-sets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        20-Agent Comparative (Local)
+        Question Sets
       
     </span>
   </a>
@@ -469,49 +458,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#distributed-azure" class="md-nav__link">
+  <a href="#common-flags" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Distributed (Azure)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Distributed (Azure)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#deploy-feed-eval-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deploy, Feed + Eval, Cleanup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites-all-eval-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites (All Eval Types)
+        Common Flags
       
     </span>
   </a>
@@ -519,10 +469,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
+  <a href="#outputs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment Variables
+        Outputs
       
     </span>
   </a>
@@ -530,41 +480,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparing-results" class="md-nav__link">
+  <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparing Results
+        Next Steps
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Comparing Results">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#multi-seed-comparison-single-agent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-seed comparison (single-agent)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cross-topology-comparison" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cross-topology comparison
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -949,22 +871,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#end-to-end-eval-pipeline" class="md-nav__link">
+  <a href="#choose-an-entry-point" class="md-nav__link">
     <span class="md-ellipsis">
       
-        End-to-End Eval Pipeline
+        Choose an Entry Point
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="End-to-End Eval Pipeline">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Runs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Local Runs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pipeline-stages" class="md-nav__link">
+  <a href="#learningagent-adapter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Stages
+        LearningAgent adapter
       
     </span>
   </a>
@@ -972,10 +905,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#report-structure" class="md-nav__link">
+  <a href="#http-adapter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Report Structure
+        HTTP adapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compare-multiple-seeds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compare multiple seeds
       
     </span>
   </a>
@@ -988,33 +932,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#eval-types-at-a-glance" class="md-nav__link">
+  <a href="#distributed-azure-runs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Eval Types at a Glance
+        Distributed Azure Runs
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#single-agent-local" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Single-Agent (Local)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Single-Agent (Local)">
+    <nav class="md-nav" aria-label="Distributed Azure Runs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#quick-run" class="md-nav__link">
+  <a href="#direct-runner" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Run
+        Direct runner
       
     </span>
   </a>
@@ -1022,32 +955,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#smoke-test-fast-cheap" class="md-nav__link">
+  <a href="#wrapper-script" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Smoke Test (fast, cheap)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#full-stress-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Full Stress Test
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#skip-learning-use-pre-built-dataset" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Skip Learning (use pre-built dataset)
+        Wrapper script
       
     </span>
   </a>
@@ -1060,10 +971,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#20-agent-comparative-local" class="md-nav__link">
+  <a href="#question-sets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        20-Agent Comparative (Local)
+        Question Sets
       
     </span>
   </a>
@@ -1071,49 +982,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#distributed-azure" class="md-nav__link">
+  <a href="#common-flags" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Distributed (Azure)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Distributed (Azure)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#deploy-feed-eval-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deploy, Feed + Eval, Cleanup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How It Works
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites-all-eval-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites (All Eval Types)
+        Common Flags
       
     </span>
   </a>
@@ -1121,10 +993,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
+  <a href="#outputs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment Variables
+        Outputs
       
     </span>
   </a>
@@ -1132,41 +1004,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparing-results" class="md-nav__link">
+  <a href="#next-steps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparing Results
+        Next Steps
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Comparing Results">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#multi-seed-comparison-single-agent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-seed comparison (single-agent)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cross-topology-comparison" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cross-topology comparison
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1190,314 +1034,141 @@
   
 
 
-<h1 id="running-evals-quick-start">Running Evals -- Quick Start<a class="headerlink" href="#running-evals-quick-start" title="Permanent link">&para;</a></h1>
-<p>This page covers all evaluation types in the amplihack-agent-eval framework.
-Choose the eval type that matches your scenario.</p>
-<h2 id="end-to-end-eval-pipeline">End-to-End Eval Pipeline<a class="headerlink" href="#end-to-end-eval-pipeline" title="Permanent link">&para;</a></h2>
-<p>All eval types follow the same four-stage pipeline: generate data, feed it to
-agents, ask questions, and grade the answers.</p>
-<pre class="mermaid"><code>flowchart TB
-    subgraph "Stage 1: Data Generation"
-        GD[generate_dialogue&lt;br/&gt;N turns, seed=S] --&gt; GT[GroundTruth&lt;br/&gt;turns + facts + blocks]
-        GT --&gt; GQ[generate_questions&lt;br/&gt;M questions across 15 categories]
-        GQ --&gt; QS[Questions&lt;br/&gt;with rubrics + expected answers]
-    end
-
-    subgraph "Stage 2: Learning"
-        direction TB
-        GT --&gt; |content turns| LA
-
-        subgraph local ["Local Eval"]
-            LA[LearningAgent]
-            LA --&gt; |LLM fact extraction| KG[Kuzu Graph DB]
-        end
-
-        subgraph distributed ["Distributed Eval (Azure)"]
-            FC[feed_content.py] --&gt; |Service Bus| SB[hive-events topic]
-            SB --&gt; A1[Agent 0..4&lt;br/&gt;Container App 0]
-            SB --&gt; A2[Agent 5..9&lt;br/&gt;Container App 1]
-            SB --&gt; AN[Agent N..N+4&lt;br/&gt;Container App K]
-            A1 --&gt; KG1[Kuzu DB]
-            A2 --&gt; KG2[Kuzu DB]
-            AN --&gt; KGN[Kuzu DB]
-        end
-    end
-
-    subgraph "Stage 3: Question Answering"
-        QS --&gt; |questions| QA
-
-        subgraph local_qa ["Local"]
-            QA[agent.answer_question] --&gt; |LLM synthesis| ANS[Answers]
-        end
-
-        subgraph dist_qa ["Distributed"]
-            QH[query_hive.py&lt;br/&gt;--ooda-eval] --&gt; |INPUT events via SB| AGENTS[Agents process&lt;br/&gt;via OODA loop]
-            AGENTS --&gt; |stdout| LOGS[Log Analytics]
-            LOGS --&gt; |poll for ANSWER lines| QH
-            QH --&gt; DANS[Answers]
-        end
-    end
-
-    subgraph "Stage 4: Grading + Reporting"
-        ANS --&gt; GRADE
-        DANS --&gt; GRADE
-        GRADE[Hybrid Grader] --&gt; |deterministic rubric&lt;br/&gt;keywords + patterns| DET[Deterministic Score]
-        GRADE --&gt; |LLM semantic judgment&lt;br/&gt;multi-vote for stability| LLM_G[LLM Score]
-        DET --&gt; MERGE[Weighted Merge]
-        LLM_G --&gt; MERGE
-        MERGE --&gt; RPT[JSON Report&lt;br/&gt;overall + per-category + per-question]
-    end
-
-    style local fill:#e8f5e9
-    style distributed fill:#e3f2fd
-    style local_qa fill:#e8f5e9
-    style dist_qa fill:#e3f2fd</code></pre>
-<h3 id="pipeline-stages">Pipeline Stages<a class="headerlink" href="#pipeline-stages" title="Permanent link">&para;</a></h3>
+<h1 id="running-evals">Running Evals<a class="headerlink" href="#running-evals" title="Permanent link">&para;</a></h1>
+<p>This page is the command-oriented quick start for the current eval surface. Use it when you want to know which entrypoint to run.</p>
+<h2 id="choose-an-entry-point">Choose an Entry Point<a class="headerlink" href="#choose-an-entry-point" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Stage</th>
-<th>What Happens</th>
-<th>Key Tools</th>
+<th>Goal</th>
+<th>Command</th>
+<th>When To Use</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Data Generation</strong></td>
-<td>Deterministic dialogue with embedded facts across 12 blocks</td>
-<td><code>generate_dialogue()</code>, <code>generate_questions()</code></td>
+<td>Run one eval locally</td>
+<td><code>amplihack-eval run</code></td>
+<td>Single-agent or adapter-level work</td>
 </tr>
 <tr>
-<td><strong>Learning</strong></td>
-<td>Agents ingest content via LLM fact extraction (~3 LLM calls/turn)</td>
-<td><code>LearningAgent.learn_from_content()</code>, <code>feed_content.py</code></td>
+<td>Compare seeds or question sets</td>
+<td><code>amplihack-eval compare</code></td>
+<td>Variance and anti-overfitting checks</td>
 </tr>
 <tr>
-<td><strong>Question Answering</strong></td>
-<td>Agents retrieve facts and synthesize answers (~2 LLM calls/question)</td>
-<td><code>LearningAgent.answer_question()</code>, <code>query_hive.py --ooda-eval</code></td>
+<td>Run the Event Hubs distributed runner directly</td>
+<td><code>python -m amplihack_eval.azure.eval_distributed</code></td>
+<td>Azure hive already exists</td>
 </tr>
 <tr>
-<td><strong>Grading + Reporting</strong></td>
-<td>Hybrid scoring: deterministic rubric + LLM semantic judgment</td>
-<td><code>HybridGrader</code>, JSON report output</td>
+<td>Deploy and run end-to-end</td>
+<td><code>./run_distributed_eval.sh</code></td>
+<td>Fresh Azure distributed run with wrapper-managed artifacts</td>
 </tr>
 </tbody>
 </table>
-<h3 id="report-structure">Report Structure<a class="headerlink" href="#report-structure" title="Permanent link">&para;</a></h3>
-<p>The JSON report contains:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;overall_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.97</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">&quot;num_turns&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">&quot;num_questions&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nt">&quot;learning_time_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2486.6</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">&quot;questioning_time_s&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">38.0</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&quot;category_breakdown&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;needle_in_haystack&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;avg_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">},</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;temporal_evolution&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;avg_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">}</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="p">],</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">      </span><span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;seclog_01&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">      </span><span class="nt">&quot;question_text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;How many failed SSH logins...&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">      </span><span class="nt">&quot;expected_answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6 failed SSH logins...&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">      </span><span class="nt">&quot;actual_answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**6 failed SSH logins**...&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">      </span><span class="nt">&quot;score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">      </span><span class="nt">&quot;reasoning&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agent correctly identified...&quot;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="p">}</span>
+<h2 id="local-runs">Local Runs<a class="headerlink" href="#local-runs" title="Permanent link">&para;</a></h2>
+<h3 id="learningagent-adapter">LearningAgent adapter<a class="headerlink" href="#learningagent-adapter" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>amplihack-eval<span class="w"> </span>run<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--adapter<span class="w"> </span>learning-agent<span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-run
 </code></pre></div>
-<h2 id="eval-types-at-a-glance">Eval Types at a Glance<a class="headerlink" href="#eval-types-at-a-glance" title="Permanent link">&para;</a></h2>
+<h3 id="http-adapter">HTTP adapter<a class="headerlink" href="#http-adapter" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>amplihack-eval<span class="w"> </span>run<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--adapter<span class="w"> </span>http<span class="w">   </span>--agent-url<span class="w"> </span>http://localhost:8000<span class="w">   </span>--question-set<span class="w"> </span>holdout<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-http
+</code></pre></div>
+<h3 id="compare-multiple-seeds">Compare multiple seeds<a class="headerlink" href="#compare-multiple-seeds" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>amplihack-eval<span class="w"> </span>compare<span class="w">   </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--question-set<span class="w"> </span>holdout<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-compare
+</code></pre></div>
+<h2 id="distributed-azure-runs">Distributed Azure Runs<a class="headerlink" href="#distributed-azure-runs" title="Permanent link">&para;</a></h2>
+<p>The distributed path uses <strong>Event Hubs</strong> for agent input and eval responses. The older Service Bus instructions are obsolete.</p>
+<h3 id="direct-runner">Direct runner<a class="headerlink" href="#direct-runner" title="Permanent link">&para;</a></h3>
+<p>Use this when the Azure hive is already deployed and you have the Event Hubs namespace connection string.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.azure.eval_distributed<span class="w">   </span>--connection-string<span class="w"> </span><span class="s2">&quot;&lt;event-hubs-connection-string&gt;&quot;</span><span class="w">   </span>--input-hub<span class="w"> </span><span class="s2">&quot;hive-events-amplihive3175e&quot;</span><span class="w">   </span>--response-hub<span class="w"> </span><span class="s2">&quot;eval-responses-amplihive3175e&quot;</span><span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--agents-per-app<span class="w"> </span><span class="m">5</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--parallel-workers<span class="w"> </span><span class="m">1</span><span class="w">   </span>--question-failover-retries<span class="w"> </span><span class="m">2</span><span class="w">   </span>--answer-timeout<span class="w"> </span><span class="m">0</span><span class="w">   </span>--output<span class="w"> </span>/tmp/eval_report.json
+</code></pre></div>
+<h3 id="wrapper-script">Wrapper script<a class="headerlink" href="#wrapper-script" title="Permanent link">&para;</a></h3>
+<p>Use the wrapper when you want deploy + Event Hubs setup + eval + packaged artifacts in one flow.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard
+</code></pre></div>
+<p>Reuse an existing deployment instead of redeploying:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">SKIP_DEPLOY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive3175e<span class="w"> </span><span class="nv">HIVE_RESOURCE_GROUP</span><span class="o">=</span>hive-pr3175-rg<span class="w"> </span>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>holdout
+</code></pre></div>
+<p>The wrapper expects the sibling <code>amplihack</code> repo for Azure deployment assets. Set <code>AMPLIHACK_SOURCE_ROOT</code> if that repo is not checked out next to <code>amplihack-agent-eval</code>.</p>
+<h2 id="question-sets">Question Sets<a class="headerlink" href="#question-sets" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Eval Type</th>
-<th>Agents</th>
-<th>Infrastructure</th>
-<th>Use Case</th>
+<th>Value</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><a href="#single-agent-local">Single-agent (local)</a></td>
-<td>1</td>
-<td>None</td>
-<td>Baseline memory recall testing</td>
+<td><code>standard</code></td>
+<td>Canonical deterministic question slice</td>
 </tr>
 <tr>
-<td><a href="#20-agent-comparative-local">20-agent comparative (local)</a></td>
-<td>20+1</td>
-<td>None</td>
-<td>Multi-agent topology comparison with adversarial testing</td>
-</tr>
-<tr>
-<td><a href="#distributed-azure">Distributed (Azure)</a></td>
-<td>5-1000+</td>
-<td>Azure Container Apps + Service Bus</td>
-<td>Production-scale distributed eval</td>
+<td><code>holdout</code></td>
+<td>Alternate deterministic slice for anti-overfitting validation</td>
 </tr>
 </tbody>
 </table>
-<h2 id="single-agent-local">Single-Agent (Local)<a class="headerlink" href="#single-agent-local" title="Permanent link">&para;</a></h2>
-<p>Tests a single agent's memory system with up to 5000 dialogue turns and 200
-questions across 15 categories.</p>
-<h3 id="quick-run">Quick Run<a class="headerlink" href="#quick-run" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">300</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--model<span class="w"> </span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--grader-model<span class="w"> </span>claude-haiku-4-5-20251001<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--output-dir<span class="w"> </span>/tmp/eval-results
-</code></pre></div>
-<h3 id="smoke-test-fast-cheap">Smoke Test (fast, cheap)<a class="headerlink" href="#smoke-test-fast-cheap" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
-</code></pre></div>
-<h3 id="full-stress-test">Full Stress Test<a class="headerlink" href="#full-stress-test" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack.eval.long_horizon_memory<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--grader-votes<span class="w"> </span><span class="m">5</span><span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--output-dir<span class="w"> </span>/tmp/eval-results
-</code></pre></div>
-<h3 id="skip-learning-use-pre-built-dataset">Skip Learning (use pre-built dataset)<a class="headerlink" href="#skip-learning-use-pre-built-dataset" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--load-db<span class="w"> </span>datasets/5000t-seed42-v1.0/memory_db<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">100</span>
-</code></pre></div>
-<p><strong>Details</strong>: <a href="../LONG_HORIZON_EVAL/">Long-Horizon Memory Eval</a></p>
-<h2 id="20-agent-comparative-local">20-Agent Comparative (Local)<a class="headerlink" href="#20-agent-comparative-local" title="Permanent link">&para;</a></h2>
-<p>Runs four conditions in a single script to compare topologies:</p>
-<ol>
-<li><strong>SINGLE_AGENT</strong> -- One agent learns all turns (ceiling)</li>
-<li><strong>ISOLATED_20</strong> -- 20 agents, no sharing</li>
-<li><strong>FLAT_SHARED_20</strong> -- 20 agents, all facts bulk-loaded</li>
-<li><strong>HIVE_20</strong> -- 20 agents with consensus hive + 1 adversarial agent</li>
-</ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>experiments/hive_mind/run_20agent_eval.py
-</code></pre></div>
-<p>This runs from the amplihack repo (not amplihack-agent-eval). Ensure both
-packages are installed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack-agent-eval
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>...
-</code></pre></div>
-<p><strong>Details</strong>: <a href="../hive-mind-eval/">Hive Mind Eval Strategy</a></p>
-<h2 id="distributed-azure">Distributed (Azure)<a class="headerlink" href="#distributed-azure" title="Permanent link">&para;</a></h2>
-<p>Deploys agents to Azure Container Apps and evaluates using the <strong>exact same
-eval harness</strong> as single-agent. A <code>RemoteAgentAdapter</code> forwards
-<code>learn_from_content()</code> and <code>answer_question()</code> over Service Bus — the agent's
-OODA loop processes everything normally.</p>
-<h3 id="deploy-feed-eval-cleanup">Deploy, Feed + Eval, Cleanup<a class="headerlink" href="#deploy-feed-eval-cleanup" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># 1. Deploy</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;...&quot;</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nv">HIVE_AGENT_COUNT</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="nv">HIVE_AGENTS_PER_APP</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nv">HIVE_AGENT_MODEL</span><span class="o">=</span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># 2. Get connection details</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="nv">SB_CONN</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>servicebus<span class="w"> </span>namespace<span class="w"> </span>authorization-rule<span class="w"> </span>keys<span class="w"> </span>list<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span>--namespace-name<span class="w"> </span>&lt;ns&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span>--name<span class="w"> </span>RootManageSharedAccessKey<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span>--query<span class="w"> </span>primaryConnectionString<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="c1"># 3. Run eval (feeds content + asks questions — same harness as single-agent)</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>python<span class="w"> </span>deploy/azure_hive/eval_distributed.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">  </span>--input-topic<span class="w"> </span>hive-events-amplihive<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">  </span>--response-topic<span class="w"> </span>eval-responses-amplihive<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="w">  </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="w">  </span>--grader-model<span class="w"> </span>claude-haiku-4-5-20251001<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="w">  </span>--output<span class="w"> </span>results.json
-<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
-<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="c1"># 4. Cleanup</span>
-<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup
-</code></pre></div>
-<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
-<p>The distributed eval uses <code>RemoteAgentAdapter</code> — a drop-in replacement for
-<code>LearningAgent</code> that forwards calls over Service Bus:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">deploy.azure_hive.remote_agent_adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemoteAgentAdapter</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack.eval.long_horizon_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">LongHorizonMemoryEval</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">adapter</span> <span class="o">=</span> <span class="n">RemoteAgentAdapter</span><span class="p">(</span><span class="n">sb_conn</span><span class="p">,</span> <span class="n">input_topic</span><span class="p">,</span> <span class="n">response_topic</span><span class="p">,</span> <span class="n">agent_count</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">report</span> <span class="o">=</span> <span class="n">LongHorizonMemoryEval</span><span class="p">(</span><span class="n">turns</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">questions</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">adapter</span><span class="p">)</span>
-</code></pre></div>
+<p>Both slices are generated from the same fact universe. <code>holdout</code> changes which questions are asked, not how the dialogue is produced.</p>
+<h2 id="common-flags">Common Flags<a class="headerlink" href="#common-flags" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Commands</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--question-set {standard,holdout}</code></td>
+<td><code>run</code>, <code>compare</code>, <code>eval_distributed</code>, wrapper</td>
+<td>Choose the deterministic question slice</td>
+</tr>
+<tr>
+<td><code>--parallel-workers</code></td>
+<td><code>run</code>, <code>compare</code>, <code>eval_distributed</code></td>
+<td>Parallelize question answering and grading</td>
+</tr>
+<tr>
+<td><code>--answer-timeout</code></td>
+<td><code>run</code>, <code>eval_distributed</code></td>
+<td>Per-question timeout; <code>0</code> means no timeout</td>
+</tr>
+<tr>
+<td><code>--question-failover-retries</code></td>
+<td><code>eval_distributed</code></td>
+<td>Retry unanswered questions on other agents</td>
+</tr>
+<tr>
+<td><code>--replicate-learn-to-all-agents</code></td>
+<td><code>eval_distributed</code></td>
+<td>Replicate every learn call to every remote agent</td>
+</tr>
+<tr>
+<td><code>--repeats</code></td>
+<td><code>run</code>, <code>compare</code></td>
+<td>Repeat each seed multiple times</td>
+</tr>
+</tbody>
+</table>
+<h2 id="outputs">Outputs<a class="headerlink" href="#outputs" title="Permanent link">&para;</a></h2>
+<p>Current entrypoints all produce an <code>eval_report.json</code>-style artifact with:</p>
 <ul>
-<li><code>learn_from_content()</code> → sends <code>LEARN_CONTENT</code> event to all agents (broadcast)</li>
-<li><code>answer_question()</code> → sends <code>INPUT</code> event to one agent (round-robin), waits for
-  <code>EVAL_ANSWER</code> on the response topic (correlated by <code>event_id</code>)</li>
-<li>The agent's OODA loop processes both content and questions identically to
-  single-agent mode</li>
-<li>Grading uses the same <code>_grade_multi_vote</code> hybrid grader</li>
+<li>overall score</li>
+<li>per-category breakdown</li>
+<li>per-question grading details</li>
+<li>run metadata such as seed, turn count, question count, and question set</li>
 </ul>
-<p><strong>Details</strong>: <a href="../azure-hive-qa-eval/">Running Distributed Eval on Azure</a></p>
-<h2 id="prerequisites-all-eval-types">Prerequisites (All Eval Types)<a class="headerlink" href="#prerequisites-all-eval-types" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Install packages</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>/path/to/amplihack-agent-eval
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1"># Set API key</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>...
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># For distributed eval only:</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>az<span class="w"> </span>login
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>pip<span class="w"> </span>install<span class="w"> </span>azure-servicebus
-</code></pre></div>
-<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Used By</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ANTHROPIC_API_KEY</code></td>
-<td>All</td>
-<td>API key for LLM calls</td>
-</tr>
-<tr>
-<td><code>GRADER_MODEL</code></td>
-<td>Single-agent, 20-agent</td>
-<td>Model for grading (default: <code>claude-sonnet-4-5-20250929</code>)</td>
-</tr>
-<tr>
-<td><code>EVAL_MODEL</code></td>
-<td>Single-agent, 20-agent</td>
-<td>Model for LearningAgent (default: <code>claude-sonnet-4-5-20250929</code>)</td>
-</tr>
-<tr>
-<td><code>HIVE_AGENT_MODEL</code></td>
-<td>Distributed</td>
-<td>Model for hive agents (default: <code>claude-sonnet-4-6</code>)</td>
-</tr>
-<tr>
-<td><code>HIVE_AGENT_COUNT</code></td>
-<td>Distributed</td>
-<td>Number of agents to deploy</td>
-</tr>
-<tr>
-<td><code>OODA_ANSWER_WAIT</code></td>
-<td>Distributed</td>
-<td>Seconds to wait for answers (default: <code>600</code>)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="comparing-results">Comparing Results<a class="headerlink" href="#comparing-results" title="Permanent link">&para;</a></h2>
-<h3 id="multi-seed-comparison-single-agent">Multi-seed comparison (single-agent)<a class="headerlink" href="#multi-seed-comparison-single-agent" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span>
-</code></pre></div>
-<h3 id="cross-topology-comparison">Cross-topology comparison<a class="headerlink" href="#cross-topology-comparison" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.compare<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>results/single/scores.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>results/flat/scores.json<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>results/distributed/scores.json
-</code></pre></div>
+<p>The wrapper also writes helper artifacts such as a rerun command and deployment metadata next to the report.</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>For a fuller Azure walkthrough, see <a href="../distributed-hive-eval/">Distributed Hive Eval on Azure</a>.</li>
+<li>For the short Azure command sheet, see <a href="../azure-hive-qa-eval/">Azure Hive Q&amp;A Eval Quick Reference</a>.</li>
+<li>For single-agent dataset details, see <a href="../LONG_HORIZON_EVAL/">Long-Horizon Memory Eval</a>.</li>
+</ul>
 
 
 

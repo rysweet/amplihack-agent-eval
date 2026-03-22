@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -374,10 +374,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-implement-the-agentadapter-interface" class="md-nav__link">
+  <a href="#run-a-local-eval" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Implement the AgentAdapter interface
+        Run a local eval
       
     </span>
   </a>
@@ -385,10 +385,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-run-an-evaluation" class="md-nav__link">
+  <a href="#compare-seeds-or-question-sets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Run an evaluation
+        Compare seeds or question sets
       
     </span>
   </a>
@@ -396,10 +396,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-cli-usage" class="md-nav__link">
+  <a href="#run-the-distributed-azure-runner-directly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. CLI usage
+        Run the distributed Azure runner directly
       
     </span>
   </a>
@@ -908,10 +908,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-implement-the-agentadapter-interface" class="md-nav__link">
+  <a href="#run-a-local-eval" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Implement the AgentAdapter interface
+        Run a local eval
       
     </span>
   </a>
@@ -919,10 +919,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-run-an-evaluation" class="md-nav__link">
+  <a href="#compare-seeds-or-question-sets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Run an evaluation
+        Compare seeds or question sets
       
     </span>
   </a>
@@ -930,10 +930,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-cli-usage" class="md-nav__link">
+  <a href="#run-the-distributed-azure-runner-directly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. CLI usage
+        Run the distributed Azure runner directly
       
     </span>
   </a>
@@ -999,17 +999,14 @@
 
 
 <h1 id="amplihack-agent-eval">amplihack-agent-eval<a class="headerlink" href="#amplihack-agent-eval" title="Permanent link">&para;</a></h1>
-<p>Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use,
-planning, and reasoning across progressive difficulty levels (L1-L12).</p>
+<p>Evaluation framework for goal-seeking AI agents. It generates long-horizon datasets, runs local and distributed evals, and grades answers with deterministic and LLM-backed scoring.</p>
 <h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Long-horizon memory stress tests</strong> -- Generates 1000+ turn dialogues with embedded facts, then quizzes the agent on details from various points in the conversation</li>
-<li><strong>Hybrid grading</strong> -- Deterministic (rubric keywords) + LLM (semantic judgment) with multi-vote stability</li>
-<li><strong>Progressive difficulty levels</strong> -- L1 (simple recall) through L12 (far transfer reasoning)</li>
-<li><strong>Agent-agnostic</strong> -- Works with any agent through the <code>AgentAdapter</code> interface</li>
-<li><strong>Self-improvement loop</strong> -- Automated EVAL -&gt; ANALYZE -&gt; PROPOSE -&gt; CHALLENGE -&gt; VOTE -&gt; APPLY -&gt; RE-EVAL cycle</li>
-<li><strong>Multi-seed holdout</strong> -- Run across multiple random seeds to measure inter-seed variance</li>
-<li><strong>Hive mind evaluation</strong> -- Multi-agent topology comparison (flat, distributed DHT, federated)</li>
+<li><strong>Long-horizon memory stress tests</strong> - Generates long conversations with embedded facts, then quizzes the agent on details from different points in the conversation</li>
+<li><strong>Hybrid grading</strong> - Deterministic rubric checks plus LLM semantic judgment with multi-vote stability</li>
+<li><strong>Deterministic question sets</strong> - Supports <code>standard</code> and <code>holdout</code> question slices for anti-overfitting checks</li>
+<li><strong>Agent-agnostic adapters</strong> - Works with HTTP agents, subprocess agents, in-process learning agents, and distributed hives</li>
+<li><strong>Azure distributed eval</strong> - Runs the same harness against Azure Container Apps through Event Hubs</li>
 </ul>
 <h2 id="running-evals">Running Evals<a class="headerlink" href="#running-evals" title="Permanent link">&para;</a></h2>
 <table>
@@ -1022,19 +1019,23 @@ planning, and reasoning across progressive difficulty levels (L1-L12).</p>
 <tbody>
 <tr>
 <td><strong><a href="running-evals/">Running Evals Quick Start</a></strong></td>
-<td>All eval types on one page -- single-agent, 20-agent, and distributed</td>
+<td>Current command surface for local runs, comparisons, and distributed Azure evals</td>
+</tr>
+<tr>
+<td><strong><a href="distributed-hive-eval/">Distributed Hive Eval on Azure</a></strong></td>
+<td>Event Hubs + Azure Container Apps wrapper and direct runner</td>
+</tr>
+<tr>
+<td><a href="azure-hive-qa-eval/">Azure Hive Q&amp;A Eval Quick Reference</a></td>
+<td>Minimal Azure commands when you just need to run the job</td>
 </tr>
 <tr>
 <td><a href="LONG_HORIZON_EVAL/">Long-Horizon Memory Eval</a></td>
-<td>Single-agent eval: 15 question categories, grading system, dataset details</td>
+<td>Single-agent eval design, categories, and grading details</td>
 </tr>
 <tr>
 <td><a href="hive-mind-eval/">Hive Mind Eval Strategy</a></td>
-<td>Multi-agent topologies, scoring methodology, four-layer architecture</td>
-</tr>
-<tr>
-<td><a href="azure-hive-qa-eval/">Distributed Eval on Azure</a></td>
-<td>Deploy agents to Azure, feed content, run eval, cleanup</td>
+<td>Multi-agent topology and scoring methodology</td>
 </tr>
 </tbody>
 </table>
@@ -1053,11 +1054,11 @@ planning, and reasoning across progressive difficulty levels (L1-L12).</p>
 </tr>
 <tr>
 <td><a href="levels/">Evaluation Levels</a></td>
-<td>Complete guide to all 12 progressive difficulty levels (L1-L12)</td>
+<td>Progressive difficulty levels (L1-L12)</td>
 </tr>
 <tr>
 <td><a href="adapters/">Writing Adapters</a></td>
-<td>How to write custom <code>AgentAdapter</code> implementations</td>
+<td>How to implement a custom <code>AgentAdapter</code></td>
 </tr>
 <tr>
 <td><a href="self-improvement/">Self-Improvement Loop</a></td>
@@ -1073,62 +1074,18 @@ planning, and reasoning across progressive difficulty levels (L1-L12).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Basic installation (data generation and adapters, no LLM grading)</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>amplihack-agent-eval
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># With Anthropic grading support</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pip<span class="w"> </span>install<span class="w"> </span>amplihack-agent-eval<span class="o">[</span>anthropic<span class="o">]</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Development</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>pip<span class="w"> </span>install<span class="w"> </span>amplihack-agent-eval<span class="o">[</span>dev<span class="o">]</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Everything</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>pip<span class="w"> </span>install<span class="w"> </span>amplihack-agent-eval<span class="o">[</span>all,dev<span class="o">]</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Development install</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </code></pre></div>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<h3 id="1-implement-the-agentadapter-interface">1. Implement the AgentAdapter interface<a class="headerlink" href="#1-implement-the-agentadapter-interface" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentAdapter</span><span class="p">,</span> <span class="n">AgentResponse</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyMemoryAgent</span><span class="p">(</span><span class="n">AgentAdapter</span><span class="p">):</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">answer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentResponse</span><span class="p">:</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">relevant</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">w</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">question</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())]</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="k">return</span> <span class="n">AgentResponse</span><span class="p">(</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>            <span class="n">answer</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">relevant</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="k">if</span> <span class="n">relevant</span> <span class="k">else</span> <span class="s2">&quot;I don&#39;t know&quot;</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="p">)</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="k">pass</span>
+<h3 id="run-a-local-eval">Run a local eval<a class="headerlink" href="#run-a-local-eval" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>amplihack-eval<span class="w"> </span>run<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--adapter<span class="w"> </span>learning-agent<span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-run
 </code></pre></div>
-<h3 id="2-run-an-evaluation">2. Run an evaluation<a class="headerlink" href="#2-run-an-evaluation" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvalRunner</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">agent</span> <span class="o">=</span> <span class="n">MyMemoryAgent</span><span class="p">()</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">runner</span> <span class="o">=</span> <span class="n">EvalRunner</span><span class="p">(</span><span class="n">num_turns</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">num_questions</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">grader_votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">report</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overall score: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">category_breakdown</span><span class="p">:</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">cb</span><span class="o">.</span><span class="n">avg_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<h3 id="compare-seeds-or-question-sets">Compare seeds or question sets<a class="headerlink" href="#compare-seeds-or-question-sets" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>amplihack-eval<span class="w"> </span>compare<span class="w">   </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--question-set<span class="w"> </span>holdout<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-compare
 </code></pre></div>
-<h3 id="3-cli-usage">3. CLI usage<a class="headerlink" href="#3-cli-usage" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Run eval against an HTTP agent</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span><span class="w"> </span>--adapter<span class="w"> </span>http<span class="w"> </span>--agent-url<span class="w"> </span>http://localhost:8000
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Run eval with amplihack&#39;s LearningAgent</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span><span class="w"> </span>--adapter<span class="w"> </span>learning-agent
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Multi-seed comparison</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>amplihack-eval<span class="w"> </span>compare<span class="w"> </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456,789<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># Self-improvement loop</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>amplihack-eval<span class="w"> </span>self-improve<span class="w"> </span>--iterations<span class="w"> </span><span class="m">5</span><span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span>
+<h3 id="run-the-distributed-azure-runner-directly">Run the distributed Azure runner directly<a class="headerlink" href="#run-the-distributed-azure-runner-directly" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.azure.eval_distributed<span class="w">   </span>--connection-string<span class="w"> </span><span class="s2">&quot;&lt;event-hubs-connection-string&gt;&quot;</span><span class="w">   </span>--input-hub<span class="w"> </span><span class="s2">&quot;hive-events-amplihive3175e&quot;</span><span class="w">   </span>--response-hub<span class="w"> </span><span class="s2">&quot;eval-responses-amplihive3175e&quot;</span><span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--parallel-workers<span class="w"> </span><span class="m">1</span><span class="w">   </span>--question-failover-retries<span class="w"> </span><span class="m">2</span><span class="w">   </span>--answer-timeout<span class="w"> </span><span class="m">0</span><span class="w">   </span>--output<span class="w"> </span>/tmp/eval_report.json
 </code></pre></div>
 <h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <table>
@@ -1142,38 +1099,28 @@ planning, and reasoning across progressive difficulty levels (L1-L12).</p>
 <tbody>
 <tr>
 <td><code>ANTHROPIC_API_KEY</code></td>
-<td>Required for LLM grading</td>
-<td>--</td>
+<td>Required for grading and for the default learning-agent adapter</td>
+<td>unset</td>
 </tr>
 <tr>
 <td><code>GRADER_MODEL</code></td>
-<td>Model for grading</td>
+<td>Model used for grading</td>
 <td><code>claude-sonnet-4-5-20250929</code></td>
 </tr>
 <tr>
 <td><code>EVAL_MODEL</code></td>
-<td>Model for LearningAgent adapter</td>
+<td>Model used by the learning-agent adapter</td>
 <td><code>claude-sonnet-4-5-20250929</code></td>
 </tr>
 </tbody>
 </table>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Clone the repository</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rysweet/amplihack-agent-eval.git
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">cd</span><span class="w"> </span>amplihack-agent-eval
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Install in development mode</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># Install pre-commit hooks</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>pre-commit<span class="w"> </span>install
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="c1"># Run tests</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>-q
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1"># Run linting</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>ruff<span class="w"> </span>check<span class="w"> </span>src/<span class="w"> </span>tests/
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>src/<span class="w"> </span>tests/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rysweet/amplihack-agent-eval.git
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>amplihack-agent-eval
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>-q
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>ruff<span class="w"> </span>check<span class="w"> </span>src/<span class="w"> </span>tests/
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>src/<span class="w"> </span>tests/
 </code></pre></div>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
 <p>MIT</p>

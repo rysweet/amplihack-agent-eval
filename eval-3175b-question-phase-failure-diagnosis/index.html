@@ -1,0 +1,1300 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Evaluation framework for goal-seeking AI agents -- memory recall, tool use, planning, and reasoning across progressive difficulty levels">
+      
+      
+      
+        <link rel="canonical" href="https://rysweet.github.io/amplihack-agent-eval/eval-3175b-question-phase-failure-diagnosis/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Eval eval-3175b-20260319T215735Z — Question-Phase Failure Diagnosis - amplihack-agent-eval</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#eval-eval-3175b-20260319t215735z-question-phase-failure-diagnosis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="amplihack-agent-eval" class="md-header__button md-logo" aria-label="amplihack-agent-eval" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            amplihack-agent-eval
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Eval eval-3175b-20260319T215735Z — Question-Phase Failure Diagnosis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rysweet/amplihack-agent-eval" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rysweet/amplihack-agent-eval
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="amplihack-agent-eval" class="md-nav__button md-logo" aria-label="amplihack-agent-eval" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    amplihack-agent-eval
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rysweet/amplihack-agent-eval" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rysweet/amplihack-agent-eval
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../running-evals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running Evals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Eval Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Eval Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LONG_HORIZON_EVAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Long-Horizon Memory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hive-mind-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hive Mind Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../azure-hive-qa-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distributed Eval on Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation Levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../self-improvement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-Improvement Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-agent-eval/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Agent Eval
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#timeline-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeline Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#azure-cli-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Azure CLI Evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-causes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Causes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Causes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rc1-n2-shard_query-fan-out-causes-event-hub-saturation-critical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC1 — N² SHARD_QUERY Fan-Out Causes Event Hub Saturation (CRITICAL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc2-container-oomcrash-restarts-during-question-phase-critical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC2 — Container OOM/Crash Restarts During Question Phase (CRITICAL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc3-duplicate-agent_online-heuristic-is-too-aggressive-high" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC3 — Duplicate AGENT_ONLINE Heuristic Is Too Aggressive (HIGH)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc4-sequential-failover-into-unstable-agents-exhausts-all-retries-high" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC4 — Sequential Failover Into Unstable Agents Exhausts All Retries (HIGH)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc5-run_id-filter-bypassed-for-empty-run_id-medium" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC5 — run_id Filter Bypassed for Empty run_id (MEDIUM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc6-no-persistent-event-hub-checkpoint-store-medium" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC6 — No Persistent Event Hub Checkpoint Store (MEDIUM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prioritized-fix-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prioritized Fix List
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prioritized Fix List">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p0-limit-shard_query-fan-out-fixes-rc1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0 — Limit SHARD_QUERY Fan-Out (fixes RC1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p1-add-grace-period-to-duplicate-agent_online-heuristic-fixes-rc3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1 — Add Grace Period to Duplicate AGENT_ONLINE Heuristic (fixes RC3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p2-fix-run_id-filter-to-treat-empty-run_id-as-mismatch-fixes-rc5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2 — Fix run_id Filter to Treat Empty run_id as Mismatch (fixes RC5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p3-use-non-adjacent-failover-agent-selection-fixes-rc4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P3 — Use Non-Adjacent Failover Agent Selection (fixes RC4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p4-add-azure-blob-checkpoint-store-for-event-hub-consumer-fixes-rc6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P4 — Add Azure Blob Checkpoint Store for Event Hub Consumer (fixes RC6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p5-normalize-run_id-in-publish_agent_online-reduces-rc5-exposure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P5 — Normalize run_id in publish_agent_online (reduces RC5 exposure)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent_online-heuristic-characterization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AGENT_ONLINE Heuristic Characterization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-code-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Code Locations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="eval-eval-3175b-20260319t215735z-question-phase-failure-diagnosis">Eval <code>eval-3175b-20260319T215735Z</code> — Question-Phase Failure Diagnosis<a class="headerlink" href="#eval-eval-3175b-20260319t215735z-question-phase-failure-diagnosis" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-03-19
+<strong>Hive</strong>: <code>amplihive3175b</code>
+<strong>Resource Group</strong>: <code>hive-pr3175-rg</code>
+<strong>Run ID</strong>: <code>2b72abaf3fb6</code>
+<strong>Config</strong>: agents=100, parallel_workers=1, answer_timeout=0, failover_retries=2
+<strong>Log</strong>: <code>/tmp/eval-3175b-20260319T215735Z.wrapper.log</code></p>
+<hr />
+<h2 id="timeline-summary">Timeline Summary<a class="headerlink" href="#timeline-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Time (UTC)</th>
+<th>Event</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>21:57:51</td>
+<td>First AGENT_ONLINE received</td>
+</tr>
+<tr>
+<td>21:58:36</td>
+<td>All 100 agents online</td>
+</tr>
+<tr>
+<td>22:03:05</td>
+<td>FEED_COMPLETE sent</td>
+</tr>
+<tr>
+<td>22:11:51</td>
+<td>All agents AGENT_READY; question phase begins</td>
+</tr>
+<tr>
+<td>22:41:35</td>
+<td>Question-39 sent to agent-39</td>
+</tr>
+<tr>
+<td>22:40:03–22:40:50</td>
+<td>AMQP SocketErrors on producer (Connection reset by peer)</td>
+</tr>
+<tr>
+<td>22:42:23</td>
+<td>Duplicate AGENT_ONLINE from agent-39 → question-39 released as "No answer received"</td>
+</tr>
+<tr>
+<td>22:42:23–22:47:36</td>
+<td>Mass AGENT_ONLINE wave covering ~80+ agents (container restart cascade)</td>
+</tr>
+<tr>
+<td>22:56:40</td>
+<td>Question-39 scores 0.00 (exhausted all 3 failover attempts: agents 39→40→41)</td>
+</tr>
+<tr>
+<td>23:01:49</td>
+<td>Question-40 scores 0.00</td>
+</tr>
+<tr>
+<td>22:41–23:15</td>
+<td>Restarted containers come back online (app-7 agents at 22:59, app-8 agents at 23:08)</td>
+</tr>
+</tbody>
+</table>
+<p>Questions 0–38 scored 0.95–1.00. Only 2 questions (39 and 40) scored 0.00.</p>
+<hr />
+<h2 id="azure-cli-evidence">Azure CLI Evidence<a class="headerlink" href="#azure-cli-evidence" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>app-2  agent-10: restartCount=1, started=2026-03-19T22:42:43Z
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>app-2  agent-11: restartCount=1, started=2026-03-19T22:42:43Z
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>app-2  agent-12: restartCount=1, started=2026-03-19T22:42:45Z
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>app-2  agent-13: restartCount=1, started=2026-03-19T22:42:48Z
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>app-7  agent-35..39: restartCount=0, started=2026-03-19T22:59:57–23:00:03Z
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>app-8  agent-40..44: restartCount=0, started=2026-03-19T23:08:23–23:08:27Z
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>app-0  agent-0..4:  restartCount=0, started=2026-03-19T23:02:04Z
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>(all other apps: restartCount=0, started 23:03–23:15 UTC)
+</code></pre></div>
+<p>The <code>restartCount=0</code> with late start times for 95+ of the 100 containers indicates
+those containers were <strong>previously restarted</strong> and the current container instance is
+already a fresh one (restartCount resets per instance). app-2 is the only surviving
+evidence of the first-wave restarts (restartCount still at 1).</p>
+<p>Container logs for agent-10 at 22:44:04–22:44:05 (after restart):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Publishing SHARD_QUERY to agent-0
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Publishing SHARD_QUERY to agent-1
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>...
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Publishing SHARD_QUERY to agent-99
+</code></pre></div>
+99 Event Hub messages published in under 2 seconds — the N² fan-out pattern.</p>
+<hr />
+<h2 id="root-causes">Root Causes<a class="headerlink" href="#root-causes" title="Permanent link">&para;</a></h2>
+<h3 id="rc1-n2-shard_query-fan-out-causes-event-hub-saturation-critical">RC1 — N² SHARD_QUERY Fan-Out Causes Event Hub Saturation (CRITICAL)<a class="headerlink" href="#rc1-n2-shard_query-fan-out-causes-event-hub-saturation-critical" title="Permanent link">&para;</a></h3>
+<p><strong>What</strong>: <code>DistributedCognitiveMemory</code> / <code>DistributedHiveGraph</code> answer a question by
+publishing a <code>SHARD_QUERY</code> to <strong>all 100 agents</strong> simultaneously. With 100 agents each
+potentially processing a question, this is O(N²) = up to 9,900 concurrent Event Hub
+publishes per query round.</p>
+<p><strong>Evidence</strong>:
+- agent-10 container logs at 22:44 show 99 sequential <code>SHARD_QUERY</code> publishes in &lt;2s
+- AMQP <code>SocketError: Connection reset by peer</code> on producer at 22:40:03, 22:40:50 —
+  Event Hub connection reset under write burst
+- Mass restart wave begins at 22:42:23 (2 minutes after SocketErrors): consistent with
+  OOM or watchdog kill following AMQP error → retry storm → memory exhaustion</p>
+<p><strong>Code path</strong> (<code>DistributedHiveGraph.query_shards</code> → <code>EventHubsShardTransport.broadcast</code>):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">for</span> <span class="n">agent_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_agent_ids</span><span class="p">:</span>   <span class="c1"># 100 iterations</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">SHARD_QUERY</span><span class="p">,</span> <span class="n">partition_key</span><span class="o">=</span><span class="n">agent_id</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Impact</strong>: Single question triggers 99 EH messages; any backpressure causes
+synchronous retry loops, thread saturation, and eventual OOM or AMQP disconnect.</p>
+<hr />
+<h3 id="rc2-container-oomcrash-restarts-during-question-phase-critical">RC2 — Container OOM/Crash Restarts During Question Phase (CRITICAL)<a class="headerlink" href="#rc2-container-oomcrash-restarts-during-question-phase-critical" title="Permanent link">&para;</a></h3>
+<p><strong>What</strong>: ~80 containers restarted within 5 minutes (22:42–22:47 UTC), forming a
+cascade. Container Apps restart policy respawns the container, but:
+1. In-memory Event Hub checkpoint is lost
+2. New container starts at <code>starting_position="@latest"</code>, missing all messages
+   sent during the outage
+3. ONLINE_CHECK flood (100 agents × ONLINE_CHECK) follows immediately</p>
+<p><strong>Evidence</strong>: app-2 restart timestamps match the AMQP SocketError window; app-7/8
+container start times at 22:59–23:08 indicate multiple subsequent restarts (current
+pod with restartCount=0 started long after the original deployment).</p>
+<hr />
+<h3 id="rc3-duplicate-agent_online-heuristic-is-too-aggressive-high">RC3 — Duplicate AGENT_ONLINE Heuristic Is Too Aggressive (HIGH)<a class="headerlink" href="#rc3-duplicate-agent_online-heuristic-is-too-aggressive-high" title="Permanent link">&para;</a></h3>
+<p><strong>What</strong>: <code>RemoteAgentAdapter._handle_agent_online()</code> immediately releases any pending
+question the moment a <strong>second</strong> AGENT_ONLINE is received from an agent, with no
+grace period:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_handle_agent_online</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_online_lock</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        <span class="n">already_online</span> <span class="o">=</span> <span class="n">agent_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_online_agents</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_online_agents</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">if</span> <span class="n">already_online</span><span class="p">:</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_release_pending_answers_for_agent</span><span class="p">(</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="n">agent_id</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;agent restart&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;duplicate AGENT_ONLINE while question was pending&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="p">)</span>
+</code></pre></div>
+<p><strong>Evidence</strong>: At 22:42:23, duplicate AGENT_ONLINE from agent-39 immediately released
+question-39 as "No answer received" — 48 seconds after the question was sent, before
+any answer could arrive. The restarted agent-39 came back online at 22:59:57 and
+would likely have answered if given the chance.</p>
+<p><strong>Semantic issue</strong>: The duplicate heuristic assumes "second AGENT_ONLINE = restart",
+but this is only a heuristic. Causes include:
+- Container restart (correct interpretation)
+- Stale ONLINE_CHECK reply from a previous poll cycle
+- Network partition with delayed delivery
+- Empty <code>run_id</code> events (see RC5)</p>
+<hr />
+<h3 id="rc4-sequential-failover-into-unstable-agents-exhausts-all-retries-high">RC4 — Sequential Failover Into Unstable Agents Exhausts All Retries (HIGH)<a class="headerlink" href="#rc4-sequential-failover-into-unstable-agents-exhausts-all-retries-high" title="Permanent link">&para;</a></h3>
+<p><strong>What</strong>: With <code>answer_timeout=0</code> (infinite wait), <code>parallel_workers=1</code>, and
+<code>question_failover_retries=2</code>, each failed question blocks the entire question phase
+until all 3 attempts complete. Failover goes to agents <code>base+1</code> and <code>base+2</code> — but
+during the mass restart wave, these adjacent agents had also just restarted:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>question-39: agent-39 → released by duplicate AGENT_ONLINE
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  failover-1: agent-40 → released by duplicate AGENT_ONLINE (also restarting)
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  failover-2: agent-41 → released by duplicate AGENT_ONLINE (also restarting)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  RESULT: 0.00
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>question-40: agent-40 → (also unstable)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  failover-1: agent-41 → also unstable
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  failover-2: agent-42 → also unstable
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  RESULT: 0.00
+</code></pre></div>
+<p><strong>Evidence</strong>: Log shows questions 39 and 40 cascade through the exact same restart
+window, with each failover agent also triggering AGENT_ONLINE release.</p>
+<p><strong>Root issue</strong>: Failover agent selection is <code>(base_agent + attempt) % agent_count</code> —
+deterministic neighbors that are physically co-located (same Container App) and thus
+crash together.</p>
+<hr />
+<h3 id="rc5-run_id-filter-bypassed-for-empty-run_id-medium">RC5 — <code>run_id</code> Filter Bypassed for Empty <code>run_id</code> (MEDIUM)<a class="headerlink" href="#rc5-run_id-filter-bypassed-for-empty-run_id-medium" title="Permanent link">&para;</a></h3>
+<p><strong>What</strong>: The filter in <code>RemoteAgentAdapter._dispatch_response()</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">if</span> <span class="n">run_id</span> <span class="ow">and</span> <span class="n">run_id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_id</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">return</span>
+</code></pre></div>
+<p>Uses Python truthiness: an <strong>empty string</strong> <code>run_id</code> is <strong>falsy</strong>, so the <code>if</code> block
+is never entered and the empty-<code>run_id</code> event is processed as a current-run event.</p>
+<p><strong>When this triggers</strong>:
+1. Agent publishes AGENT_ONLINE at startup (before receiving ONLINE_CHECK) with
+   <code>run_id=""</code> because <code>_current_run_id</code> has not been set yet
+2. Agent's <code>_CorrelatingInputSource</code> calls <code>clear_context()</code> on reconnect, setting
+   <code>run_id</code> to <code>""</code> for the next event
+3. Stale events from a prior run with no <code>run_id</code> field</p>
+<p><strong>Startup hazard detail</strong>: The deployed <code>agent_entrypoint.py</code>
+(<code>issue-3172-cognitive-memory-unified-graph-clean</code> worktree) only publishes
+AGENT_ONLINE <strong>in response to ONLINE_CHECK</strong> (not at startup), so the startup hazard
+is <strong>not currently triggered</strong> in normal flow. However, if <code>_current_run_id</code> is
+unset when ONLINE_CHECK arrives, <code>publish_agent_online(run_id=self._current_run_id)</code>
+publishes with empty <code>run_id</code>, which then bypasses the filter on the adapter side.</p>
+<hr />
+<h3 id="rc6-no-persistent-event-hub-checkpoint-store-medium">RC6 — No Persistent Event Hub Checkpoint Store (MEDIUM)<a class="headerlink" href="#rc6-no-persistent-event-hub-checkpoint-store-medium" title="Permanent link">&para;</a></h3>
+<p><strong>What</strong>: <code>EventHubsInputSource</code> uses in-memory checkpoints only. On OOM kill, the
+checkpoint position is lost; the new container starts at <code>"@latest"</code>, missing all
+messages delivered during the outage.</p>
+<p><strong>Impact</strong>: Questions sent to a crashing agent are <strong>silently dropped</strong> — the agent
+never sees them. The adapter eventually releases via duplicate AGENT_ONLINE or
+<code>answer_timeout</code>, but the question score is 0.</p>
+<p><strong>Code location</strong>: <code>EventHubConsumerClient</code> is created without a <code>checkpoint_store</code>
+argument, which defaults to in-memory.</p>
+<hr />
+<h2 id="prioritized-fix-list">Prioritized Fix List<a class="headerlink" href="#prioritized-fix-list" title="Permanent link">&para;</a></h2>
+<h3 id="p0-limit-shard_query-fan-out-fixes-rc1">P0 — Limit SHARD_QUERY Fan-Out (fixes RC1)<a class="headerlink" href="#p0-limit-shard_query-fan-out-fixes-rc1" title="Permanent link">&para;</a></h3>
+<p>Replace full broadcast with targeted or batched SHARD_QUERY:
+- Route queries only to agents likely to hold the relevant shard (using DHT key → agent mapping)
+- Or cap fan-out at <code>sqrt(N)</code> with hierarchical aggregation
+- Or use a single coordinator agent per query</p>
+<p>This alone should eliminate the N²=9,900 EH burst that triggers AMQP saturation
+and the downstream OOM cascade.</p>
+<h3 id="p1-add-grace-period-to-duplicate-agent_online-heuristic-fixes-rc3">P1 — Add Grace Period to Duplicate AGENT_ONLINE Heuristic (fixes RC3)<a class="headerlink" href="#p1-add-grace-period-to-duplicate-agent_online-heuristic-fixes-rc3" title="Permanent link">&para;</a></h3>
+<p>Instead of immediately releasing pending questions on duplicate AGENT_ONLINE, wait
+for a configurable grace period (e.g., 30s) before releasing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Pseudo-code</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">if</span> <span class="n">already_online</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">schedule_delayed_release</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_restart_grace_period</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;agent restart&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="c1"># Cancel the delayed release if agent answers in time</span>
+</code></pre></div>
+<p>This allows a restarted agent to reconnect and answer before the question is forfeited.</p>
+<h3 id="p2-fix-run_id-filter-to-treat-empty-run_id-as-mismatch-fixes-rc5">P2 — Fix <code>run_id</code> Filter to Treat Empty <code>run_id</code> as Mismatch (fixes RC5)<a class="headerlink" href="#p2-fix-run_id-filter-to-treat-empty-run_id-as-mismatch-fixes-rc5" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Before (buggy):</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">if</span> <span class="n">run_id</span> <span class="ow">and</span> <span class="n">run_id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_id</span><span class="p">:</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">return</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># After:</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">if</span> <span class="n">run_id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_id</span><span class="p">:</span>   <span class="c1"># empty run_id always mismatches non-empty self._run_id</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">return</span>
+</code></pre></div>
+<p>This prevents stale or empty-<code>run_id</code> AGENT_ONLINE events from being mistakenly
+processed as current-run events.</p>
+<h3 id="p3-use-non-adjacent-failover-agent-selection-fixes-rc4">P3 — Use Non-Adjacent Failover Agent Selection (fixes RC4)<a class="headerlink" href="#p3-use-non-adjacent-failover-agent-selection-fixes-rc4" title="Permanent link">&para;</a></h3>
+<p>Instead of <code>(base + attempt) % N</code>, choose failover agents that are <strong>physically
+separated</strong> (different Container Apps):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Spread failovers across Container Apps</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">failover_agent</span> <span class="o">=</span> <span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">attempt</span> <span class="o">*</span> <span class="n">agents_per_app</span><span class="p">)</span> <span class="o">%</span> <span class="n">agent_count</span>
+</code></pre></div>
+<p>Or use random selection with exclusion of the same Container App:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Exclude agents in the same app as base_agent</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">app_id</span> <span class="o">=</span> <span class="n">base_agent</span> <span class="o">//</span> <span class="n">agents_per_app</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">agent_count</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">//</span> <span class="n">agents_per_app</span> <span class="o">!=</span> <span class="n">app_id</span><span class="p">]</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">failover_agent</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="p4-add-azure-blob-checkpoint-store-for-event-hub-consumer-fixes-rc6">P4 — Add Azure Blob Checkpoint Store for Event Hub Consumer (fixes RC6)<a class="headerlink" href="#p4-add-azure-blob-checkpoint-store-for-event-hub-consumer-fixes-rc6" title="Permanent link">&para;</a></h3>
+<p>Pass a <code>BlobCheckpointStore</code> to <code>EventConsumerClient</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">azure.eventhub.extensions.checkpointstoreblobaio</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlobCheckpointStore</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">checkpoint_store</span> <span class="o">=</span> <span class="n">BlobCheckpointStore</span><span class="o">.</span><span class="n">from_connection_string</span><span class="p">(</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">blob_conn_str</span><span class="p">,</span> <span class="n">container_name</span><span class="o">=</span><span class="s2">&quot;eh-checkpoints&quot;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">consumer_client</span> <span class="o">=</span> <span class="n">EventHubConsumerClient</span><span class="p">(</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="o">...</span><span class="p">,</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="n">checkpoint_store</span><span class="o">=</span><span class="n">checkpoint_store</span><span class="p">,</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="p">)</span>
+</code></pre></div>
+<p>This allows restarted containers to resume from last committed position rather than
+<code>"@latest"</code>, preventing silent message loss.</p>
+<h3 id="p5-normalize-run_id-in-publish_agent_online-reduces-rc5-exposure">P5 — Normalize <code>run_id</code> in <code>publish_agent_online</code> (reduces RC5 exposure)<a class="headerlink" href="#p5-normalize-run_id-in-publish_agent_online-reduces-rc5-exposure" title="Permanent link">&para;</a></h3>
+<p>In <code>agent_entrypoint.py</code>, ensure <code>_current_run_id</code> is set before ONLINE_CHECK
+processing. If not set, log a warning and use a sentinel rather than <code>""</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">publish_agent_online</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="n">effective_run_id</span> <span class="o">=</span> <span class="n">run_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_run_id</span> <span class="ow">or</span> <span class="s2">&quot;UNKNOWN&quot;</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_publish_to_eh</span><span class="p">({</span><span class="s2">&quot;event_type&quot;</span><span class="p">:</span> <span class="s2">&quot;AGENT_ONLINE&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;run_id&quot;</span><span class="p">:</span> <span class="n">effective_run_id</span><span class="p">})</span>
+</code></pre></div>
+<p>And on the adapter side, reject <code>"UNKNOWN"</code> run_ids explicitly.</p>
+<hr />
+<h2 id="agent_online-heuristic-characterization">AGENT_ONLINE Heuristic Characterization<a class="headerlink" href="#agent_online-heuristic-characterization" title="Permanent link">&para;</a></h2>
+<p>The current duplicate-AGENT_ONLINE heuristic works as follows:</p>
+<ol>
+<li><strong>First AGENT_ONLINE</strong> from an agent → marks agent as online in <code>_online_agents</code></li>
+<li><strong>Second AGENT_ONLINE</strong> from an agent already in <code>_online_agents</code> → infers restart,
+   immediately releases any pending question for that agent as "No answer received"</li>
+</ol>
+<p><strong>Correct interpretation cases</strong>:
+- Container OOM kill and respawn: ONLINE_CHECK is re-sent; agent replies; duplicate
+  detected → correct signal</p>
+<p><strong>Incorrect / unsafe interpretation cases</strong>:
+1. <strong>Network delay</strong>: Duplicate ONLINE_CHECK reply from a slow-but-alive agent arrives
+   late. Agent did not restart but is penalized.
+2. <strong>Stale run events</strong>: A prior eval run's AGENT_ONLINE event arrives late and
+   bypasses the <code>run_id</code> filter (see RC5). Harness incorrectly infers restart.
+3. <strong>Empty run_id bypass</strong>: Agent publishes AGENT_ONLINE with empty <code>run_id</code> (startup
+   hazard or context-clear race). Adapter processes it as current-run, inferring restart.
+4. <strong>Adjacent-agent cascade</strong>: Mass restart wave causes duplicate AGENT_ONLINE for
+   <strong>all</strong> 80+ restarting agents simultaneously. Questions that happen to be in-flight
+   at that moment are released, even if those specific questions' target agents would
+   have recovered within the answer window.</p>
+<p><strong>Startup AGENT_ONLINE hazard</strong> (currently <strong>not triggered</strong> in deployed code):
+- The deployed <code>agent_entrypoint.py</code> only calls <code>publish_agent_online()</code> in response
+  to ONLINE_CHECK, not at startup
+- However, if a container restarts <strong>after</strong> the harness has moved past the
+  <code>_wait_for_agents_online()</code> phase and sends no further ONLINE_CHECK, the restarted
+  agent will not publish AGENT_ONLINE at all — the harness will never know about the
+  restart and will eventually hang with <code>answer_timeout=0</code>
+- The duplicate AGENT_ONLINE heuristic only fires if a <strong>new</strong> ONLINE_CHECK is sent
+  after the restart; if it isn't sent, the hang is broken only by <code>answer_timeout</code></p>
+<hr />
+<h2 id="key-code-locations">Key Code Locations<a class="headerlink" href="#key-code-locations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Function</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>amplihack_eval/adapters/remote_agent_adapter.py</code></td>
+<td><code>_handle_agent_online()</code></td>
+<td>RC3 — no grace period</td>
+</tr>
+<tr>
+<td><code>amplihack_eval/adapters/remote_agent_adapter.py</code></td>
+<td><code>_dispatch_response()</code></td>
+<td>RC5 — empty run_id bypass</td>
+</tr>
+<tr>
+<td><code>amplihack_eval/adapters/remote_agent_adapter.py</code></td>
+<td><code>answer_question()</code> failover loop</td>
+<td>RC4 — adjacent failover selection</td>
+</tr>
+<tr>
+<td><code>amplihack/agents/cognitive_memory/distributed_hive_graph.py</code></td>
+<td><code>query_shards()</code> / broadcast</td>
+<td>RC1 — N² fan-out</td>
+</tr>
+<tr>
+<td><code>amplihack/agents/goal_seeking/input_source.py</code></td>
+<td><code>EventHubsInputSource.__init__</code></td>
+<td>RC6 — no checkpoint store</td>
+</tr>
+<tr>
+<td><code>amplihack/deploy/azure_hive/agent_entrypoint.py</code></td>
+<td><code>publish_agent_online()</code></td>
+<td>RC5 — empty run_id on startup</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "navigation.top", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

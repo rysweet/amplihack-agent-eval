@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#running-distributed-eval-on-azure" class="md-skip">
+        <a href="#azure-hive-qa-eval-quick-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -484,10 +484,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture-overview" class="md-nav__link">
+  <a href="#wrapper-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture Overview
+        Wrapper Command
       
     </span>
   </a>
@@ -495,10 +495,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#direct-runner-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Direct Runner Command
       
     </span>
   </a>
@@ -506,10 +506,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-1-deploy-agents" class="md-nav__link">
+  <a href="#current-azure-facts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: Deploy Agents
+        Current Azure Facts
       
     </span>
   </a>
@@ -517,49 +517,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-2-run-eval" class="md-nav__link">
+  <a href="#when-to-use-which-path" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2: Run Eval
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Step 2: Run Eval">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-happens-during-the-eval" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What happens during the eval
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#quick-validation-smaller-scale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick validation (smaller scale)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-5-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Cleanup
+        When To Use Which Path
       
     </span>
   </a>
@@ -567,43 +528,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-environment-variables" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Environment Variables
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Troubleshooting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#deploy-script-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deploy Script Options
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Documentation
+        See Also
       
     </span>
   </a>
@@ -854,10 +782,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture-overview" class="md-nav__link">
+  <a href="#wrapper-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture Overview
+        Wrapper Command
       
     </span>
   </a>
@@ -865,10 +793,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#direct-runner-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Direct Runner Command
       
     </span>
   </a>
@@ -876,10 +804,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-1-deploy-agents" class="md-nav__link">
+  <a href="#current-azure-facts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 1: Deploy Agents
+        Current Azure Facts
       
     </span>
   </a>
@@ -887,49 +815,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#step-2-run-eval" class="md-nav__link">
+  <a href="#when-to-use-which-path" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Step 2: Run Eval
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Step 2: Run Eval">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-happens-during-the-eval" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What happens during the eval
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#quick-validation-smaller-scale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick validation (smaller scale)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step-5-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Step 5: Cleanup
+        When To Use Which Path
       
     </span>
   </a>
@@ -937,43 +826,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-environment-variables" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Environment Variables
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Troubleshooting
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#deploy-script-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Deploy Script Options
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Documentation
+        See Also
       
     </span>
   </a>
@@ -1000,219 +856,38 @@
   
 
 
-<h1 id="running-distributed-eval-on-azure">Running Distributed Eval on Azure<a class="headerlink" href="#running-distributed-eval-on-azure" title="Permanent link">&para;</a></h1>
-<p>This guide covers how to deploy a distributed hive mind to Azure, feed it
-content, and run a Q&amp;A evaluation against the live agents.</p>
-<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
-<p>The distributed eval uses a <code>RemoteAgentAdapter</code> that implements the same
-interface as a local <code>LearningAgent</code>. The eval harness (<code>LongHorizonMemoryEval</code>)
-uses the <strong>exact same code path</strong> for local and distributed evaluation — same
-question generation, same OODA loop processing, same grading, same report.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>eval_distributed.py
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  └── LongHorizonMemoryEval.run(RemoteAgentAdapter)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        │
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        ├── adapter.learn_from_content(text)
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        │     └── Service Bus LEARN_CONTENT ──► all agents (broadcast)
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        │              → agent OODA loop: decide(&quot;store&quot;) → learn
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        ├── adapter.answer_question(text)
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        │     ├── Service Bus INPUT {event_id} ──► one agent (round-robin)
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        │     │        → agent OODA loop: decide(&quot;answer&quot;) → answer
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        │     │        → AnswerPublisher → eval-responses topic {event_id, answer}
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        │     └── ◄── collect answer by event_id correlation
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        │
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        └── _grade_multi_vote(question, answer) ──► score
+<h1 id="azure-hive-qa-eval-quick-reference">Azure Hive Q&amp;A Eval Quick Reference<a class="headerlink" href="#azure-hive-qa-eval-quick-reference" title="Permanent link">&para;</a></h1>
+<p>Use this page when you want the shortest path to a distributed Azure run.</p>
+<h2 id="wrapper-command">Wrapper Command<a class="headerlink" href="#wrapper-command" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/amplihack-agent-eval
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>...
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">export</span><span class="w"> </span><span class="nv">AMPLIHACK_SOURCE_ROOT</span><span class="o">=</span>/path/to/amplihack
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard
 </code></pre></div>
-<p>The agent code is identical in single-agent and distributed modes. All
-distribution happens via dependency injection at the entrypoint layer.</p>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>Reuse an existing deployment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">SKIP_DEPLOY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive3175e<span class="w"> </span><span class="nv">HIVE_RESOURCE_GROUP</span><span class="o">=</span>hive-pr3175-rg<span class="w"> </span>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>holdout
+</code></pre></div>
+<h2 id="direct-runner-command">Direct Runner Command<a class="headerlink" href="#direct-runner-command" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.azure.eval_distributed<span class="w">   </span>--connection-string<span class="w"> </span><span class="s2">&quot;&lt;event-hubs-connection-string&gt;&quot;</span><span class="w">   </span>--input-hub<span class="w"> </span><span class="s2">&quot;hive-events-amplihive3175e&quot;</span><span class="w">   </span>--response-hub<span class="w"> </span><span class="s2">&quot;eval-responses-amplihive3175e&quot;</span><span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--agents-per-app<span class="w"> </span><span class="m">5</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--parallel-workers<span class="w"> </span><span class="m">1</span><span class="w">   </span>--question-failover-retries<span class="w"> </span><span class="m">2</span><span class="w">   </span>--answer-timeout<span class="w"> </span><span class="m">0</span><span class="w">   </span>--output<span class="w"> </span>/tmp/eval_report.json
+</code></pre></div>
+<h2 id="current-azure-facts">Current Azure Facts<a class="headerlink" href="#current-azure-facts" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Azure CLI</strong> authenticated (<code>az login</code>)</li>
-<li><strong>ANTHROPIC_API_KEY</strong> set in your environment</li>
-<li><strong>Docker</strong> daemon running (for image build)</li>
-<li><strong>amplihack</strong> repo cloned with <code>.venv</code> activated</li>
-<li><strong>azure-servicebus</strong> Python package installed (<code>pip install azure-servicebus</code>)</li>
+<li>transport is <strong>Event Hubs</strong>, not Service Bus</li>
+<li>the input hub is <code>hive-events-&lt;hive-name&gt;</code></li>
+<li>the response hub is <code>eval-responses-&lt;hive-name&gt;</code></li>
+<li><code>standard</code> and <code>holdout</code> are supported on both the wrapper and direct runner</li>
 </ul>
-<h2 id="step-1-deploy-agents">Step 1: Deploy Agents<a class="headerlink" href="#step-1-deploy-agents" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>~/.msec-k<span class="k">)</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># or your key source</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nv">HIVE_RESOURCE_GROUP</span><span class="o">=</span>hive-mind-rg<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nv">HIVE_LOCATION</span><span class="o">=</span>westus2<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nv">HIVE_AGENT_COUNT</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="nv">HIVE_AGENTS_PER_APP</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nv">HIVE_AGENT_MODEL</span><span class="o">=</span>claude-sonnet-4-6<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh
-</code></pre></div>
-<p>This provisions:</p>
+<h2 id="when-to-use-which-path">When To Use Which Path<a class="headerlink" href="#when-to-use-which-path" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Resource group and Azure Container Registry (ACR)</li>
-<li>Azure Service Bus namespace, topic, and per-agent subscriptions</li>
-<li>Container Apps Environment</li>
-<li>N Container Apps (<code>ceil(HIVE_AGENT_COUNT / HIVE_AGENTS_PER_APP)</code> apps)</li>
+<li>use <code>run_distributed_eval.sh</code> when you want deploy + eval in one step</li>
+<li>use <code>python -m amplihack_eval.azure.eval_distributed</code> when Azure is already running and you only need the eval harness</li>
 </ul>
-<p>To check deployment status:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--status
-</code></pre></div>
-<h2 id="step-2-run-eval">Step 2: Run Eval<a class="headerlink" href="#step-2-run-eval" title="Permanent link">&para;</a></h2>
-<p>The eval script handles both content feeding and question answering in a single
-command — using the same <code>LongHorizonMemoryEval</code> harness as single-agent eval:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">SB_CONN</span><span class="o">=</span><span class="k">$(</span>az<span class="w"> </span>servicebus<span class="w"> </span>namespace<span class="w"> </span>authorization-rule<span class="w"> </span>keys<span class="w"> </span>list<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-g<span class="w"> </span>hive-mind-rg<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--namespace-name<span class="w"> </span>&lt;YOUR-SB-NAMESPACE&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--name<span class="w"> </span>RootManageSharedAccessKey<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span>--query<span class="w"> </span>primaryConnectionString<span class="w"> </span>-o<span class="w"> </span>tsv<span class="k">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>python<span class="w"> </span>deploy/azure_hive/eval_distributed.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span>--input-topic<span class="w"> </span>hive-events-&lt;HIVE_NAME&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span>--response-topic<span class="w"> </span>eval-responses-&lt;HIVE_NAME&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span>--grader-model<span class="w"> </span>claude-haiku-4-5-20251001<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span>--output<span class="w"> </span>results.json
-</code></pre></div>
-<p>Replace <code>&lt;YOUR-SB-NAMESPACE&gt;</code> and <code>&lt;HIVE_NAME&gt;</code> with values from the deploy
-output.</p>
-<h3 id="what-happens-during-the-eval">What happens during the eval<a class="headerlink" href="#what-happens-during-the-eval" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Generate</strong> — creates deterministic dialogue (5000 turns) and questions (50)</li>
-<li><strong>Learn</strong> — sends each turn to all agents via <code>LEARN_CONTENT</code> events</li>
-<li><strong>Quiz</strong> — sends each question to one agent (round-robin) via <code>INPUT</code> events;
-   waits for <code>EVAL_ANSWER</code> on the response topic</li>
-<li><strong>Grade</strong> — uses the same hybrid grader as single-agent (<code>_grade_multi_vote</code>)</li>
-<li><strong>Report</strong> — writes JSON report in the same format as single-agent eval</li>
-</ol>
-<h3 id="quick-validation-smaller-scale">Quick validation (smaller scale)<a class="headerlink" href="#quick-validation-smaller-scale" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>deploy/azure_hive/eval_distributed.py<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>--connection-string<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SB_CONN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--input-topic<span class="w"> </span>hive-events-&lt;HIVE_NAME&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--response-topic<span class="w"> </span>eval-responses-&lt;HIVE_NAME&gt;<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>--agents<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span>--output<span class="w"> </span>quick-validation.json
-</code></pre></div>
-<h2 id="step-5-cleanup">Step 5: Cleanup<a class="headerlink" href="#step-5-cleanup" title="Permanent link">&para;</a></h2>
-<p>Remove all Azure resources when done:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup
-</code></pre></div>
-<p>Or delete the resource group directly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>az<span class="w"> </span>group<span class="w"> </span>delete<span class="w"> </span>-n<span class="w"> </span>hive-mind-rg<span class="w"> </span>--yes
-</code></pre></div>
-<h2 id="key-environment-variables">Key Environment Variables<a class="headerlink" href="#key-environment-variables" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>HIVE_NAME</code></td>
-<td>Hive deployment name</td>
-<td><code>amplihive</code></td>
-</tr>
-<tr>
-<td><code>HIVE_RESOURCE_GROUP</code></td>
-<td>Azure resource group</td>
-<td><code>hive-mind-rg</code></td>
-</tr>
-<tr>
-<td><code>HIVE_LOCATION</code></td>
-<td>Azure region</td>
-<td><code>westus2</code></td>
-</tr>
-<tr>
-<td><code>HIVE_AGENT_COUNT</code></td>
-<td>Total number of agents</td>
-<td><code>5</code></td>
-</tr>
-<tr>
-<td><code>HIVE_AGENTS_PER_APP</code></td>
-<td>Agents per Container App</td>
-<td><code>5</code></td>
-</tr>
-<tr>
-<td><code>HIVE_AGENT_MODEL</code></td>
-<td>LLM model for agents</td>
-<td><code>claude-sonnet-4-6</code></td>
-</tr>
-<tr>
-<td><code>HIVE_TRANSPORT</code></td>
-<td>Transport type</td>
-<td><code>azure_service_bus</code></td>
-</tr>
-<tr>
-<td><code>AMPLIHACK_TOPIC_NAME</code></td>
-<td>Service Bus topic name</td>
-<td><code>hive-events</code></td>
-</tr>
-<tr>
-<td><code>AMPLIHACK_MEMORY_CONNECTION_STRING</code></td>
-<td>Service Bus connection string</td>
-<td>--</td>
-</tr>
-<tr>
-<td><code>LOG_ANALYTICS_WORKSPACE_ID</code></td>
-<td>Log Analytics workspace GUID</td>
-<td>--</td>
-</tr>
-<tr>
-<td><code>OODA_ANSWER_WAIT</code></td>
-<td>Eval answer timeout in seconds</td>
-<td><code>600</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Symptom</th>
-<th>Fix</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Rate limits (429 errors)</td>
-<td>Agents retry with exponential backoff (2-32s). If persistent, reduce <code>HIVE_AGENT_COUNT</code> or use a smaller model (e.g., Sonnet instead of Opus).</td>
-</tr>
-<tr>
-<td>Service Bus auth errors</td>
-<td>Ensure topic name matches agent config (<code>hive-events</code>). Verify connection string has <code>Send</code> and <code>Listen</code> claims.</td>
-</tr>
-<tr>
-<td>Missing answers in eval</td>
-<td>Check Log Analytics for ANSWER entries. Increase <code>--answer-wait</code> beyond 600s for large deployments.</td>
-</tr>
-<tr>
-<td><code>0 results</code> on all queries</td>
-<td>Agents may be cold-started (Azure Container Apps scale to zero). Send a warmup query first or check <code>az containerapp revision list</code>.</td>
-</tr>
-<tr>
-<td>Subscription not found</td>
-<td>Verify the eval subscription exists: <code>az servicebus topic subscription list --resource-group hive-mind-rg --namespace-name &lt;ns&gt; --topic-name hive-events</code></td>
-</tr>
-<tr>
-<td>Deploy script fails</td>
-<td>Ensure Docker daemon is running and <code>az login</code> is current. Check <code>deploy.sh --status</code> for partial deployments.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="deploy-script-options">Deploy Script Options<a class="headerlink" href="#deploy-script-options" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w">                 </span><span class="c1"># Deploy everything</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--build-only<span class="w">    </span><span class="c1"># Build + push image only</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--infra-only<span class="w">    </span><span class="c1"># Provision infra only</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--cleanup<span class="w">       </span><span class="c1"># Tear down resource group</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>bash<span class="w"> </span>deploy/azure_hive/deploy.sh<span class="w"> </span>--status<span class="w">        </span><span class="c1"># Show deployment status</span>
-</code></pre></div>
-<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../hive-mind-eval/">Hive Mind Eval Strategy</a> -- Topology comparison and scoring methodology</li>
-<li><a href="../running-evals/">Running Evals Quick Start</a> -- All eval types in one page</li>
-<li><a href="../LONG_HORIZON_EVAL/">Long-Horizon Memory Eval</a> -- Single-agent eval details</li>
+<li><a href="../distributed-hive-eval/">Distributed Hive Eval on Azure</a></li>
+<li><a href="../running-evals/">Running Evals</a></li>
 </ul>
 
 
