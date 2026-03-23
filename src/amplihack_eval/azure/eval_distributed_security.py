@@ -26,6 +26,7 @@ from pathlib import Path
 try:
     from amplihack.observability import configure_otel, start_span
 except ImportError:  # pragma: no cover
+
     def configure_otel(  # type: ignore[misc]
         service_name: str, *, component: str = "", attributes: object = None
     ) -> bool:
@@ -35,6 +36,7 @@ except ImportError:  # pragma: no cover
         name: str, *, tracer_name: str, attributes: object = None
     ) -> object:
         return contextlib.nullcontext()
+
 
 # Suppress EH noise
 for name in ["azure", "azure.eventhub", "azure.eventhub._pyamqp", "uamqp"]:
@@ -75,8 +77,7 @@ def main() -> int:
     args = p.parse_args()
 
     configure_otel(
-        service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip()
-        or "amplihack.azure-eval-harness",
+        service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip() or "amplihack.azure-eval-harness",
         component="eval-distributed-security",
         attributes={
             "amplihack.agent_count": args.agents,

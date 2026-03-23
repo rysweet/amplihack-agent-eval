@@ -20,6 +20,7 @@ from pathlib import Path
 try:
     from amplihack.observability import configure_otel, start_span
 except ImportError:  # pragma: no cover
+
     def configure_otel(  # type: ignore[misc]
         service_name: str, *, component: str = "", attributes: object = None
     ) -> bool:
@@ -29,6 +30,7 @@ except ImportError:  # pragma: no cover
         name: str, *, tracer_name: str, attributes: object = None
     ) -> object:
         return contextlib.nullcontext()
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -96,17 +98,11 @@ def answer_contains_expected(answer: str, expected_codename: str) -> bool:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(
-        description="Focused distributed retrieval smoke against Azure hive agents"
-    )
-    p.add_argument(
-        "--connection-string", required=True, help="Event Hubs namespace connection string"
-    )
+    p = argparse.ArgumentParser(description="Focused distributed retrieval smoke against Azure hive agents")
+    p.add_argument("--connection-string", required=True, help="Event Hubs namespace connection string")
     p.add_argument("--input-hub", default="hive-events", help="Agent input Event Hub name")
     p.add_argument("--response-hub", default="eval-responses", help="Eval response Event Hub name")
-    p.add_argument(
-        "--agents", type=int, default=_default_agent_count(), help="Number of deployed agents"
-    )
+    p.add_argument("--agents", type=int, default=_default_agent_count(), help="Number of deployed agents")
     p.add_argument("--resource-group", default="", help="Azure resource group (optional)")
     p.add_argument("--answer-timeout", type=int, default=120, help="Seconds to wait per answer")
     p.add_argument(
@@ -119,8 +115,7 @@ def main() -> int:
     args = p.parse_args()
 
     configure_otel(
-        service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip()
-        or "amplihack.azure-retrieval-smoke",
+        service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip() or "amplihack.azure-retrieval-smoke",
         component="eval-retrieval-smoke",
         attributes={
             "amplihack.agent_count": args.agents,

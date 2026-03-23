@@ -2,6 +2,8 @@
 
 This page is the command-oriented quick start for the current eval surface. Use it when you want to know which entrypoint to run.
 
+> Note: standalone `amplihack-agent-eval` installs cover HTTP/subprocess adapters, datasets, and report tooling. The `learning-agent` adapter, `continuous`, and `python -m amplihack_eval.azure.eval_distributed` import the sibling `amplihack` package.
+
 ## Choose an Entry Point
 
 | Goal | Command | When To Use |
@@ -14,6 +16,8 @@ This page is the command-oriented quick start for the current eval surface. Use 
 ## Local Runs
 
 ### LearningAgent adapter
+
+Requires the sibling `amplihack` package to be installed.
 
 ```bash
 amplihack-eval run   --turns 100   --questions 20   --adapter learning-agent   --question-set standard   --output-dir /tmp/eval-run
@@ -37,7 +41,7 @@ The distributed path uses **Event Hubs** for agent input and eval responses. The
 
 ### Direct runner
 
-Use this when the Azure hive is already deployed and you have the Event Hubs namespace connection string.
+Use this when the Azure hive is already deployed and you have the Event Hubs namespace connection string. This direct path also requires the sibling `amplihack` package because it reuses the main repo's long-horizon harness.
 
 ```bash
 python -m amplihack_eval.azure.eval_distributed   --connection-string "<event-hubs-connection-string>"   --input-hub "hive-events-amplihive3175e"   --response-hub "eval-responses-amplihive3175e"   --agents 100   --agents-per-app 5   --turns 5000   --questions 50   --question-set standard   --parallel-workers 1   --question-failover-retries 2   --answer-timeout 0   --output /tmp/eval_report.json
@@ -57,7 +61,7 @@ Reuse an existing deployment instead of redeploying:
 SKIP_DEPLOY=1 HIVE_NAME=amplihive3175e HIVE_RESOURCE_GROUP=hive-pr3175-rg ./run_distributed_eval.sh   --agents 100   --turns 5000   --questions 50   --question-set holdout
 ```
 
-The wrapper expects the sibling `amplihack` repo for Azure deployment assets. Set `AMPLIHACK_SOURCE_ROOT` if that repo is not checked out next to `amplihack-agent-eval`.
+The wrapper expects the sibling `amplihack` repo for Azure deployment assets. Set `AMPLIHACK_SOURCE_ROOT` if that repo is not checked out next to `amplihack-agent-eval`. The wrapper now uses `AMPLIHACK_SOURCE_ROOT` as the default `AMPLIHACK_ROOT` too; only set `AMPLIHACK_ROOT` separately if you want the Python venv to come from a different checkout.
 
 ## Question Sets
 

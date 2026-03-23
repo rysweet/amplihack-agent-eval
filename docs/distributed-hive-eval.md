@@ -14,7 +14,7 @@ Use this repo for the eval harness. Use the main `amplihack` repo when you need 
 - Azure CLI authenticated to the target subscription
 - Python environment with `amplihack-agent-eval` installed
 - access to the sibling `amplihack` repo
-- `ANTHROPIC_API_KEY` set for grading and the default learning-agent runtime
+- `ANTHROPIC_API_KEY` set for grading and for any learning-agent-based runs
 
 ## Fastest End-to-End Path
 
@@ -28,6 +28,8 @@ export AMPLIHACK_SOURCE_ROOT=/path/to/amplihack
 
 ./run_distributed_eval.sh   --agents 100   --turns 5000   --questions 50   --question-set standard
 ```
+
+If the runtime venv should come from the same checkout, `AMPLIHACK_SOURCE_ROOT` is enough. Set `AMPLIHACK_ROOT` separately only when you need the wrapper to use a different `amplihack/.venv`.
 
 This path:
 
@@ -54,7 +56,7 @@ export HIVE_RESOURCE_GROUP=hive-pr3175-rg
 
 ## Run the Distributed Runner Directly
 
-Use the Python module when you already know the Event Hubs connection string and hub names.
+Use the Python module when you already know the Event Hubs connection string and hub names. This direct path requires the sibling `amplihack` package to be installed because it reuses the main repo's long-horizon harness.
 
 ```bash
 python -m amplihack_eval.azure.eval_distributed   --connection-string "<event-hubs-connection-string>"   --input-hub "hive-events-amplihive3175e"   --response-hub "eval-responses-amplihive3175e"   --agents 100   --agents-per-app 5   --turns 5000   --questions 50   --seed 42   --question-set standard   --parallel-workers 1   --question-failover-retries 2   --answer-timeout 0   --output /tmp/eval_report.json
@@ -112,6 +114,8 @@ Set:
 ```bash
 export AMPLIHACK_SOURCE_ROOT=/path/to/amplihack
 ```
+
+If you need the wrapper to read code from one checkout but use the Python environment from another, set `AMPLIHACK_ROOT` as well. Otherwise the wrapper now defaults `AMPLIHACK_ROOT` from `AMPLIHACK_SOURCE_ROOT`.
 
 ### You want to run against an already live hive
 

@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 QUESTION_SET_CHOICES = ("standard", "holdout")
+CONTINUOUS_CONDITION_CHOICES = ("single", "flat", "federated")
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
@@ -234,6 +235,7 @@ def _cmd_download_dataset(args: argparse.Namespace) -> int:
         path = download_dataset(name, output_dir=output_dir, force=force)
         print(f"Dataset downloaded to: {path}")
         print("\nTo use it:")
+        print("  # LearningAgentAdapter requires the sibling amplihack package to be installed")
         print("  amplihack-eval run --adapter learning-agent --skip-learning \\")
         print(f"    --load-db {path}/memory_db --turns 5000 --questions 100")
         return 0
@@ -285,20 +287,46 @@ def _cmd_continuous(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    conditions = [c.strip() for c in args.conditions.split(",")]
+    conditions = [c.strip() for c in args.conditions.split(",") if c.strip()]
+    conditions = list(dict.fromkeys(conditions))
+    if not conditions:
+        print(
+            "Error: --conditions cannot be empty. Expected a comma-separated subset of: "
+            + ", ".join(CONTINUOUS_CONDITION_CHOICES)
+        )
+        return 1
 
-    report = run_continuous_eval(
-        num_turns=args.turns,
-        num_questions=args.questions,
-        num_agents=args.agents,
-        num_groups=args.groups,
-        seed=args.seed,
-        model=getattr(args, "model", ""),
-        parallel_workers=getattr(args, "parallel_workers", 5),
-        prompt_variant=getattr(args, "prompt_variant", None),
-        conditions=conditions,
-        repeats=getattr(args, "repeats", 3),
-    )
+    invalid_conditions = [c for c in conditions if c not in CONTINUOUS_CONDITION_CHOICES]
+    if invalid_conditions:
+        print(
+            "Invalid --conditions value(s): "
+            + ", ".join(invalid_conditions)
+            + ". Expected a comma-separated subset of: "
+            + ", ".join(CONTINUOUS_CONDITION_CHOICES)
+        )
+        return 1
+
+    try:
+        report = run_continuous_eval(
+            num_turns=args.turns,
+            num_questions=args.questions,
+            num_agents=args.agents,
+            num_groups=args.groups,
+            seed=args.seed,
+            model=getattr(args, "model", ""),
+            parallel_workers=getattr(args, "parallel_workers", 5),
+            prompt_variant=getattr(args, "prompt_variant", None),
+            conditions=conditions,
+            repeats=getattr(args, "repeats", 3),
+        )
+    except ImportError as exc:
+        print(
+            "Error: amplihack-eval continuous requires the sibling amplihack package "
+            "to be installed because it exercises the goal-seeking runtime.",
+            file=sys.stderr,
+        )
+        print(f"Detail: {exc}", file=sys.stderr)
+        return 1
 
     print_continuous_report(report)
 
@@ -316,18 +344,22 @@ def _create_adapter(args: argparse.Namespace):
     load_db = getattr(args, "load_db", "")
 
     if adapter_type == "learning-agent":
-        from .adapters.learning_agent import LearningAgentAdapter
+        try:
+            from .adapters.learning_agent import LearningAgentAdapter
 
-        storage_path = load_db if load_db else "/tmp/eval_memory_db"
-        prompt_variant = getattr(args, "prompt_variant", None)
-        kwargs = {}
-        if prompt_variant is not None:
-            kwargs["prompt_variant"] = prompt_variant
-        return LearningAgentAdapter(
-            model=getattr(args, "model", ""),
-            storage_path=storage_path,
-            **kwargs,
-        )
+            storage_path = load_db if load_db else "/tmp/eval_memory_db"
+            prompt_variant = getattr(args, "prompt_variant", None)
+            kwargs = {}
+            if prompt_variant is not None:
+                kwargs["prompt_variant"] = prompt_variant
+            return LearningAgentAdapter(
+                model=getattr(args, "model", ""),
+                storage_path=storage_path,
+                **kwargs,
+            )
+        except ImportError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return None
 
     elif adapter_type == "subprocess":
         from .adapters.subprocess_adapter import SubprocessAdapter
@@ -396,7 +428,7 @@ def main() -> None:
         "--adapter",
         choices=["http", "subprocess", "learning-agent", "distributed-hive"],
         default="http",
-        help="Agent adapter type",
+        help="Agent adapter type (learning-agent requires the sibling amplihack package)",
     )
     run_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     run_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
@@ -454,7 +486,7 @@ def main() -> None:
         "--adapter",
         choices=["http", "subprocess", "learning-agent"],
         default="http",
-        help="Agent adapter type",
+        help="Agent adapter type (learning-agent requires the sibling amplihack package)",
     )
     cmp_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     cmp_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
@@ -486,7 +518,7 @@ def main() -> None:
         "--adapter",
         choices=["http", "subprocess", "learning-agent"],
         default="http",
-        help="Agent adapter type",
+        help="Agent adapter type (learning-agent requires the sibling amplihack package)",
     )
     si_parser.add_argument("--agent-url", default="http://localhost:8000", help="Agent HTTP URL")
     si_parser.add_argument("--agent-command", default="", help="Agent subprocess command")
@@ -532,13 +564,13 @@ def main() -> None:
     cont_parser.add_argument(
         "--conditions",
         default="single,flat,federated",
-        help="Comma-separated conditions to run (default: single,flat,federated)",
+        help="Comma-separated subset of single,flat,federated (default: single,flat,federated)",
     )
     cont_parser.add_argument(
         "--parallel-workers",
         type=int,
         default=5,
-        help="Parallel workers for Q&A grading (default: 5)",
+        help="Parallel workers for Q&A grading (default: 5, max 20)",
     )
     cont_parser.add_argument(
         "--repeats",

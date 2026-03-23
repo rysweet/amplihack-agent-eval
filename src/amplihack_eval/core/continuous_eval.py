@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any
 
 from ..adapters.base import AgentAdapter, AgentResponse
-from ..core.runner import EvalReport, EvalRunner
+from ..core.runner import MAX_PARALLEL_WORKERS, EvalReport, EvalRunner
 from ..data.security_analyst_scenario import (
     generate_dialogue,
     generate_questions,
@@ -195,7 +195,7 @@ class _MultiAgentAdapter(AgentAdapter):
         self._model = model
         self._turn_idx = 0
         self._turn_lock = threading.Lock()
-        self._parallel_workers = parallel_workers
+        self._parallel_workers = max(1, min(MAX_PARALLEL_WORKERS, parallel_workers))
         self._hive_store = hive_store
         self._agent_map: dict[str, Any] = {getattr(a, "agent_name", f"agent_{i}"): a for i, a in enumerate(agents)}
 
@@ -657,7 +657,7 @@ def _run_federated(
     try:
         from amplihack.agents.goal_seeking.hive_mind.distributed_hive_graph import (
             DistributedHiveGraph,
-        )  # type: ignore[import-untyped]
+        )
 
         shared_hive = DistributedHiveGraph(
             "federated-hive",

@@ -24,7 +24,7 @@ amplihack-eval compare \
   --output-dir /tmp/eval-compare
 ```
 
-For Azure distributed reruns, use the current Event Hubs runner or the wrapper script:
+For Azure distributed reruns, use the current Event Hubs runner or the wrapper script. The direct Python runner requires the sibling `amplihack` package to be installed.
 
 ```bash
 python -m amplihack_eval.azure.eval_distributed ...

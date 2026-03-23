@@ -67,12 +67,25 @@ class TestLearningAgentAdapterNoSilentFallbacks:
 
     def test_learn_raises_on_failure(self):
         """learn() must raise RuntimeError when the underlying agent fails."""
-        # We cannot import LearningAgentAdapter without the amplihack package,
-        # so we test the pattern via the mock path.
-        with pytest.raises(ImportError):
+        mock_agent = MagicMock()
+        mock_agent.learn_from_content.side_effect = ValueError("learn boom")
+        mock_agent_cls = MagicMock(return_value=mock_agent)
+
+        with patch.dict(
+            "sys.modules",
+            {
+                "amplihack": MagicMock(),
+                "amplihack.agents": MagicMock(),
+                "amplihack.agents.goal_seeking": MagicMock(),
+                "amplihack.agents.goal_seeking.learning_agent": MagicMock(LearningAgent=mock_agent_cls),
+            },
+        ):
             from amplihack_eval.adapters.learning_agent import LearningAgentAdapter
 
-            LearningAgentAdapter()
+            adapter = LearningAgentAdapter(model="test-model", storage_path="/tmp/test")
+
+        with pytest.raises(RuntimeError, match="LearningAgent failed to learn content: learn boom"):
+            adapter.learn("content")
 
 
 # ===========================================================================

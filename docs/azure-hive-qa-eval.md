@@ -13,6 +13,8 @@ export AMPLIHACK_SOURCE_ROOT=/path/to/amplihack
 ./run_distributed_eval.sh   --agents 100   --turns 5000   --questions 50   --question-set standard
 ```
 
+`AMPLIHACK_SOURCE_ROOT` is enough when the deployment source and runtime venv come from the same checkout. Set `AMPLIHACK_ROOT` separately only if the wrapper should use a different `amplihack/.venv`.
+
 Reuse an existing deployment:
 
 ```bash
@@ -20,6 +22,8 @@ SKIP_DEPLOY=1 HIVE_NAME=amplihive3175e HIVE_RESOURCE_GROUP=hive-pr3175-rg ./run_
 ```
 
 ## Direct Runner Command
+
+This path requires the sibling `amplihack` package to be installed because it reuses the main repo's long-horizon harness.
 
 ```bash
 python -m amplihack_eval.azure.eval_distributed   --connection-string "<event-hubs-connection-string>"   --input-hub "hive-events-amplihive3175e"   --response-hub "eval-responses-amplihive3175e"   --agents 100   --agents-per-app 5   --turns 5000   --questions 50   --question-set standard   --parallel-workers 1   --question-failover-retries 2   --answer-timeout 0   --output /tmp/eval_report.json
