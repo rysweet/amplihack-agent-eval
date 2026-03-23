@@ -1036,6 +1036,9 @@
 
 <h1 id="running-evals">Running Evals<a class="headerlink" href="#running-evals" title="Permanent link">&para;</a></h1>
 <p>This page is the command-oriented quick start for the current eval surface. Use it when you want to know which entrypoint to run.</p>
+<blockquote>
+<p>Note: standalone <code>amplihack-agent-eval</code> installs cover HTTP/subprocess adapters, datasets, and report tooling. The <code>learning-agent</code> adapter, <code>continuous</code>, and <code>python -m amplihack_eval.azure.eval_distributed</code> import the sibling <code>amplihack</code> package.</p>
+</blockquote>
 <h2 id="choose-an-entry-point">Choose an Entry Point<a class="headerlink" href="#choose-an-entry-point" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1070,6 +1073,7 @@
 </table>
 <h2 id="local-runs">Local Runs<a class="headerlink" href="#local-runs" title="Permanent link">&para;</a></h2>
 <h3 id="learningagent-adapter">LearningAgent adapter<a class="headerlink" href="#learningagent-adapter" title="Permanent link">&para;</a></h3>
+<p>Requires the sibling <code>amplihack</code> package to be installed.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>amplihack-eval<span class="w"> </span>run<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--adapter<span class="w"> </span>learning-agent<span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-run
 </code></pre></div>
 <h3 id="http-adapter">HTTP adapter<a class="headerlink" href="#http-adapter" title="Permanent link">&para;</a></h3>
@@ -1081,7 +1085,7 @@
 <h2 id="distributed-azure-runs">Distributed Azure Runs<a class="headerlink" href="#distributed-azure-runs" title="Permanent link">&para;</a></h2>
 <p>The distributed path uses <strong>Event Hubs</strong> for agent input and eval responses. The older Service Bus instructions are obsolete.</p>
 <h3 id="direct-runner">Direct runner<a class="headerlink" href="#direct-runner" title="Permanent link">&para;</a></h3>
-<p>Use this when the Azure hive is already deployed and you have the Event Hubs namespace connection string.</p>
+<p>Use this when the Azure hive is already deployed and you have the Event Hubs namespace connection string. This direct path also requires the sibling <code>amplihack</code> package because it reuses the main repo's long-horizon harness.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.azure.eval_distributed<span class="w">   </span>--connection-string<span class="w"> </span><span class="s2">&quot;&lt;event-hubs-connection-string&gt;&quot;</span><span class="w">   </span>--input-hub<span class="w"> </span><span class="s2">&quot;hive-events-amplihive3175e&quot;</span><span class="w">   </span>--response-hub<span class="w"> </span><span class="s2">&quot;eval-responses-amplihive3175e&quot;</span><span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--agents-per-app<span class="w"> </span><span class="m">5</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--parallel-workers<span class="w"> </span><span class="m">1</span><span class="w">   </span>--question-failover-retries<span class="w"> </span><span class="m">2</span><span class="w">   </span>--answer-timeout<span class="w"> </span><span class="m">0</span><span class="w">   </span>--output<span class="w"> </span>/tmp/eval_report.json
 </code></pre></div>
 <h3 id="wrapper-script">Wrapper script<a class="headerlink" href="#wrapper-script" title="Permanent link">&para;</a></h3>
@@ -1091,7 +1095,7 @@
 <p>Reuse an existing deployment instead of redeploying:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">SKIP_DEPLOY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">HIVE_NAME</span><span class="o">=</span>amplihive3175e<span class="w"> </span><span class="nv">HIVE_RESOURCE_GROUP</span><span class="o">=</span>hive-pr3175-rg<span class="w"> </span>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>holdout
 </code></pre></div>
-<p>The wrapper expects the sibling <code>amplihack</code> repo for Azure deployment assets. Set <code>AMPLIHACK_SOURCE_ROOT</code> if that repo is not checked out next to <code>amplihack-agent-eval</code>.</p>
+<p>The wrapper expects the sibling <code>amplihack</code> repo for Azure deployment assets. Set <code>AMPLIHACK_SOURCE_ROOT</code> if that repo is not checked out next to <code>amplihack-agent-eval</code>. The wrapper now uses <code>AMPLIHACK_SOURCE_ROOT</code> as the default <code>AMPLIHACK_ROOT</code> too; only set <code>AMPLIHACK_ROOT</code> separately if you want the Python venv to come from a different checkout.</p>
 <h2 id="question-sets">Question Sets<a class="headerlink" href="#question-sets" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

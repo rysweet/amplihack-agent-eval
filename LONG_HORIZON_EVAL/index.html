@@ -2089,7 +2089,7 @@ Pre-built datasets let you skip this entirely and jump straight to evaluation.</
 <a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Download a pre-built dataset</span>
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>amplihack-eval<span class="w"> </span>download-dataset<span class="w"> </span>5000t-seed42-v1.0
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Run evaluation using the pre-built DB (skip learning phase)</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Run evaluation using the pre-built DB (skip learning phase; requires sibling amplihack install)</span>
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span>--skip-learning<span class="w"> </span><span class="se">\</span>
@@ -2108,7 +2108,7 @@ Pre-built datasets let you skip this entirely and jump straight to evaluation.</
 <a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="c1"># Download a dataset</span>
 <a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="n">path</span> <span class="o">=</span> <span class="n">download_dataset</span><span class="p">(</span><span class="s2">&quot;5000t-seed42-v1.0&quot;</span><span class="p">)</span>
 <a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="c1"># Use with evaluation</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="c1"># Use with evaluation (requires sibling amplihack install)</span>
 <a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="kn">from</span><span class="w"> </span><span class="nn">amplihack_eval.adapters.learning_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">LearningAgentAdapter</span>
 <a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="n">adapter</span> <span class="o">=</span> <span class="n">LearningAgentAdapter</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;memory_db&quot;</span><span class="p">)</span>
 </code></pre></div>
@@ -2125,7 +2125,7 @@ to keep the repository lightweight.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Basic evaluation (100 turns, 20 questions)</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--questions<span class="w"> </span><span class="m">20</span><span class="w"> </span>--adapter<span class="w"> </span>http<span class="w"> </span>--agent-url<span class="w"> </span>http://localhost:8000
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># With LearningAgent</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># With LearningAgent (requires sibling amplihack install)</span>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>amplihack-eval<span class="w"> </span>run<span class="w"> </span>--turns<span class="w"> </span><span class="m">100</span><span class="w"> </span>--adapter<span class="w"> </span>learning-agent<span class="w"> </span>--model<span class="w"> </span>claude-sonnet-4-6
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Large-scale stress test</span>

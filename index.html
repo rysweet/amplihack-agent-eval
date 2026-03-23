@@ -1071,15 +1071,16 @@
 </tbody>
 </table>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Basic installation (data generation and adapters, no LLM grading)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Basic installation (datasets, reports, HTTP/subprocess adapters; no LLM grading)</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>amplihack-agent-eval
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Development install</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </code></pre></div>
+<p><code>learning-agent</code>, <code>continuous</code>, and <code>python -m amplihack_eval.azure.eval_distributed</code> all import the sibling <code>amplihack</code> package. This repo does not declare that dependency directly because the main repo already depends on <code>amplihack-agent-eval</code>. Install a sibling checkout of <code>amplihack</code> when you need those surfaces.</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
 <h3 id="run-a-local-eval">Run a local eval<a class="headerlink" href="#run-a-local-eval" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>amplihack-eval<span class="w"> </span>run<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--adapter<span class="w"> </span>learning-agent<span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-run
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>amplihack-eval<span class="w"> </span>run<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--adapter<span class="w"> </span>http<span class="w">   </span>--agent-url<span class="w"> </span>http://localhost:8000<span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-run
 </code></pre></div>
 <h3 id="compare-seeds-or-question-sets">Compare seeds or question sets<a class="headerlink" href="#compare-seeds-or-question-sets" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>amplihack-eval<span class="w"> </span>compare<span class="w">   </span>--seeds<span class="w"> </span><span class="m">42</span>,123,456<span class="w">   </span>--turns<span class="w"> </span><span class="m">100</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">20</span><span class="w">   </span>--question-set<span class="w"> </span>holdout<span class="w">   </span>--output-dir<span class="w"> </span>/tmp/eval-compare
@@ -1099,7 +1100,7 @@
 <tbody>
 <tr>
 <td><code>ANTHROPIC_API_KEY</code></td>
-<td>Required for grading and for the default learning-agent adapter</td>
+<td>Required for grading and for the learning-agent adapter</td>
 <td>unset</td>
 </tr>
 <tr>
@@ -1114,6 +1115,7 @@
 </tr>
 </tbody>
 </table>
+<p>The package-level env defaults above are still the core runner defaults. The Azure distributed runner and <code>run_distributed_eval.sh</code> currently override the grader-model default to <code>claude-haiku-4-5-20251001</code> unless you pass <code>--grader-model</code> explicitly.</p>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/rysweet/amplihack-agent-eval.git
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>amplihack-agent-eval
@@ -1122,6 +1124,7 @@
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>ruff<span class="w"> </span>check<span class="w"> </span>src/<span class="w"> </span>tests/
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>src/<span class="w"> </span>tests/
 </code></pre></div>
+<p>Install a sibling checkout of <code>amplihack</code> as well if you want to exercise <code>learning-agent</code>, <code>continuous</code>, or the direct Azure distributed runner from this repo.</p>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
 <p>MIT</p>
 

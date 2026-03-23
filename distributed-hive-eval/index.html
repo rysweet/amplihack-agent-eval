@@ -868,7 +868,7 @@
 <li>Azure CLI authenticated to the target subscription</li>
 <li>Python environment with <code>amplihack-agent-eval</code> installed</li>
 <li>access to the sibling <code>amplihack</code> repo</li>
-<li><code>ANTHROPIC_API_KEY</code> set for grading and the default learning-agent runtime</li>
+<li><code>ANTHROPIC_API_KEY</code> set for grading and for any learning-agent-based runs</li>
 </ul>
 <h2 id="fastest-end-to-end-path">Fastest End-to-End Path<a class="headerlink" href="#fastest-end-to-end-path" title="Permanent link">&para;</a></h2>
 <p>Run the wrapper from the eval repo:</p>
@@ -879,6 +879,7 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>standard
 </code></pre></div>
+<p>If the runtime venv should come from the same checkout, <code>AMPLIHACK_SOURCE_ROOT</code> is enough. Set <code>AMPLIHACK_ROOT</code> separately only when you need the wrapper to use a different <code>amplihack/.venv</code>.</p>
 <p>This path:</p>
 <ol>
 <li>deploys or refreshes the Azure hive</li>
@@ -899,7 +900,7 @@
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>./run_distributed_eval.sh<span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--question-set<span class="w"> </span>holdout
 </code></pre></div>
 <h2 id="run-the-distributed-runner-directly">Run the Distributed Runner Directly<a class="headerlink" href="#run-the-distributed-runner-directly" title="Permanent link">&para;</a></h2>
-<p>Use the Python module when you already know the Event Hubs connection string and hub names.</p>
+<p>Use the Python module when you already know the Event Hubs connection string and hub names. This direct path requires the sibling <code>amplihack</code> package to be installed because it reuses the main repo's long-horizon harness.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>amplihack_eval.azure.eval_distributed<span class="w">   </span>--connection-string<span class="w"> </span><span class="s2">&quot;&lt;event-hubs-connection-string&gt;&quot;</span><span class="w">   </span>--input-hub<span class="w"> </span><span class="s2">&quot;hive-events-amplihive3175e&quot;</span><span class="w">   </span>--response-hub<span class="w"> </span><span class="s2">&quot;eval-responses-amplihive3175e&quot;</span><span class="w">   </span>--agents<span class="w"> </span><span class="m">100</span><span class="w">   </span>--agents-per-app<span class="w"> </span><span class="m">5</span><span class="w">   </span>--turns<span class="w"> </span><span class="m">5000</span><span class="w">   </span>--questions<span class="w"> </span><span class="m">50</span><span class="w">   </span>--seed<span class="w"> </span><span class="m">42</span><span class="w">   </span>--question-set<span class="w"> </span>standard<span class="w">   </span>--parallel-workers<span class="w"> </span><span class="m">1</span><span class="w">   </span>--question-failover-retries<span class="w"> </span><span class="m">2</span><span class="w">   </span>--answer-timeout<span class="w"> </span><span class="m">0</span><span class="w">   </span>--output<span class="w"> </span>/tmp/eval_report.json
 </code></pre></div>
 <h2 id="recommended-knobs">Recommended Knobs<a class="headerlink" href="#recommended-knobs" title="Permanent link">&para;</a></h2>
@@ -967,6 +968,7 @@
 <p>Set:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">AMPLIHACK_SOURCE_ROOT</span><span class="o">=</span>/path/to/amplihack
 </code></pre></div>
+<p>If you need the wrapper to read code from one checkout but use the Python environment from another, set <code>AMPLIHACK_ROOT</code> as well. Otherwise the wrapper now defaults <code>AMPLIHACK_ROOT</code> from <code>AMPLIHACK_SOURCE_ROOT</code>.</p>
 <h3 id="you-want-to-run-against-an-already-live-hive">You want to run against an already live hive<a class="headerlink" href="#you-want-to-run-against-an-already-live-hive" title="Permanent link">&para;</a></h3>
 <p>Set <code>SKIP_DEPLOY=1</code>, <code>HIVE_NAME</code>, and <code>HIVE_RESOURCE_GROUP</code>, then run the wrapper.</p>
 <h3 id="you-want-to-compare-prompt-or-runtime-variants-without-changing-the-fact-set">You want to compare prompt or runtime variants without changing the fact set<a class="headerlink" href="#you-want-to-compare-prompt-or-runtime-variants-without-changing-the-fact-set" title="Permanent link">&para;</a></h3>
