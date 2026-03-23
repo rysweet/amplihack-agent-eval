@@ -226,9 +226,7 @@ class EvalMonitor:
                     "progress_count": s.progress_count,
                     "answer_count": s.answer_count,
                     "phases_seen": list(s.phases_seen),
-                    "last_event_age_s": round(time.time() - s.last_event_ts, 1)
-                    if s.last_event_ts
-                    else None,
+                    "last_event_age_s": round(time.time() - s.last_event_ts, 1) if s.last_event_ts else None,
                 }
                 for agent_id, s in self._agents.items()
             }
@@ -269,9 +267,7 @@ class EvalMonitor:
 
     def _status_counts(self) -> dict[str, int]:
         snapshot = self._snapshot()
-        progress_agents = sum(
-            1 for agent in snapshot["agents"].values() if int(agent["progress_count"]) > 0
-        )
+        progress_agents = sum(1 for agent in snapshot["agents"].values() if int(agent["progress_count"]) > 0)
         return {
             "online": int(snapshot["agents_online"]),
             "ready": int(snapshot["agents_ready"]),

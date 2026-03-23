@@ -655,7 +655,7 @@ class RemoteAgentAdapter:
             self._release_pending_answers_for_agent(
                 agent_id,
                 reason="agent restart",
-                detail=(f"duplicate AGENT_ONLINE with boot_id={boot_id or 'unknown'} " "while question was pending"),
+                detail=(f"duplicate AGENT_ONLINE with boot_id={boot_id or 'unknown'} while question was pending"),
             )
 
     def _handle_agent_shutdown(self, agent_id: str, reason: str = "", detail: str = "") -> None:

@@ -171,8 +171,7 @@ class TestEvalMonitor:
 
         partition_context.update_checkpoint.assert_called_once_with(event)
         assert any(
-            "Skipping malformed eval monitor event on partition 5" in record.message
-            for record in caplog.records
+            "Skipping malformed eval monitor event on partition 5" in record.message for record in caplog.records
         )
 
     def test_consume_event_logs_handler_failure_and_checkpoints(self, caplog):
@@ -197,8 +196,7 @@ class TestEvalMonitor:
 
         partition_context.update_checkpoint.assert_called_once_with(event)
         assert any(
-            "Failed to process eval monitor event_type=AGENT_ONLINE agent_id=agent-7"
-            in record.message
+            "Failed to process eval monitor event_type=AGENT_ONLINE agent_id=agent-7" in record.message
             for record in caplog.records
         )
 

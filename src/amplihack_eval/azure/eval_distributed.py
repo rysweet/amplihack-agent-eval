@@ -128,7 +128,7 @@ def main() -> int:
         "--answer-timeout",
         type=int,
         default=None,
-        help=("Seconds to wait per answer before failover " "(default: scale-aware; 0 for 100+ agents, 120 otherwise)"),
+        help=("Seconds to wait per answer before failover (default: scale-aware; 0 for 100+ agents, 120 otherwise)"),
     )
     p.add_argument("--output", default="", help="Output JSON path")
     p.add_argument(
