@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib
 import json
 import sys
@@ -143,6 +144,31 @@ class TestRemoteAgentAdapterInit:
         create_runtime.assert_called_once()
         assert create_runtime.call_args.kwargs["runtime_kind"] == "goal"
         assert create_runtime.call_args.kwargs["bind_answer_mode"] is False
+
+
+class TestPartitionRoutingHelpers:
+    def test_non_numeric_agent_name_uses_stable_hash(self):
+        mod = _load_module()
+        expected = int.from_bytes(hashlib.sha256(b"coordinator").digest()[:8], "big")
+        assert mod.RemoteAgentAdapter._agent_index("coordinator") == expected
+
+    def test_empty_agent_name_uses_stable_hash(self):
+        mod = _load_module()
+        expected = int.from_bytes(hashlib.sha256(b"").digest()[:8], "big")
+        assert mod.RemoteAgentAdapter._agent_index("") == expected
+
+    def test_partition_count_fallback_logs_warning(self):
+        mod = _load_module()
+        adapter = _make_adapter(mod)
+        adapter._num_partitions = None
+
+        with (
+            patch.dict("sys.modules", {"azure.eventhub": None}),
+            patch.object(mod.logger, "warning") as warning,
+        ):
+            assert adapter._get_num_partitions() == 32
+
+        warning.assert_called_once()
 
 
 class TestPublishEvent:
@@ -312,9 +338,7 @@ class TestLearnFromContent:
             "agent-2",
         ]
         assert adapter._learn_turn_counts == [2, 2, 2]
-        adapter._start_feed_telemetry_monitor.assert_called_once_with(
-            {"agent-0", "agent-1", "agent-2"}
-        )
+        adapter._start_feed_telemetry_monitor.assert_called_once_with({"agent-0", "agent-1", "agent-2"})
         assert adapter._feed_telemetry_wait_done.is_set()
 
     def test_replicated_learning_targets_all_agents(self):
@@ -369,9 +393,7 @@ class TestLearnFromContent:
         assert adapter._learn_turn_counts == [1, 1, 1]
         assert result["facts_stored"] == 2
         assert result["replicated_to"] == 3
-        adapter._start_feed_telemetry_monitor.assert_called_once_with(
-            {"agent-0", "agent-1", "agent-2"}
-        )
+        adapter._start_feed_telemetry_monitor.assert_called_once_with({"agent-0", "agent-1", "agent-2"})
         assert adapter._feed_telemetry_wait_done.is_set()
 
     def test_learn_increments_counter(self):
@@ -596,9 +618,7 @@ class TestAnswerQuestion:
         adapter = _make_adapter(mod, agent_count=15)
         adapter._idle_wait_done.set()
         adapter._agents_per_app = 5
-        adapter._ready_agents.update(
-            {"agent-0", "agent-1", "agent-2", "agent-3", "agent-4"}
-        )
+        adapter._ready_agents.update({"agent-0", "agent-1", "agent-2", "agent-3", "agent-4"})
         adapter._question_ineligible_agents.add("agent-4")
 
         with patch.object(
@@ -740,9 +760,7 @@ class TestOnEvent:
                 if agent_id:
                     with adapter._progress_lock:
                         adapter._progress_agents.add(agent_id)
-                        adapter._progress_counts[agent_id] = int(
-                            data.get("processed_count", 0) or 0
-                        )
+                        adapter._progress_counts[agent_id] = int(data.get("processed_count", 0) or 0)
 
         on_event(MagicMock(), mock_event)
         assert "agent-1" in adapter._progress_agents

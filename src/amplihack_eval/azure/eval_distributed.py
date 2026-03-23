@@ -31,6 +31,7 @@ from pathlib import Path
 try:
     from amplihack.observability import configure_otel, start_span
 except ImportError:  # pragma: no cover
+
     def configure_otel(  # type: ignore[misc]
         service_name: str, *, component: str = "", attributes: object = None
     ) -> bool:
@@ -40,6 +41,7 @@ except ImportError:  # pragma: no cover
         name: str, *, tracer_name: str, attributes: object = None
     ) -> object:
         return contextlib.nullcontext()
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -97,16 +99,12 @@ def main() -> int:
     p = argparse.ArgumentParser(
         description="Distributed eval — same harness as single-agent, remote agents via Event Hubs"
     )
-    p.add_argument(
-        "--connection-string", required=True, help="Event Hubs namespace connection string"
-    )
+    p.add_argument("--connection-string", required=True, help="Event Hubs namespace connection string")
     p.add_argument("--input-hub", default="hive-events", help="Agent input Event Hub name")
     p.add_argument("--response-hub", default="eval-responses", help="Eval response Event Hub name")
     p.add_argument("--turns", type=int, default=300, help="Dialogue turns")
     p.add_argument("--questions", type=int, default=50, help="Number of questions")
-    p.add_argument(
-        "--agents", type=int, default=_default_agent_count(), help="Number of deployed agents"
-    )
+    p.add_argument("--agents", type=int, default=_default_agent_count(), help="Number of deployed agents")
     p.add_argument(
         "--agents-per-app",
         type=int,
@@ -120,16 +118,17 @@ def main() -> int:
         default="standard",
         help="Deterministic question subset to use",
     )
-    p.add_argument("--grader-model", default="claude-haiku-4-5-20251001")
+    p.add_argument(
+        "--grader-model",
+        default="claude-haiku-4-5-20251001",
+        help="Grading model override for this Azure distributed runner (default: claude-haiku-4-5-20251001)",
+    )
     p.add_argument("--resource-group", default="", help="Azure resource group (optional, unused)")
     p.add_argument(
         "--answer-timeout",
         type=int,
         default=None,
-        help=(
-            "Seconds to wait per answer before failover "
-            "(default: scale-aware; 0 for 100+ agents, 120 otherwise)"
-        ),
+        help=("Seconds to wait per answer before failover " "(default: scale-aware; 0 for 100+ agents, 120 otherwise)"),
     )
     p.add_argument("--output", default="", help="Output JSON path")
     p.add_argument(
@@ -150,7 +149,7 @@ def main() -> int:
         default=None,
         help=(
             "Number of failover retries for unanswered questions "
-            "(default: scale-aware; 0 up to 49 agents, 1 for 50-99, 2 for 100+)"
+            "(default: scale-aware; 1 up to 49 agents, 1 for 50-99, 2 for 100+)"
         ),
     )
     args = p.parse_args()
@@ -163,8 +162,7 @@ def main() -> int:
     args.agents_per_app = max(1, min(args.agents, args.agents_per_app))
 
     configure_otel(
-        service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip()
-        or "amplihack.azure-eval-harness",
+        service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip() or "amplihack.azure-eval-harness",
         component="eval-distributed",
         attributes={
             "amplihack.agent_count": args.agents,
@@ -178,7 +176,16 @@ def main() -> int:
         },
     )
 
-    from amplihack.eval.long_horizon_memory import LongHorizonMemoryEval, _print_report
+    try:
+        from amplihack.eval.long_horizon_memory import LongHorizonMemoryEval, _print_report
+    except ImportError as exc:
+        print(
+            "Error: python -m amplihack_eval.azure.eval_distributed requires the sibling "
+            "amplihack package to be installed because it reuses amplihack's long-horizon harness.",
+            file=sys.stderr,
+        )
+        print(f"Detail: {exc}", file=sys.stderr)
+        return 1
 
     from amplihack_eval.adapters.remote_agent_adapter import RemoteAgentAdapter
 

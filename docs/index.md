@@ -33,19 +33,21 @@ Evaluation framework for goal-seeking AI agents. It generates long-horizon datas
 ## Installation
 
 ```bash
-# Basic installation (data generation and adapters, no LLM grading)
+# Basic installation (datasets, reports, HTTP/subprocess adapters; no LLM grading)
 pip install amplihack-agent-eval
 
 # Development install
 pip install -e ".[dev]"
 ```
 
+`learning-agent`, `continuous`, and `python -m amplihack_eval.azure.eval_distributed` all import the sibling `amplihack` package. This repo does not declare that dependency directly because the main repo already depends on `amplihack-agent-eval`. Install a sibling checkout of `amplihack` when you need those surfaces.
+
 ## Quick Start
 
 ### Run a local eval
 
 ```bash
-amplihack-eval run   --turns 100   --questions 20   --adapter learning-agent   --question-set standard   --output-dir /tmp/eval-run
+amplihack-eval run   --turns 100   --questions 20   --adapter http   --agent-url http://localhost:8000   --question-set standard   --output-dir /tmp/eval-run
 ```
 
 ### Compare seeds or question sets
@@ -64,9 +66,11 @@ python -m amplihack_eval.azure.eval_distributed   --connection-string "<event-hu
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `ANTHROPIC_API_KEY` | Required for grading and for the default learning-agent adapter | unset |
+| `ANTHROPIC_API_KEY` | Required for grading and for the learning-agent adapter | unset |
 | `GRADER_MODEL` | Model used for grading | `claude-sonnet-4-5-20250929` |
 | `EVAL_MODEL` | Model used by the learning-agent adapter | `claude-sonnet-4-5-20250929` |
+
+The package-level env defaults above are still the core runner defaults. The Azure distributed runner and `run_distributed_eval.sh` currently override the grader-model default to `claude-haiku-4-5-20251001` unless you pass `--grader-model` explicitly.
 
 ## Contributing
 
@@ -78,6 +82,8 @@ pytest tests/ -q
 ruff check src/ tests/
 ruff format --check src/ tests/
 ```
+
+Install a sibling checkout of `amplihack` as well if you want to exercise `learning-agent`, `continuous`, or the direct Azure distributed runner from this repo.
 
 ## License
 

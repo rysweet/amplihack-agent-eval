@@ -23,6 +23,7 @@ Answers are collected from the eval-responses Event Hub, correlated by event_id.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -48,6 +49,7 @@ except ImportError:  # pragma: no cover
         name: str, *, tracer_name: str, attributes: Any = None
     ) -> Any:
         return _contextlib.nullcontext()
+
 
 logger = logging.getLogger(__name__)
 logging.getLogger("azure.eventhub").setLevel(logging.WARNING)
@@ -165,8 +167,7 @@ class RemoteAgentAdapter:
             self._run_id,
         )
         configure_otel(
-            service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip()
-            or "amplihack.azure-eval-harness",
+            service_name=os.environ.get("OTEL_SERVICE_NAME", "").strip() or "amplihack.azure-eval-harness",
             component="remote-agent-adapter",
             attributes=self._span_attributes(),
         )
@@ -177,12 +178,14 @@ class RemoteAgentAdapter:
         try:
             return int(agent_id.rsplit("-", 1)[-1])
         except (ValueError, IndexError):
-            return abs(hash(agent_id))
+            digest = hashlib.sha256(agent_id.encode("utf-8")).digest()
+            return int.from_bytes(digest[:8], "big", signed=False)
 
     def _get_num_partitions(self) -> int:
         """Return the input hub partition count, caching the first result."""
         if self._num_partitions is not None:
             return self._num_partitions
+        consumer = None
         try:
             from azure.eventhub import EventHubConsumerClient  # type: ignore[import-unresolved]
 
@@ -192,9 +195,18 @@ class RemoteAgentAdapter:
                 eventhub_name=self._input_hub,
             )
             self._num_partitions = len(consumer.get_partition_ids())
-            consumer.close()
-        except Exception:
+        except Exception as exc:
+            logger.warning(
+                "RemoteAgentAdapter: failed to query partition count for hub=%s; "
+                "falling back to 32 partitions (%s: %s)",
+                self._input_hub,
+                type(exc).__name__,
+                exc,
+            )
             self._num_partitions = 32
+        finally:
+            if consumer is not None:
+                consumer.close()
         return self._num_partitions
 
     def _target_partition(self, agent_id: str) -> str:
@@ -328,9 +340,7 @@ class RemoteAgentAdapter:
             while True:
                 with self._online_lock:
                     missing_agents = [
-                        f"agent-{i}"
-                        for i in range(self._agent_count)
-                        if f"agent-{i}" not in self._online_agents
+                        f"agent-{i}" for i in range(self._agent_count) if f"agent-{i}" not in self._online_agents
                     ]
                     online_count = self._agent_count - len(missing_agents)
 
@@ -476,9 +486,7 @@ class RemoteAgentAdapter:
                 if (self._replicate_learning_to_all_agents and learn_count >= 1) or (
                     not self._replicate_learning_to_all_agents and learn_count >= self._agent_count
                 ):
-                    expected_progress_agents = {
-                        self._agent_name(i) for i in range(self._agent_count)
-                    }
+                    expected_progress_agents = {self._agent_name(i) for i in range(self._agent_count)}
 
                 if expected_progress_agents is not None:
                     self._start_feed_telemetry_monitor(expected_progress_agents)
@@ -583,9 +591,7 @@ class RemoteAgentAdapter:
 
             return answer
 
-    def _release_pending_answers_for_agent(
-        self, agent_id: str, *, reason: str, detail: str = ""
-    ) -> None:
+    def _release_pending_answers_for_agent(self, agent_id: str, *, reason: str, detail: str = "") -> None:
         released_event_ids: list[str] = []
         with self._answer_lock:
             for event_id, target_name in list(self._answer_targets.items()):
@@ -649,10 +655,7 @@ class RemoteAgentAdapter:
             self._release_pending_answers_for_agent(
                 agent_id,
                 reason="agent restart",
-                detail=(
-                    f"duplicate AGENT_ONLINE with boot_id={boot_id or 'unknown'} "
-                    "while question was pending"
-                ),
+                detail=(f"duplicate AGENT_ONLINE with boot_id={boot_id or 'unknown'} " "while question was pending"),
             )
 
     def _handle_agent_shutdown(self, agent_id: str, reason: str = "", detail: str = "") -> None:
@@ -680,10 +683,7 @@ class RemoteAgentAdapter:
 
     def _question_attempt_targets(self, base_target_agent: int, max_attempts: int) -> list[int]:
         if max_attempts <= 1 or self._agents_per_app <= 1:
-            return [
-                (base_target_agent + attempt) % self._agent_count
-                for attempt in range(max_attempts)
-            ]
+            return [(base_target_agent + attempt) % self._agent_count for attempt in range(max_attempts)]
 
         app_groups = [
             list(range(start, min(start + self._agents_per_app, self._agent_count)))
@@ -727,9 +727,7 @@ class RemoteAgentAdapter:
     def _dispatch_question_targets(self, base_target_agent: int, max_attempts: int) -> list[int]:
         ordered_candidates = self._question_attempt_targets(base_target_agent, self._agent_count)
         eligible_candidates = [
-            candidate
-            for candidate in ordered_candidates
-            if self._is_question_target_eligible(candidate)
+            candidate for candidate in ordered_candidates if self._is_question_target_eligible(candidate)
         ]
         if eligible_candidates:
             skipped = len(ordered_candidates) - len(eligible_candidates)
@@ -816,11 +814,7 @@ class RemoteAgentAdapter:
             tracer_name=__name__,
             attributes=self._span_attributes(
                 question_length=len(question),
-                target_agent=(
-                    self._agent_name(target_agent)
-                    if target_agent is not None
-                    else "auto-round-robin"
-                ),
+                target_agent=(self._agent_name(target_agent) if target_agent is not None else "auto-round-robin"),
             ),
         ):
             if self._learn_count > 0 and not self._idle_wait_done.is_set():
@@ -903,9 +897,7 @@ class RemoteAgentAdapter:
             while True:
                 with self._ready_lock:
                     missing_agents = [
-                        f"agent-{i}"
-                        for i in range(self._agent_count)
-                        if f"agent-{i}" not in self._ready_agents
+                        f"agent-{i}" for i in range(self._agent_count) if f"agent-{i}" not in self._ready_agents
                     ]
                     ready_count = self._agent_count - len(missing_agents)
                 if ready_count >= self._agent_count:

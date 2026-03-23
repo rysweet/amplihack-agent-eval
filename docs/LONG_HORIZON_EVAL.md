@@ -390,7 +390,7 @@ amplihack-eval list-datasets
 # Download a pre-built dataset
 amplihack-eval download-dataset 5000t-seed42-v1.0
 
-# Run evaluation using the pre-built DB (skip learning phase)
+# Run evaluation using the pre-built DB (skip learning phase; requires sibling amplihack install)
 amplihack-eval run \
   --adapter learning-agent \
   --skip-learning \
@@ -412,7 +412,7 @@ for ds in datasets:
 # Download a dataset
 path = download_dataset("5000t-seed42-v1.0")
 
-# Use with evaluation
+# Use with evaluation (requires sibling amplihack install)
 from amplihack_eval.adapters.learning_agent import LearningAgentAdapter
 adapter = LearningAgentAdapter(storage_path=path / "memory_db")
 ```
@@ -434,7 +434,7 @@ to keep the repository lightweight.
 # Basic evaluation (100 turns, 20 questions)
 amplihack-eval run --turns 100 --questions 20 --adapter http --agent-url http://localhost:8000
 
-# With LearningAgent
+# With LearningAgent (requires sibling amplihack install)
 amplihack-eval run --turns 100 --adapter learning-agent --model claude-sonnet-4-6
 
 # Large-scale stress test

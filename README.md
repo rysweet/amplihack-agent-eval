@@ -18,7 +18,7 @@ Evaluation framework for goal-seeking AI agents. Tests memory recall, tool use, 
 ## Installation
 
 ```bash
-# Basic installation (data generation and adapters, no LLM grading)
+# Basic installation (datasets, reports, HTTP/subprocess adapters; no LLM grading)
 pip install amplihack-agent-eval
 
 # With Anthropic grading support
@@ -33,6 +33,8 @@ pip install amplihack-agent-eval[dev]
 # Everything
 pip install amplihack-agent-eval[all,dev]
 ```
+
+`learning-agent`, `continuous`, and `python -m amplihack_eval.azure.eval_distributed` all import the sibling `amplihack` package. This repo does not declare that dependency directly because the main repo already depends on `amplihack-agent-eval`. Install a sibling checkout of `amplihack` when you need those surfaces.
 
 ## Quick Start
 
@@ -80,7 +82,7 @@ for cb in report.category_breakdown:
 # Run eval against an HTTP agent
 amplihack-eval run --turns 100 --questions 20 --adapter http --agent-url http://localhost:8000
 
-# Run eval with amplihack's LearningAgent
+# Run eval with amplihack's LearningAgent (requires sibling amplihack install)
 amplihack-eval run --turns 100 --questions 20 --adapter learning-agent
 
 # Multi-seed comparison
