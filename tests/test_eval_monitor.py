@@ -5,12 +5,21 @@ from __future__ import annotations
 import importlib
 import logging
 import sys
+import types
 from unittest.mock import MagicMock, patch
 
 
 def _load_module():
     mod = importlib.import_module("amplihack_eval.azure.eval_monitor")
     return importlib.reload(mod)
+
+
+def _patch_azure_eventhub(*, consumer_cls):
+    azure_pkg = types.ModuleType("azure")
+    eventhub_mod = types.ModuleType("azure.eventhub")
+    eventhub_mod.EventHubConsumerClient = consumer_cls
+    azure_pkg.eventhub = eventhub_mod
+    return patch.dict(sys.modules, {"azure": azure_pkg, "azure.eventhub": eventhub_mod})
 
 
 class TestEvalMonitor:
@@ -45,9 +54,10 @@ class TestEvalMonitor:
         )
         fake_consumer = MagicMock()
         fake_thread = MagicMock()
+        consumer_cls = MagicMock()
 
         with (
-            patch("azure.eventhub.EventHubConsumerClient", create=True) as consumer_cls,
+            _patch_azure_eventhub(consumer_cls=consumer_cls),
             patch.object(mod.threading, "Thread", return_value=fake_thread),
         ):
             consumer_cls.from_connection_string.return_value = fake_consumer

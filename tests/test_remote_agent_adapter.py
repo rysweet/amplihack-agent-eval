@@ -19,6 +19,19 @@ def _load_module():
     return importlib.reload(mod)
 
 
+def _patch_azure_eventhub(*, consumer_cls=None, producer_cls=None, event_data_cls=None):
+    azure_pkg = types.ModuleType("azure")
+    eventhub_mod = types.ModuleType("azure.eventhub")
+    if consumer_cls is not None:
+        eventhub_mod.EventHubConsumerClient = consumer_cls
+    if producer_cls is not None:
+        eventhub_mod.EventHubProducerClient = producer_cls
+    if event_data_cls is not None:
+        eventhub_mod.EventData = event_data_cls
+    azure_pkg.eventhub = eventhub_mod
+    return patch.dict(sys.modules, {"azure": azure_pkg, "azure.eventhub": eventhub_mod})
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -179,19 +192,14 @@ class TestPublishEvent:
         mock_producer = MagicMock()
         mock_batch = MagicMock()
         mock_producer.create_batch.return_value = mock_batch
+        producer_cls = MagicMock()
+        event_data_cls = MagicMock()
 
         with (
-            patch(
-                "azure.eventhub.EventHubProducerClient",
-                create=True,
-            ) as MockProducer,
-            patch(
-                "azure.eventhub.EventData",
-                create=True,
-            ) as MockEventData,
+            _patch_azure_eventhub(producer_cls=producer_cls, event_data_cls=event_data_cls),
         ):
-            MockProducer.from_connection_string.return_value = mock_producer
-            MockEventData.side_effect = lambda data: data
+            producer_cls.from_connection_string.return_value = mock_producer
+            event_data_cls.side_effect = lambda data: data
 
             payload = {"event_type": "LEARN_CONTENT", "event_id": "abc"}
             adapter._publish_event(payload, partition_key="agent-0")
@@ -206,24 +214,19 @@ class TestPublishEvent:
         mock_producer = MagicMock()
         mock_batch = MagicMock()
         mock_producer.create_batch.return_value = mock_batch
+        producer_cls = MagicMock()
+        event_data_cls = MagicMock()
 
         with (
-            patch(
-                "azure.eventhub.EventHubProducerClient",
-                create=True,
-            ) as MockProducer,
-            patch(
-                "azure.eventhub.EventData",
-                create=True,
-            ) as MockEventData,
+            _patch_azure_eventhub(producer_cls=producer_cls, event_data_cls=event_data_cls),
         ):
-            MockProducer.from_connection_string.return_value = mock_producer
-            MockEventData.side_effect = lambda data: data
+            producer_cls.from_connection_string.return_value = mock_producer
+            event_data_cls.side_effect = lambda data: data
 
             adapter._publish_event({"event_type": "LEARN_CONTENT", "event_id": "abc"}, "agent-0")
             adapter._publish_event({"event_type": "LEARN_CONTENT", "event_id": "def"}, "agent-1")
 
-        assert MockProducer.from_connection_string.call_count == 1
+        assert producer_cls.from_connection_string.call_count == 1
         assert mock_producer.send_batch.call_count == 2
 
     def test_publish_retries_on_failure(self):
@@ -238,22 +241,17 @@ class TestPublishEvent:
         mock_producer_ok = MagicMock()
         mock_batch = MagicMock()
         mock_producer_ok.create_batch.return_value = mock_batch
+        producer_cls = MagicMock()
+        event_data_cls = MagicMock()
 
         with (
-            patch(
-                "azure.eventhub.EventHubProducerClient",
-                create=True,
-            ) as MockProducer,
-            patch(
-                "azure.eventhub.EventData",
-                create=True,
-            ) as MockEventData,
+            _patch_azure_eventhub(producer_cls=producer_cls, event_data_cls=event_data_cls),
         ):
-            MockProducer.from_connection_string.side_effect = [
+            producer_cls.from_connection_string.side_effect = [
                 mock_producer_fail,
                 mock_producer_ok,
             ]
-            MockEventData.side_effect = lambda data: data
+            event_data_cls.side_effect = lambda data: data
 
             adapter._publish_event(
                 {"event_type": "INPUT", "event_id": "x"},
@@ -271,21 +269,17 @@ class TestPublishEvent:
             p.create_batch.return_value = MagicMock()
             return p
 
+        producer_cls = MagicMock()
+        event_data_cls = MagicMock()
+
         with (
-            patch(
-                "azure.eventhub.EventHubProducerClient",
-                create=True,
-            ) as MockProducer,
-            patch(
-                "azure.eventhub.EventData",
-                create=True,
-            ) as MockEventData,
+            _patch_azure_eventhub(producer_cls=producer_cls, event_data_cls=event_data_cls),
         ):
-            MockProducer.from_connection_string.side_effect = [
+            producer_cls.from_connection_string.side_effect = [
                 make_failing_producer(),
                 make_failing_producer(),
             ]
-            MockEventData.side_effect = lambda data: data
+            event_data_cls.side_effect = lambda data: data
 
             with pytest.raises(ConnectionError):
                 adapter._publish_event(
@@ -918,8 +912,9 @@ class TestListenerStartup:
             adapter._shutdown.set()
 
         consumer.receive.side_effect = fake_receive
+        consumer_cls = MagicMock()
 
-        with patch("azure.eventhub.EventHubConsumerClient", create=True) as consumer_cls:
+        with _patch_azure_eventhub(consumer_cls=consumer_cls):
             consumer_cls.from_connection_string.return_value = consumer
             adapter._listen_for_answers()
 
@@ -950,8 +945,9 @@ class TestListenerStartup:
 
         first_consumer.receive.side_effect = receive_first
         second_consumer.receive.side_effect = receive_second
+        consumer_cls = MagicMock()
 
-        with patch("azure.eventhub.EventHubConsumerClient", create=True) as consumer_cls:
+        with _patch_azure_eventhub(consumer_cls=consumer_cls):
             consumer_cls.from_connection_string.side_effect = [first_consumer, second_consumer]
             adapter._listen_for_answers()
 
@@ -981,8 +977,9 @@ class TestListenerStartup:
 
         first_consumer.receive.side_effect = receive_first
         second_consumer.receive.side_effect = receive_second
+        consumer_cls = MagicMock()
 
-        with patch("azure.eventhub.EventHubConsumerClient", create=True) as consumer_cls:
+        with _patch_azure_eventhub(consumer_cls=consumer_cls):
             consumer_cls.from_connection_string.side_effect = [first_consumer, second_consumer]
             adapter._listen_for_answers()
 
