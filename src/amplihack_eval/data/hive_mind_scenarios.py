@@ -147,6 +147,7 @@ _INFRA_SECURITY_FACTS = [
     "Zero-trust architecture is enforced via SPIFFE/SPIRE for workload identity.",
     "Secret rotation period is 30 days for database credentials and 90 days for API keys.",
     "SIEM aggregation runs on Splunk Enterprise with 90-day hot storage retention.",
+    "Runtime threat detection uses Falco with custom rule sets tailored to containerd workloads.",
     "SOC2 Type II audit was completed in November 2025 with zero findings.",
     "WAF rules block the OWASP Top 10 attack patterns on all public endpoints.",
     "Certificate management uses cert-manager with Let's Encrypt for public certs.",
@@ -269,6 +270,7 @@ SCENARIO_INFRA = HiveMindScenario(
             question_id="hive_infra_q10",
             text="What vulnerability scanning tools are used and how are container images secured before deployment to the cluster?",
             required_domains=["security", "compute"],
+            expected_keywords=["Falco", "Cosign", "containerd"],
             difficulty="cross_domain",
         ),
         # 5 synthesis questions

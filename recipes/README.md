@@ -35,12 +35,17 @@ with this repo:
 | -------------------------------------------- | ---------- | -------------------------------------------- |
 | `amplihack_eval.data.long_horizon`           | ✅ here    | `src/amplihack_eval/data/long_horizon.py`    |
 | `amplihack_eval.data.progressive_levels`     | ✅ here    | `src/amplihack_eval/data/progressive_levels.py` |
-| `amplihack.eval.run_domain_evals`            | ⏳ upstream | needs port from `rysweet/amplihack` |
-| `amplihack.eval.teaching_session`            | ⏳ upstream | needs port from `rysweet/amplihack` |
-| `amplihack.eval.teaching_eval`               | ⏳ upstream | needs port from `rysweet/amplihack` |
-| `amplihack.eval.progressive_test_suite`      | ⏳ upstream | needs port from `rysweet/amplihack` |
-| `amplihack.eval.long_horizon_memory`         | ⏳ upstream | needs port from `rysweet/amplihack` |
-| `amplihack.eval.long_horizon_self_improve`   | ⏳ upstream | needs port from `rysweet/amplihack` |
+| `amplihack_eval.eval.progressive_test_suite` | ✅ here    | `src/amplihack_eval/eval/progressive_test_suite.py` (issue #48) |
+| `amplihack_eval.eval.long_horizon_memory`    | ✅ here    | `src/amplihack_eval/eval/long_horizon_memory.py` (issue #48) |
+| `amplihack_eval.eval.long_horizon_self_improve` | ✅ here | `src/amplihack_eval/eval/long_horizon_self_improve.py` (issue #48) |
+| `amplihack_eval.eval.grader`                 | ✅ here    | `src/amplihack_eval/eval/grader.py` (issue #48) |
+| `amplihack_eval.eval.metacognition_grader`   | ✅ here    | `src/amplihack_eval/eval/metacognition_grader.py` (issue #48) |
+| `amplihack_eval.eval.llm_grader`             | ✅ here    | `src/amplihack_eval/eval/llm_grader.py` (issue #48) |
+| `amplihack.eval.run_domain_evals`            | ⏳ upstream | needs port (depends on `amplihack.agents.domain_agents.*`) |
+| `amplihack.eval.teaching_session`            | ⏳ upstream | needs port (depends on `amplihack.llm.completion`) |
+| `amplihack.eval.teaching_eval`               | ⏳ upstream | needs port (depends on `amplihack.agents.domain_agents.base`) |
+| `amplihack.eval.agent_subprocess`            | ⏳ upstream | invoked via subprocess from `progressive_test_suite` |
+| `amplihack.eval.teaching_subprocess`         | ⏳ upstream | invoked via subprocess from `progressive_test_suite` |
 
 The upstream-pending modules also depend on `amplihack.agents.domain_agents.*`
 and `amplihack.llm`, so a full port requires either bringing those packages
