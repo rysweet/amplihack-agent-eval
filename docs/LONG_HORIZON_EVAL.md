@@ -1,6 +1,26 @@
 # Long-Horizon Memory Evaluation
 
+## Module Locations (issue #48)
+
+The long-horizon memory eval modules now live in this repo under
+`amplihack_eval.eval.*`:
+
+- `amplihack_eval.eval.long_horizon_memory` — the core 1000-turn eval
+  driver (CLI: `python -m amplihack_eval.eval.long_horizon_memory`).
+- `amplihack_eval.eval.long_horizon_self_improve` — the self-improvement
+  loop wrapper, including the `--multi-agent` mode (CLI:
+  `python -m amplihack_eval.eval.long_horizon_self_improve`).
+- `amplihack_eval.eval.progressive_test_suite` — the L1–L12 progressive
+  test driver used during analyze/diagnose phases.
+- `amplihack_eval.eval.grader` / `metacognition_grader` / `llm_grader` —
+  semantic graders used by the self-improvement loop.
+
+These modules were ported from the upstream `amplihack.eval.*` namespace.
+Recipes (`recipes/long-horizon-memory-eval.yaml`) reference the new paths.
+See `recipes/README.md` for the full porting status table.
+
 ## What It Tests
+
 
 The long-horizon memory evaluation is a stress test for AI agent memory systems.
 It generates a structured dialogue of up to 5000 turns, feeds each turn to the

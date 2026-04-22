@@ -33,13 +33,13 @@ tags: ["eval", "memory", "long-horizon", "stress-test", "1000-turn"]
 #   }'
 #
 # CLI equivalent:
-#   python -m amplihack.eval.long_horizon_memory --turns 1000 --questions 100
+#   python -m amplihack_eval.eval.long_horizon_memory --turns 1000 --questions 100
 #
 # Self-improvement loop:
-#   python -m amplihack.eval.long_horizon_self_improve --turns 100 --questions 20
+#   python -m amplihack_eval.eval.long_horizon_self_improve --turns 100 --questions 20
 #
 # Multi-agent variant:
-#   python -m amplihack.eval.long_horizon_self_improve --turns 100 --questions 20 --multi-agent
+#   python -m amplihack_eval.eval.long_horizon_self_improve --turns 100 --questions 20 --multi-agent
 
 recursion:
   max_depth: 4
@@ -154,7 +154,7 @@ steps:
 
       # Convert to article format for learning subprocess
       from amplihack_eval.data.progressive_levels import TestArticle
-      from amplihack.eval.progressive_test_suite import run_learning_subprocess
+      from amplihack_eval.eval.progressive_test_suite import run_learning_subprocess
 
       # Batch turns into chunks of 50 for efficiency
       batch_size = 50
@@ -261,7 +261,7 @@ steps:
     command: |
       echo "=== Step 4: Scoring and Analyzing ==="
 
-      PYTHONPATH=src python -m amplihack.eval.long_horizon_memory \
+      PYTHONPATH=src python -m amplihack_eval.eval.long_horizon_memory \
         --turns {{num_turns}} \
         --questions {{num_questions}} \
         --sdk {{sdk}} \
@@ -364,7 +364,7 @@ steps:
         MULTI_AGENT_FLAG="--multi-agent"
       fi
 
-      PYTHONPATH=src python -m amplihack.eval.long_horizon_self_improve \
+      PYTHONPATH=src python -m amplihack_eval.eval.long_horizon_self_improve \
         --turns {{num_turns}} \
         --questions {{num_questions}} \
         --iterations {{max_iterations}} \
