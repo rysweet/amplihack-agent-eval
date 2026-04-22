@@ -428,6 +428,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#module-locations-issue-48" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module Locations (issue #48)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-it-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1231,6 +1242,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#module-locations-issue-48" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module Locations (issue #48)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-it-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1755,6 +1777,23 @@
 
 
 <h1 id="long-horizon-memory-evaluation">Long-Horizon Memory Evaluation<a class="headerlink" href="#long-horizon-memory-evaluation" title="Permanent link">&para;</a></h1>
+<h2 id="module-locations-issue-48">Module Locations (issue #48)<a class="headerlink" href="#module-locations-issue-48" title="Permanent link">&para;</a></h2>
+<p>The long-horizon memory eval modules now live in this repo under
+<code>amplihack_eval.eval.*</code>:</p>
+<ul>
+<li><code>amplihack_eval.eval.long_horizon_memory</code> — the core 1000-turn eval
+  driver (CLI: <code>python -m amplihack_eval.eval.long_horizon_memory</code>).</li>
+<li><code>amplihack_eval.eval.long_horizon_self_improve</code> — the self-improvement
+  loop wrapper, including the <code>--multi-agent</code> mode (CLI:
+  <code>python -m amplihack_eval.eval.long_horizon_self_improve</code>).</li>
+<li><code>amplihack_eval.eval.progressive_test_suite</code> — the L1–L12 progressive
+  test driver used during analyze/diagnose phases.</li>
+<li><code>amplihack_eval.eval.grader</code> / <code>metacognition_grader</code> / <code>llm_grader</code> —
+  semantic graders used by the self-improvement loop.</li>
+</ul>
+<p>These modules were ported from the upstream <code>amplihack.eval.*</code> namespace.
+Recipes (<code>recipes/long-horizon-memory-eval.yaml</code>) reference the new paths.
+See <code>recipes/README.md</code> for the full porting status table.</p>
 <h2 id="what-it-tests">What It Tests<a class="headerlink" href="#what-it-tests" title="Permanent link">&para;</a></h2>
 <p>The long-horizon memory evaluation is a stress test for AI agent memory systems.
 It generates a structured dialogue of up to 5000 turns, feeds each turn to the
