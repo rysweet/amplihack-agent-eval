@@ -22,6 +22,8 @@ from dataclasses import dataclass
 
 from amplihack_eval.llm import completion
 
+from .llm_grader import extract_json
+
 logger = logging.getLogger(__name__)
 
 DIMENSION_NAMES = [
@@ -190,17 +192,7 @@ Return ONLY a JSON object with this structure:
 
     def _parse_grading_response(self, response_text: str) -> MetacognitionScore:
         """Parse LLM grading response into MetacognitionScore."""
-        try:
-            data = json.loads(response_text)
-        except json.JSONDecodeError:
-            # Try markdown code block extraction
-            if "```json" in response_text:
-                json_start = response_text.find("```json") + 7
-                json_end = response_text.find("```", json_start)
-                json_str = response_text[json_start:json_end].strip()
-                data = json.loads(json_str)
-            else:
-                raise
+        data = extract_json(response_text)
 
         dimensions = []
         for name in DIMENSION_NAMES:

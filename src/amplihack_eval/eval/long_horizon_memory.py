@@ -475,30 +475,13 @@ Scoring guide:
 
 
 def _extract_json(text: str) -> dict:
-    """Extract JSON from LLM response text."""
-    import re
+    """Extract JSON from LLM response text, returning ``{}`` on failure."""
+    from .llm_grader import extract_json as _shared_extract_json
 
-    stripped = text.strip()
     try:
-        return json.loads(stripped)
+        return _shared_extract_json(text)
     except json.JSONDecodeError:
-        pass
-
-    fenced = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", stripped, re.DOTALL)
-    if fenced:
-        try:
-            return json.loads(fenced.group(1).strip())
-        except json.JSONDecodeError:
-            pass
-
-    brace_match = re.search(r"\{.*\}", stripped, re.DOTALL)
-    if brace_match:
-        try:
-            return json.loads(brace_match.group(0))
-        except json.JSONDecodeError:
-            pass
-
-    return {}
+        return {}
 
 
 class LongHorizonMemoryEval:
