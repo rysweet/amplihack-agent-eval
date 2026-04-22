@@ -7,7 +7,6 @@ import types
 from unittest.mock import MagicMock
 
 import pytest
-
 from amplihack_eval.adapters import remote_agent_adapter
 from amplihack_eval.azure import eval_distributed
 

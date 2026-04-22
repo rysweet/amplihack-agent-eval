@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from amplihack_eval.data.long_horizon import (
     DEFAULT_QUESTION_SET,
     SUPPORTED_QUESTION_SETS,

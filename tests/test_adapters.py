@@ -5,7 +5,6 @@ from __future__ import annotations
 import sys
 
 import pytest
-
 from amplihack_eval.adapters.base import AgentAdapter, AgentResponse, ToolCall
 
 # --- ToolCall tests ---

@@ -15,7 +15,6 @@ from __future__ import annotations
 import json
 
 import pytest
-
 from amplihack_eval.adapters.base import AgentAdapter, AgentResponse
 from amplihack_eval.adapters.hive_mind_adapter import (
     HiveMindGroupAdapter,
@@ -131,9 +130,9 @@ class TestScenarioDataGeneration:
     def test_each_scenario_has_15_questions(self):
         """Each scenario has exactly 15 questions."""
         for scenario in ALL_HIVE_MIND_SCENARIOS:
-            assert len(scenario.questions) == 15, (
-                f"{scenario.scenario_id} has {len(scenario.questions)} questions (expected 15)"
-            )
+            assert (
+                len(scenario.questions) == 15
+            ), f"{scenario.scenario_id} has {len(scenario.questions)} questions (expected 15)"
 
     def test_question_difficulty_distribution(self):
         """Each scenario has 5 single-domain, 5 cross-domain, 5 synthesis questions."""
@@ -142,15 +141,15 @@ class TestScenarioDataGeneration:
             for q in scenario.questions:
                 by_difficulty[q.difficulty] = by_difficulty.get(q.difficulty, 0) + 1
 
-            assert by_difficulty.get("single_domain", 0) == 5, (
-                f"{scenario.scenario_id}: {by_difficulty.get('single_domain', 0)} single_domain"
-            )
-            assert by_difficulty.get("cross_domain", 0) == 5, (
-                f"{scenario.scenario_id}: {by_difficulty.get('cross_domain', 0)} cross_domain"
-            )
-            assert by_difficulty.get("synthesis", 0) == 5, (
-                f"{scenario.scenario_id}: {by_difficulty.get('synthesis', 0)} synthesis"
-            )
+            assert (
+                by_difficulty.get("single_domain", 0) == 5
+            ), f"{scenario.scenario_id}: {by_difficulty.get('single_domain', 0)} single_domain"
+            assert (
+                by_difficulty.get("cross_domain", 0) == 5
+            ), f"{scenario.scenario_id}: {by_difficulty.get('cross_domain', 0)} cross_domain"
+            assert (
+                by_difficulty.get("synthesis", 0) == 5
+            ), f"{scenario.scenario_id}: {by_difficulty.get('synthesis', 0)} synthesis"
 
     def test_question_ids_unique_within_scenario(self):
         """All question IDs are unique within each scenario."""

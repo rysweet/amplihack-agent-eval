@@ -16,7 +16,6 @@ import json
 from unittest.mock import patch
 
 import pytest
-
 from amplihack_eval.adapters.base import AgentAdapter, AgentResponse
 from amplihack_eval.core.runner import (
     CategoryBreakdown,

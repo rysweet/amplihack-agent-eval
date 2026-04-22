@@ -10,7 +10,6 @@ import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from amplihack_eval.adapters.base import AgentAdapter, AgentResponse
 from amplihack_eval.adapters.hive_mind_adapter import (
     MAX_SHARED_CONTEXT_FACTS,

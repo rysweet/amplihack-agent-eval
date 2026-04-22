@@ -432,7 +432,7 @@ Scoring guide:
                             reasoning=str(entry.get("reasoning", "")),
                         )
                     )
-                elif isinstance(entry, (int, float)):
+                elif isinstance(entry, int | float):
                     dimension_scores.append(
                         DimensionScore(
                             dimension=dim,

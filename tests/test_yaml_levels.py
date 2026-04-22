@@ -15,7 +15,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
 from amplihack_eval.adapters.base import AgentAdapter, AgentResponse
 from amplihack_eval.levels.loader import load_all_levels, load_level, validate_level
 from amplihack_eval.levels.schema import LevelDefinition, QuestionTemplate, ScoringConfig
@@ -493,9 +492,9 @@ class TestScoringApplication:
         levels = load_all_levels()
         for level in levels:
             for weight_key in level.scoring.weights:
-                assert weight_key in level.scoring.dimensions, (
-                    f"{level.id}: weight '{weight_key}' not in dimensions {level.scoring.dimensions}"
-                )
+                assert (
+                    weight_key in level.scoring.dimensions
+                ), f"{level.id}: weight '{weight_key}' not in dimensions {level.scoring.dimensions}"
 
     def test_grader_votes_positive(self):
         """All levels have positive grader_votes."""
@@ -507,9 +506,9 @@ class TestScoringApplication:
         """All pass thresholds are 0.0-1.0."""
         levels = load_all_levels()
         for level in levels:
-            assert 0.0 <= level.scoring.pass_threshold <= 1.0, (
-                f"{level.id} has pass_threshold={level.scoring.pass_threshold}"
-            )
+            assert (
+                0.0 <= level.scoring.pass_threshold <= 1.0
+            ), f"{level.id} has pass_threshold={level.scoring.pass_threshold}"
 
 
 # ---------------------------------------------------------------------------

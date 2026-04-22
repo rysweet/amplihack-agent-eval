@@ -224,9 +224,7 @@ def _deterministic_grade(
         # semantically correct.
         paraphrase_hits = 0
         if rubric.acceptable_paraphrases:
-            paraphrase_hits = sum(
-                1 for p in rubric.acceptable_paraphrases if p.lower() in answer_lower
-            )
+            paraphrase_hits = sum(1 for p in rubric.acceptable_paraphrases if p.lower() in answer_lower)
             ratio = min(1.0, ratio + paraphrase_hits * 0.25)
 
         # Check incorrect patterns AFTER keyword matching. Only skip incorrect
@@ -439,7 +437,7 @@ Scoring guide:
                             reasoning=str(entry.get("reasoning", "")),
                         )
                     )
-                elif isinstance(entry, (int, float)):
+                elif isinstance(entry, int | float):
                     dimension_scores.append(
                         DimensionScore(
                             dimension=dim,

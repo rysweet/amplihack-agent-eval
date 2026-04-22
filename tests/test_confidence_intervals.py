@@ -15,7 +15,6 @@ from dataclasses import fields as dc_fields
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from amplihack_eval.core.multi_seed import (
     _T_CRITICAL_95,
     CategoryStats,

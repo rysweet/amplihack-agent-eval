@@ -11,7 +11,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
 from amplihack_eval.datasets.download import (
     _extract_tarball,
     _get_datasets_dir,

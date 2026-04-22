@@ -119,9 +119,9 @@ class TestPortedGrader:
     def test_grade_response_is_callable(self):
         mod = importlib.import_module("amplihack_eval.eval.grader")
         # Upstream public API names — at least one must exist
-        assert any(hasattr(mod, name) for name in ("grade_response", "grade", "grade_answer")), (
-            "ported grader must expose a grading callable"
-        )
+        assert any(
+            hasattr(mod, name) for name in ("grade_response", "grade", "grade_answer")
+        ), "ported grader must expose a grading callable"
 
     def test_does_not_collide_with_core_grader(self):
         """Both modules coexist; they must be distinct objects."""
@@ -175,9 +175,9 @@ class TestProgressiveTestSuite:
 class TestLongHorizonMemory:
     def test_has_cli_entrypoint(self):
         mod = importlib.import_module("amplihack_eval.eval.long_horizon_memory")
-        assert hasattr(mod, "main") or hasattr(mod, "cli") or hasattr(mod, "run"), (
-            "long_horizon_memory must expose a CLI/main entrypoint"
-        )
+        assert (
+            hasattr(mod, "main") or hasattr(mod, "cli") or hasattr(mod, "run")
+        ), "long_horizon_memory must expose a CLI/main entrypoint"
 
     def test_self_subprocess_module_string_is_rewritten(self):
         """The upstream module self-launches via `python -m
@@ -192,9 +192,9 @@ class TestLongHorizonMemory:
             src = inspect.getsource(mod)
         except OSError:
             pytest.skip("source not available")
-        assert "amplihack.eval.long_horizon_memory" not in src, (
-            "stale upstream module path found in self-subprocess invocation"
-        )
+        assert (
+            "amplihack.eval.long_horizon_memory" not in src
+        ), "stale upstream module path found in self-subprocess invocation"
 
 
 # ---------------------------------------------------------------------------
@@ -218,9 +218,9 @@ class TestLongHorizonSelfImprove:
             src = inspect.getsource(mod)
         except OSError:
             pytest.skip("source not available")
-        assert "amplihack.self_improve" not in src, (
-            "upstream amplihack.self_improve.* import must be rewritten to amplihack_eval.self_improve.*"
-        )
+        assert (
+            "amplihack.self_improve" not in src
+        ), "upstream amplihack.self_improve.* import must be rewritten to amplihack_eval.self_improve.*"
 
     def test_supports_multi_agent_flag(self):
         """The CLI advertises a --multi-agent flag (per issue #48 description)."""
@@ -266,6 +266,6 @@ class TestRecipeImportsRewritten:
         text = (repo_root / recipe_path).read_text(encoding="utf-8")
         for leaf in self.PORTED_LEAF_NAMES:
             stale = f"amplihack.eval.{leaf}"
-            assert stale not in text, (
-                f"{recipe_path} still references upstream `{stale}`; must be rewritten to `amplihack_eval.eval.{leaf}`"
-            )
+            assert (
+                stale not in text
+            ), f"{recipe_path} still references upstream `{stale}`; must be rewritten to `amplihack_eval.eval.{leaf}`"

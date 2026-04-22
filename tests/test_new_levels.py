@@ -266,9 +266,9 @@ class TestL14Data:
         for s in ALL_FORGETTING_SCENARIOS:
             non_current_values = [u.value for u in s.updates if not u.is_current]
             for sv in s.superseded_values:
-                assert sv in non_current_values, (
-                    f"Scenario {s.scenario_id}: superseded value '{sv}' not in non-current updates"
-                )
+                assert (
+                    sv in non_current_values
+                ), f"Scenario {s.scenario_id}: superseded value '{sv}' not in non-current updates"
 
     def test_get_scenario_by_id(self):
         """Lookup by ID works."""
