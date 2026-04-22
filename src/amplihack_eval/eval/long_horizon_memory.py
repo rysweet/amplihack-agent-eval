@@ -36,7 +36,6 @@ import gc
 import json
 import logging
 import os
-import re
 import statistics
 import tempfile
 import threading
@@ -214,7 +213,7 @@ def _deterministic_grade(
         # Keyword matching
         matched = 0
         if rubric.required_keywords:
-            matched = sum(1 for kw in rubric.required_keywords if re.search(re.escape(kw.lower()), answer_lower))
+            matched = sum(1 for kw in rubric.required_keywords if kw.lower() in answer_lower)
             ratio = matched / len(rubric.required_keywords)
         else:
             ratio = 0.5  # No keywords = neutral
@@ -226,7 +225,7 @@ def _deterministic_grade(
         paraphrase_hits = 0
         if rubric.acceptable_paraphrases:
             paraphrase_hits = sum(
-                1 for p in rubric.acceptable_paraphrases if re.search(re.escape(p.lower()), answer_lower)
+                1 for p in rubric.acceptable_paraphrases if p.lower() in answer_lower
             )
             ratio = min(1.0, ratio + paraphrase_hits * 0.25)
 
@@ -236,7 +235,7 @@ def _deterministic_grade(
         all_keywords_matched = rubric.required_keywords and matched == len(rubric.required_keywords)
         has_full_correct = all_keywords_matched or paraphrase_hits > 0
         if rubric.incorrect_patterns and not has_full_correct:
-            found_incorrect = any(re.search(re.escape(pat.lower()), answer_lower) for pat in rubric.incorrect_patterns)
+            found_incorrect = any(pat.lower() in answer_lower for pat in rubric.incorrect_patterns)
             if found_incorrect:
                 scores[dim] = DimensionScore(
                     dimension=dim,

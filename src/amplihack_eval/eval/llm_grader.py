@@ -11,6 +11,9 @@ from amplihack_eval.llm import completion
 
 DEFAULT_GRADER_MODEL = "claude-opus-4-6"
 
+_FENCED_JSON_RE = re.compile(r"```(?:json)?\s*\n?(.*?)\n?\s*```", re.DOTALL)
+_BRACE_JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
+
 
 def extract_json(text: str) -> dict[str, Any]:
     """Extract a JSON object from LLM response text."""
@@ -21,14 +24,14 @@ def extract_json(text: str) -> dict[str, Any]:
     except json.JSONDecodeError:
         pass
 
-    fenced = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", stripped, re.DOTALL)
+    fenced = _FENCED_JSON_RE.search(stripped)
     if fenced:
         try:
             return json.loads(fenced.group(1).strip())
         except json.JSONDecodeError:
             pass
 
-    brace_match = re.search(r"\{.*\}", stripped, re.DOTALL)
+    brace_match = _BRACE_JSON_RE.search(stripped)
     if brace_match:
         try:
             return json.loads(brace_match.group(0))

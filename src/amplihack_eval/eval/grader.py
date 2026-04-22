@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import statistics
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 from .llm_grader import call_grader_json, get_grader_model
@@ -166,15 +167,16 @@ def grade_answer(
     if num_votes == 1:
         return _single_grade_call(grader_model, prompt)
 
-    # Multi-vote: run N grading calls and take median
+    # Multi-vote: run N grading calls in parallel and take median
     vote_results: list[GradeResult] = []
-    for vote_idx in range(num_votes):
-        try:
-            result = _single_grade_call(grader_model, prompt)
-            vote_results.append(result)
-        except Exception as e:
-            logger.warning("Grading vote %d failed: %s", vote_idx, e)
-            continue
+    with ThreadPoolExecutor(max_workers=num_votes) as executor:
+        futures = [executor.submit(_single_grade_call, grader_model, prompt) for _ in range(num_votes)]
+        for vote_idx, future in enumerate(futures):
+            try:
+                vote_results.append(future.result())
+            except Exception as e:
+                logger.warning("Grading vote %d failed: %s", vote_idx, e)
+                continue
 
     if not vote_results:
         raise RuntimeError("All grading votes failed")
