@@ -36,8 +36,9 @@ Evaluation framework for goal-seeking AI agents. It generates long-horizon datas
 # Basic installation (datasets, reports, HTTP/subprocess adapters; no LLM grading)
 pip install amplihack-agent-eval
 
-# Development install
-pip install -e ".[dev]"
+# Development install (reproducible, locked, matches CI; requires uv)
+uv sync --frozen --extra dev
+# or, without uv (unpinned): pip install -e ".[dev]"
 ```
 
 `learning-agent`, `continuous`, and `python -m amplihack_eval.azure.eval_distributed` all import the sibling `amplihack` package. This repo does not declare that dependency directly because the main repo already depends on `amplihack-agent-eval`. Install a sibling checkout of `amplihack` when you need those surfaces.
@@ -77,10 +78,10 @@ The package-level env defaults above are still the core runner defaults. The Azu
 ```bash
 git clone https://github.com/rysweet/amplihack-agent-eval.git
 cd amplihack-agent-eval
-pip install -e ".[dev]"
-pytest tests/ -q
-ruff check src/ tests/
-ruff format --check src/ tests/
+uv sync --frozen --extra dev   # reproducible, locked, matches CI (or: pip install -e ".[dev]")
+uv run pytest tests/ -q
+uv run ruff check src/ tests/
+uv run ruff format --check src/ tests/
 ```
 
 Install a sibling checkout of `amplihack` as well if you want to exercise `learning-agent`, `continuous`, or the direct Azure distributed runner from this repo.
