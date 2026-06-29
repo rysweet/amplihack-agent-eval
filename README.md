@@ -328,19 +328,23 @@ tests/
 git clone https://github.com/rysweet/amplihack-agent-eval.git
 cd amplihack-agent-eval
 
-# Install in development mode
-pip install -e ".[dev]"
+# Create a reproducible dev environment from the committed lock file (this is
+# what CI uses). Requires uv: https://docs.astral.sh/uv/
+uv sync --frozen --extra dev
 
 # Install pre-commit hooks
-pre-commit install
+uv run pre-commit install
 
 # Run tests
-pytest tests/ -q
+uv run pytest tests/ -q
 
 # Run linting
-ruff check src/ tests/
-ruff format --check src/ tests/
+uv run ruff check src/ tests/
+uv run ruff format --check src/ tests/
 ```
+
+Don't use [uv](https://docs.astral.sh/uv/)? A plain `pip install -e ".[dev]"`
+against `pyproject.toml` still works; it just won't be pinned to `uv.lock`.
 
 ### Guidelines
 
